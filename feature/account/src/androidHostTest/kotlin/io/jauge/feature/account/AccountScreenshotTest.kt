@@ -16,6 +16,7 @@ import io.jauge.feature.account.about.AboutScreen
 import io.jauge.feature.account.account.AccountContent
 import io.jauge.feature.account.deleteaccount.DeleteAccountContent
 import io.jauge.feature.account.deleteaccount.DeleteAccountUiState
+import io.jauge.feature.account.legalnotice.LegalNoticeScreen
 import io.jauge.feature.account.privacypolicy.PrivacyPolicyScreen
 import io.jauge.feature.account.profile.ProfileContent
 import io.jauge.feature.account.profile.ProfileNavigation
@@ -81,6 +82,12 @@ class AccountScreenshotTest {
     @Test
     fun privacyPolicy() = capture("legal-politique-de-confidentialite") {
         JaugeTheme(darkTheme = false) { PrivacyPolicyScreen(onBack = {}) }
+    }
+
+    /** Legal notice: publisher identity, publication director and host. */
+    @Test
+    fun legalNotice() = capture("legal-mentions-legales") {
+        JaugeTheme(darkTheme = false) { LegalNoticeScreen(onBack = {}) }
     }
 
     /** Account deletion. */

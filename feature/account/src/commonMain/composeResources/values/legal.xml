@@ -3,11 +3,11 @@
     <string name="legal_updated">Dernière mise à jour : 24 octobre 2026</string>
 
     <string name="notice_1_title">Éditeur</string>
-    <string name="notice_1_body">L'application Jauge est éditée par %1$s, %2$s au capital de %3$s, immatriculée au registre du commerce et des sociétés sous le numéro %4$s, dont le siège est situé %5$s. Numéro de TVA intracommunautaire : %6$s.\n\nContact : contact@jauge.io</string>
+    <string name="notice_1_body">L'application Jauge est éditée par %1$s, %2$s, SIREN %3$s, domicile professionnel : %4$s.\n\nContact : contact@jauge.io\nDonnées personnelles : privacy@jauge.io\nSite : https://jauge.io</string>
     <string name="notice_2_title">Directeur de la publication</string>
-    <string name="notice_2_body">Le directeur de la publication est %1$s, en qualité de représentant légal de l'éditeur.</string>
+    <string name="notice_2_body">Le directeur de la publication est %1$s, éditeur de l'application.</string>
     <string name="notice_3_title">Hébergement</string>
-    <string name="notice_3_body">Les données de l'application sont hébergées dans l'Union européenne par Supabase Inc. (supabase.com), sur des serveurs situés en Europe. Adresse postale de l'hébergeur : %1$s. Les achats intégrés sont traités par Apple (App Store), Google (Google Play) et RevenueCat Inc. (revenuecat.com).</string>
+    <string name="notice_3_body">Les données de l'application sont hébergées dans l'Union européenne par Supabase Pte. Ltd. (supabase.com), sur des serveurs situés en Europe. Adresse postale de l'hébergeur : %1$s. Les achats intégrés sont traités par Apple (App Store), Google (Google Play) et RevenueCat Inc. (revenuecat.com).</string>
     <string name="notice_4_title">Propriété intellectuelle</string>
     <string name="notice_4_body">La marque Jauge, son logo, ses textes, ses illustrations et le code de l'application sont protégés par le droit de la propriété intellectuelle. Toute reproduction ou adaptation sans autorisation écrite de l'éditeur est interdite. Les polices de caractères utilisées sont distribuées sous licence SIL Open Font License 1.1.</string>
     <string name="notice_5_title">Signaler un contenu</string>
@@ -33,7 +33,7 @@
     <string name="privacy_9_title">9. Sécurité</string>
     <string name="privacy_9_body">Les échanges sont chiffrés (HTTPS), l'accès aux données est limité par des règles de sécurité par utilisateur, les mots de passe ne sont jamais utilisés (connexion par Apple, Google ou lien par e-mail) et les accès de l'équipe sont journalisés.</string>
     <string name="privacy_10_title">10. Mineurs</string>
-    <string name="privacy_10_body">Jauge s'adresse aux personnes d'au moins 15 ans. Si tu as moins de 15 ans, l'accord d'un parent est nécessaire pour créer un compte.</string>
+    <string name="privacy_10_body">Jauge est réservé aux personnes majeures : tu dois avoir au moins 18 ans pour utiliser l'application et créer un compte. Nous ne collectons pas sciemment de données sur des mineurs : si tu apprends qu'un mineur nous a transmis des données, écris à privacy@jauge.io et nous les supprimons.</string>
     <string name="privacy_11_title">11. Traceurs</string>
     <string name="privacy_11_body">L'application n'utilise aucun traceur publicitaire ni outil de mesure d'audience tiers. Elle conserve sur ton téléphone uniquement les réglages nécessaires à son fonctionnement (session, préférences).</string>
     <string name="privacy_12_title">12. Modifications</string>
@@ -45,7 +45,7 @@
     <string name="terms_2_title">2. Des estimations, pas des garanties</string>
     <string name="terms_2_body">Les chiffres affichés sont des estimations statistiques fondées sur des données publiques et des offres comparables. Leur fiabilité est indiquée sur chaque analyse. Ils peuvent être inexacts et ne garantissent ni le nombre réel de candidats, ni le salaire, ni le résultat d'une candidature. Garde ton propre jugement.</string>
     <string name="terms_3_title">3. Compte</string>
-    <string name="terms_3_body">Tu peux utiliser Jauge sans compte, ou en créer un avec Apple, Google ou ton adresse e-mail pour retrouver tes analyses sur tous tes appareils. Tu dois avoir au moins 15 ans, ou l'accord d'un parent. Tu es responsable de l'accès à ton compte. Tu peux le supprimer à tout moment depuis Profil, Supprimer mon compte, ou depuis la page jauge.io/supprimer-mon-compte.</string>
+    <string name="terms_3_body">Tu peux utiliser Jauge sans compte, ou en créer un avec Apple, Google ou ton adresse e-mail pour retrouver tes analyses sur tous tes appareils. Tu dois avoir au moins 18 ans. Tu es responsable de l'accès à ton compte. Tu peux le supprimer à tout moment depuis Profil, Supprimer mon compte, ou depuis la page jauge.io/supprimer-mon-compte.</string>
     <string name="terms_4_title">4. Offre gratuite</string>
     <string name="terms_4_body">Sans abonnement, tu bénéficies d'une analyse complète par semaine. Un essai qui n'a pas pu être lu (capture illisible) ne compte pas.</string>
     <string name="terms_5_title">5. Jauge Plus</string>

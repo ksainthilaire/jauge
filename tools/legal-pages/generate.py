@@ -125,8 +125,7 @@ def main() -> None:
         (legal["notice_1_title"], fill(
             legal["notice_1_body"],
             identity["legal_publisher_name"], identity["legal_publisher_legal_form"],
-            identity["legal_publisher_share_capital"], identity["legal_publisher_registration"],
-            identity["legal_publisher_address"], identity["legal_publisher_vat_number"],
+            identity["legal_publisher_siren"], identity["legal_publisher_address"],
         )),
         (legal["notice_2_title"], fill(legal["notice_2_body"], identity["legal_publication_director"])),
         (legal["notice_3_title"], fill(legal["notice_3_body"], identity["legal_host_address"])),
