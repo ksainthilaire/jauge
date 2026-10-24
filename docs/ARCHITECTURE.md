@@ -183,7 +183,9 @@ Components (`io.jauge.core.designsystem.component`): `JaugeButton` (primary cora
 `LevelPill` (calm, disputed, crowded: always the word with its color), `JaugePill`, `JaugeChip` (filter or segment),
 `JaugeTextField`, `JaugeTabBar`, `EmptyState`, `FriendlyErrorState`, skeletons (`Modifier.skeleton()`,
 `SkeletonList`, `SkeletonCard`), `JaugeRefreshContainer`, `JaugeSwitch`, `JaugeProgressBar`, `JaugeScreenScaffold`,
-`JaugeTopBar`, `RoundIconButton`. Icons: `JaugeIcons` (line icons drawn from the mockup symbols).
+`JaugeTopBar`, `RoundIconButton`, `JaugeLottieAnimation` (Lottie, `JaugeAnimation.LOADING` for reading an
+offer on screen 03 and loading, `JaugeAnimation.SUCCESS` played once; lottie-compose on Android, Compottie on iOS;
+the JSON files are generated in the brand colors by `tools/lottie/generate_animations.py`). Icons: `JaugeIcons` (line icons drawn from the mockup symbols).
 
 Map a domain `CompetitionLevel` to a `GaugeLevel` with `GaugeLevel.valueOf(level.name)` or `GaugeLevel.fromScore`.
 
@@ -262,7 +264,6 @@ passes.
   migrations with RLS (`supabase/`).
 - Authentication (Supabase session) behind `AccessTokenProvider`.
 - Persistence of preferences (onboarding seen, offline switch) if needed.
-- Lottie animations (lottie-compose on Android, Compottie in common code).
 
 ## Naming of network types
 

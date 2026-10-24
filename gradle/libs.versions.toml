@@ -30,6 +30,8 @@ lottie = "6.7.1"
 compottie = "2.3.3"
 # Tests
 junit = "4.13.2"
+robolectric = "4.17"
+roborazzi = "1.77.0"
 
 [libraries]
 # Build logic (convention plugins)
@@ -94,6 +96,9 @@ compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "comp
 
 # Tests
 junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "androidGradlePlugin" }
