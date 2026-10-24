@@ -16,7 +16,9 @@ import io.jauge.feature.onboarding.navigation.AlertsPermissionRoute
 import io.jauge.feature.onboarding.navigation.WelcomeRoute
 import io.jauge.feature.onboarding.navigation.onboardingGraph
 import io.jauge.feature.paywall.navigation.paywallGraph
+import io.jauge.feature.share.navigation.ShareRoute
 import io.jauge.feature.share.navigation.shareGraph
+import io.jauge.feature.twins.navigation.TwinOffersRoute
 import io.jauge.feature.twins.navigation.twinsGraph
 import io.jauge.feature.verdict.navigation.verdictGraph
 
@@ -60,7 +62,12 @@ fun JaugeNavigationHost(
             onAlertsDone = openHome,
         )
         analysisGraph(onBack = onBack)
-        verdictGraph(onBack = onBack)
+        verdictGraph(
+            navigationController = navigationController,
+            onBack = onBack,
+            onShare = { analysisId -> navigationController.navigate(ShareRoute(analysisId)) },
+            onOpenTwins = { analysisId -> navigationController.navigate(TwinOffersRoute(analysisId)) },
+        )
         twinsGraph(onBack = onBack)
         shareGraph(onBack = onBack)
         paywallGraph(onBack = onBack)

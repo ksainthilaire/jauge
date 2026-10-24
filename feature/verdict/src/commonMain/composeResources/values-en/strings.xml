@@ -3,4 +3,124 @@
     <string name="verdict_title">The verdict</string>
     <string name="details_title">In detail</string>
     <string name="methodology_title">How we estimate</string>
+
+    <!-- Shared -->
+    <string name="action_back">Back</string>
+    <string name="action_share">Share</string>
+    <string name="separator_dot"> · </string>
+    <string name="salary_range_thousands">€%1$d-%2$dk</string>
+    <string name="approximately_number">≈ %1$s</string>
+    <string name="percent_signed">%1$s%</string>
+    <string-array name="months_short">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+    <string-array name="weekdays">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+    <string name="contract_permanent">Permanent</string>
+    <string name="contract_fixed_term">Fixed term</string>
+    <string name="contract_apprenticeship">Work and study</string>
+    <string name="contract_internship">Internship</string>
+    <string name="contract_freelance">Freelance</string>
+    <string name="contract_temporary">Temporary</string>
+    <string name="reliability_high">High reliability</string>
+    <string name="reliability_medium">Medium reliability</string>
+    <string name="reliability_low">Low reliability</string>
+
+    <!-- 04 Verdict -->
+    <string name="verdict_screen_title">Analysis of %2$s %1$d</string>
+    <string name="verdict_score_out_of"> /100</string>
+    <string name="verdict_more_than_offers">more than %1$d% of offers in %2$s</string>
+    <string name="verdict_less_than_offers">fewer than %1$d% of offers in %2$s</string>
+    <string name="verdict_estimate_line">Jauge estimate · %1$s · </string>
+    <string name="verdict_how">How?</string>
+    <string name="verdict_applicants_label">Estimated applicants</string>
+    <string name="verdict_applicants_range">range %1$s to %2$s</string>
+    <string name="verdict_salary_label">Likely salary</string>
+    <string name="verdict_salary_not_displayed">gross per year, not displayed</string>
+    <string name="verdict_salary_displayed">gross per year, displayed</string>
+    <string name="verdict_salary_unknown">not enough data</string>
+    <string name="verdict_value_unknown">-</string>
+    <string name="verdict_twins_label">Twin offers</string>
+    <string name="verdict_twins_radius">within %1$d km</string>
+    <string name="verdict_trend_label">3 month trend</string>
+    <string name="verdict_trend_caption">applicants per offer</string>
+    <string name="verdict_timing_apply_before">Apply before %1$s.</string>
+    <string name="verdict_timing_detail"> On comparable offers, about %1$d% of applications arrive within %2$d days.</string>
+    <string name="verdict_details">Details</string>
+
+    <!-- 05 Details -->
+    <string name="details_tab_salaries">Salaries</string>
+    <string name="details_tab_skills">Skills</string>
+    <string name="details_tab_trend">Trend</string>
+    <string name="details_salary_title">This job in %1$s, gross per year</string>
+    <string name="details_salary_offer_count">%1$s offers</string>
+    <string name="details_salary_this_offer">THIS OFFER · %1$d-%2$d</string>
+    <string name="details_salary_scale_bound">€%1$dk</string>
+    <string name="details_salary_median">▲ median %1$d</string>
+    <string name="details_salary_middle_half">half of the offers in %1$s pay within this zone</string>
+    <string name="details_salary_estimated_between">Estimated between </string>
+    <string name="details_salary_range_bold">€%1$dk and €%2$dk</string>
+    <string name="details_salary_above_median">: above the median in %1$s.</string>
+    <string name="details_salary_around_median">: around the median in %1$s.</string>
+    <string name="details_salary_below_median">: below the median in %1$s.</string>
+    <string name="details_salary_negotiate"> A good argument to negotiate </string>
+    <string name="details_salary_negotiate_below"> Aim for at least </string>
+    <string name="details_salary_target_bold">€%1$dk</string>
+    <string name="details_salary_unknown">Not enough comparable offers show a salary to estimate this one.</string>
+    <string name="details_skills_title">Skills asked for</string>
+    <string name="details_skills_caption">% of twin offers</string>
+    <string name="details_skills_to_add">to add</string>
+    <string name="details_skills_owned">You have it</string>
+    <string name="details_skills_empty">Not enough twin offers yet to list the skills.</string>
+    <string name="details_trend_title">Applicants per offer, 12 months</string>
+    <string name="details_trend_month">%1$s %2$s</string>
+    <string name="details_trend_empty">Not enough history yet to draw the trend.</string>
+    <string name="details_trend_description">Applicants per offer over 12 months, %1$s over 3 months</string>
+    <string name="details_methodology_title">How we estimate</string>
+    <string name="details_methodology_caption">%1$s · usual gap ± %2$d%</string>
+    <string name="details_section_unavailable">This part could not load. Pull down to try again.</string>
+
+    <!-- 09 Methodology -->
+    <string name="methodology_headline">Where does\n"≈ %1$s" come from?</string>
+    <string name="methodology_applicants_title">Estimated applicants</string>
+    <string name="methodology_range_caption">The real number usually falls within this range.</string>
+    <string name="methodology_step_one_bold">We read the offer.</string>
+    <string name="methodology_step_one"> Job, city, contract, publication date.</string>
+    <string name="methodology_step_two_bold">We compare it with %1$s offers in %2$s</string>
+    <string name="methodology_step_two"> from this year. Some sites show their number of applicants: we start from those.</string>
+    <string name="methodology_step_three_bold">We check ourselves every month</string>
+    <string name="methodology_step_three"> on offers whose real number we know. Here, the usual gap is ± %1$d%.</string>
+    <string name="methodology_level_high">High</string>
+    <string name="methodology_level_medium">Medium</string>
+    <string name="methodology_level_low">Low</string>
+    <string name="methodology_margin">± %1$d%</string>
+    <string name="methodology_why_bold">Why "%1$s" here:</string>
+    <string name="methodology_disclaimer">Jauge does not see the applications received by the employer. This is an estimate, not an official number. The salary comes from the %1$s comparable offers that show one.</string>
+    <string name="methodology_feedback_button">Know the real number? Tell us</string>
+    <string name="methodology_feedback_dialog_title">How many applicants?</string>
+    <string name="methodology_feedback_dialog_message">If the employer or the site told you the real number of applicants, enter it here. It helps us refine our estimates.</string>
+    <string name="methodology_feedback_field_label">Number of applicants</string>
+    <string name="methodology_feedback_field_placeholder">For example 180</string>
+    <string name="methodology_feedback_invalid">Enter a number between 1 and 100,000.</string>
+    <string name="methodology_feedback_send">Send</string>
+    <string name="methodology_feedback_cancel">Cancel</string>
+    <string name="methodology_feedback_thanks">Thanks! Your number helps us estimate better.</string>
 </resources>

@@ -3,4 +3,124 @@
     <string name="verdict_title">Le verdict</string>
     <string name="details_title">Dans le détail</string>
     <string name="methodology_title">Comment on estime</string>
+
+    <!-- Shared -->
+    <string name="action_back">Retour</string>
+    <string name="action_share">Partager</string>
+    <string name="separator_dot"> · </string>
+    <string name="salary_range_thousands">%1$d-%2$d k€</string>
+    <string name="approximately_number">≈ %1$s</string>
+    <string name="percent_signed">%1$s %</string>
+    <string-array name="months_short">
+        <item>janv.</item>
+        <item>févr.</item>
+        <item>mars</item>
+        <item>avr.</item>
+        <item>mai</item>
+        <item>juin</item>
+        <item>juil.</item>
+        <item>août</item>
+        <item>sept.</item>
+        <item>oct.</item>
+        <item>nov.</item>
+        <item>déc.</item>
+    </string-array>
+    <string-array name="weekdays">
+        <item>lundi</item>
+        <item>mardi</item>
+        <item>mercredi</item>
+        <item>jeudi</item>
+        <item>vendredi</item>
+        <item>samedi</item>
+        <item>dimanche</item>
+    </string-array>
+    <string name="contract_permanent">CDI</string>
+    <string name="contract_fixed_term">CDD</string>
+    <string name="contract_apprenticeship">Alternance</string>
+    <string name="contract_internship">Stage</string>
+    <string name="contract_freelance">Freelance</string>
+    <string name="contract_temporary">Intérim</string>
+    <string name="reliability_high">Fiabilité haute</string>
+    <string name="reliability_medium">Fiabilité moyenne</string>
+    <string name="reliability_low">Fiabilité faible</string>
+
+    <!-- 04 Verdict -->
+    <string name="verdict_screen_title">Analyse du %1$d %2$s</string>
+    <string name="verdict_score_out_of"> /100</string>
+    <string name="verdict_more_than_offers">plus que %1$d % des offres du %2$s</string>
+    <string name="verdict_less_than_offers">moins que %1$d % des offres du %2$s</string>
+    <string name="verdict_estimate_line">Estimation Jauge · %1$s · </string>
+    <string name="verdict_how">Comment ?</string>
+    <string name="verdict_applicants_label">Candidats estimés</string>
+    <string name="verdict_applicants_range">fourchette %1$s à %2$s</string>
+    <string name="verdict_salary_label">Salaire probable</string>
+    <string name="verdict_salary_not_displayed">brut annuel, non affiché</string>
+    <string name="verdict_salary_displayed">brut annuel, affiché</string>
+    <string name="verdict_salary_unknown">pas assez de données</string>
+    <string name="verdict_value_unknown">-</string>
+    <string name="verdict_twins_label">Offres jumelles</string>
+    <string name="verdict_twins_radius">à moins de %1$d km</string>
+    <string name="verdict_trend_label">Tendance 3 mois</string>
+    <string name="verdict_trend_caption">de candidats par offre</string>
+    <string name="verdict_timing_apply_before">Postule avant %1$s.</string>
+    <string name="verdict_timing_detail"> Sur les offres comparables, environ %1$d % des candidatures arrivent en %2$d jours.</string>
+    <string name="verdict_details">Détails</string>
+
+    <!-- 05 Details -->
+    <string name="details_tab_salaries">Salaires</string>
+    <string name="details_tab_skills">Compétences</string>
+    <string name="details_tab_trend">Tendance</string>
+    <string name="details_salary_title">Ce poste à %1$s, brut annuel</string>
+    <string name="details_salary_offer_count">%1$s offres</string>
+    <string name="details_salary_this_offer">CETTE OFFRE · %1$d-%2$d</string>
+    <string name="details_salary_scale_bound">%1$d k€</string>
+    <string name="details_salary_median">▲ médiane %1$d</string>
+    <string name="details_salary_middle_half">la moitié des offres de %1$s paie dans cette zone</string>
+    <string name="details_salary_estimated_between">Estimée entre </string>
+    <string name="details_salary_range_bold">%1$d et %2$d k€</string>
+    <string name="details_salary_above_median"> : au-dessus de la médiane de %1$s.</string>
+    <string name="details_salary_around_median"> : autour de la médiane de %1$s.</string>
+    <string name="details_salary_below_median"> : en dessous de la médiane de %1$s.</string>
+    <string name="details_salary_negotiate"> Bon argument pour négocier à </string>
+    <string name="details_salary_negotiate_below"> Vise au moins </string>
+    <string name="details_salary_target_bold">%1$d k€</string>
+    <string name="details_salary_unknown">Pas assez d'offres comparables affichent un salaire pour estimer celui-ci.</string>
+    <string name="details_skills_title">Compétences demandées</string>
+    <string name="details_skills_caption">% des offres jumelles</string>
+    <string name="details_skills_to_add">à ajouter</string>
+    <string name="details_skills_owned">Tu l'as</string>
+    <string name="details_skills_empty">Pas encore assez d'offres jumelles pour lister les compétences.</string>
+    <string name="details_trend_title">Candidats par offre, 12 mois</string>
+    <string name="details_trend_month">%1$s %2$s</string>
+    <string name="details_trend_empty">Pas encore assez d'historique pour tracer la tendance.</string>
+    <string name="details_trend_description">Courbe des candidats par offre sur 12 mois, %1$s sur 3 mois</string>
+    <string name="details_methodology_title">Comment on estime</string>
+    <string name="details_methodology_caption">%1$s · écart habituel ± %2$d %</string>
+    <string name="details_section_unavailable">Cette partie n'a pas pu se charger. Tire vers le bas pour réessayer.</string>
+
+    <!-- 09 Methodology -->
+    <string name="methodology_headline">D'où vient le\nchiffre « ≈ %1$s » ?</string>
+    <string name="methodology_applicants_title">Candidats estimés</string>
+    <string name="methodology_range_caption">Le vrai nombre tombe le plus souvent dans cette fourchette.</string>
+    <string name="methodology_step_one_bold">On lit l'offre.</string>
+    <string name="methodology_step_one"> Poste, ville, contrat, date de mise en ligne.</string>
+    <string name="methodology_step_two_bold">On la compare à %1$s offres du %2$s</string>
+    <string name="methodology_step_two"> de l'année. Certains sites affichent leur nombre de candidats : on part de celles-là.</string>
+    <string name="methodology_step_three_bold">On se vérifie chaque mois</string>
+    <string name="methodology_step_three"> sur des offres dont on connaît le vrai chiffre. Ici, l'écart habituel est de ± %1$d %.</string>
+    <string name="methodology_level_high">Haute</string>
+    <string name="methodology_level_medium">Moyenne</string>
+    <string name="methodology_level_low">Faible</string>
+    <string name="methodology_margin">± %1$d %</string>
+    <string name="methodology_why_bold">Pourquoi « %1$s » ici :</string>
+    <string name="methodology_disclaimer">Jauge ne voit pas les candidatures reçues par l'employeur. C'est une estimation, pas un chiffre officiel. Le salaire vient des %1$s offres comparables qui l'affichent.</string>
+    <string name="methodology_feedback_button">Tu connais le vrai chiffre ? Dis-le-nous</string>
+    <string name="methodology_feedback_dialog_title">Combien de candidats ?</string>
+    <string name="methodology_feedback_dialog_message">Si l'employeur ou le site t'a donné le vrai nombre de candidats, indique-le ici. Il nous aide à affiner les estimations.</string>
+    <string name="methodology_feedback_field_label">Nombre de candidats</string>
+    <string name="methodology_feedback_field_placeholder">Par exemple 180</string>
+    <string name="methodology_feedback_invalid">Indique un nombre entre 1 et 100 000.</string>
+    <string name="methodology_feedback_send">Envoyer</string>
+    <string name="methodology_feedback_cancel">Annuler</string>
+    <string name="methodology_feedback_thanks">Merci ! Ton chiffre nous aide à mieux estimer.</string>
 </resources>

@@ -26,7 +26,7 @@ object JaugeIcons {
     val Back: ImageVector by lazy { strokeIcon("Back", "m15 18-6-6 6-6") }
 
     /** Icon for sharing. */
-    val Share: ImageVector by lazy { strokeIcon("Share", "M12 3v12 m7 8 5-5 5 5 M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6") }
+    val Share: ImageVector by lazy { strokeIcon("Share", "M12 3v12 M7 8l5-5 5 5 M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6") }
 
     /** Icon for alerts. */
     val Bell: ImageVector by lazy { strokeIcon("Bell", "M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10 21a2 2 0 0 0 4 0") }
@@ -38,10 +38,10 @@ object JaugeIcons {
     val Close: ImageVector by lazy { strokeIcon("Close", "M18 6 6 18M6 6l12 12") }
 
     /** Icon for the analyze tab. */
-    val Gauge: ImageVector by lazy { strokeIcon("Gauge", "M4 17a8 8 0 1 1 16 0 m12 17 4-5") }
+    val Gauge: ImageVector by lazy { strokeIcon("Gauge", "M4 17a8 8 0 1 1 16 0 M12 17l4-5") }
 
     /** Icon for the watch tab. */
-    val Radar: ImageVector by lazy { strokeIcon("Radar", "M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0z M12 12 18 6") }
+    val Radar: ImageVector by lazy { strokeIcon("Radar", "M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0z M12 12L18 6") }
 
     /** Icon for the profile tab. */
     val Profile: ImageVector by lazy { strokeIcon("Profile", "M8 8a4 4 0 1 0 8 0a4 4 0 1 0 -8 0z M4 21a8 8 0 0 1 16 0") }
@@ -53,7 +53,7 @@ object JaugeIcons {
     val Euro: ImageVector by lazy { strokeIcon("Euro", "M18 6.5A7 7 0 1 0 18 17.5 M4 10h10M4 14h10") }
 
     /** Icon for going forward. */
-    val ArrowRight: ImageVector by lazy { strokeIcon("ArrowRight", "M5 12h14 m13 6 6 6-6 6") }
+    val ArrowRight: ImageVector by lazy { strokeIcon("ArrowRight", "M5 12h14 M13 6l6 6-6 6") }
 
     /** Icon for a rising trend. */
     val TrendUp: ImageVector by lazy { strokeIcon("TrendUp", "m3 17 6-6 4 4 8-8 M15 7h6v6") }
@@ -62,7 +62,7 @@ object JaugeIcons {
     val Copy: ImageVector by lazy { strokeIcon("Copy", "M10 8h9a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-9a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2z M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3") }
 
     /** Icon for saving. */
-    val Download: ImageVector by lazy { strokeIcon("Download", "M12 3v12 m7 10 5 5 5-5 M5 21h14") }
+    val Download: ImageVector by lazy { strokeIcon("Download", "M12 3v12 M7 10l5 5 5-5 M5 21h14") }
 
     /** Icon for messages. */
     val Message: ImageVector by lazy { strokeIcon("Message", "M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z") }
