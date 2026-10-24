@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="verdict_title">The verdict</string>
+    <string name="details_title">In detail</string>
+    <string name="methodology_title">How we estimate</string>
+</resources>

@@ -1,0 +1,23 @@
+# Copy this file to local.properties (ignored by git) and fill in the values you have.
+# Every value is optional: without them the app starts in offline mode (sample data, no network)
+# and purchases are disabled. Environment variables override these values (see docs/ARCHITECTURE.md).
+# NEVER put a secret key here: the build fails on RevenueCat "sk_" keys and Supabase secret keys.
+
+# Android SDK location (written by Android Studio).
+sdk.dir=/path/to/Android/sdk
+
+# Jauge API. The API does not exist yet: keep offline mode until it is deployed.
+jauge.api.baseUrl=https://api.jauge.io/
+# "false" calls the real API. Any other value, or no value, keeps the offline mode.
+jauge.api.offlineMode=true
+
+# Supabase (notifications): project URL and PUBLISHABLE key only (sb_publishable_...).
+supabase.url=
+supabase.publishableKey=
+
+# RevenueCat PUBLIC SDK keys only, never the secret "sk_" key.
+# Test Store key (test_...): used by DEBUG builds on Android and iOS when set.
+revenuecat.testStoreApiKey=
+# Production keys, used by release builds: goog_... for Google Play, appl_... for the App Store.
+revenuecat.googleApiKey=
+revenuecat.appleApiKey=

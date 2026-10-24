@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Coller une offre</string>
+    <string name="reading_title">Lecture de l'annonce</string>
+    <string name="unreadable_offer_title">Offre illisible</string>
+    <string name="manual_entry_title">Saisir le poste à la main</string>
+    <string name="history_title">Mes offres jaugées</string>
+</resources>

@@ -1,0 +1,9 @@
+// Settings shared by every developer (committed). Keys live in Config.xcconfig, which is ignored by git.
+TEAM_ID=
+BUNDLE_ID=io.jauge.app
+APP_NAME=Jauge
+MARKETING_VERSION=0.1.0
+CURRENT_PROJECT_VERSION=1
+
+// Optional: copy Config.xcconfig.example to Config.xcconfig and fill in the public keys.
+#include? "Config.xcconfig"
