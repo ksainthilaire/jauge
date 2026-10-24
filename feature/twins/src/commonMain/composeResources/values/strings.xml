@@ -2,4 +2,25 @@
 <resources>
     <string name="twin_offers_title">Offres jumelles</string>
     <string name="alerts_permission_title">Autoriser les alertes</string>
+
+    <!-- 06 Twin offers -->
+    <string name="action_back">Retour</string>
+    <string name="twin_offers_overline">Veille · %1$s</string>
+    <string name="twin_offers_headline">Même poste,\nmoins de monde.</string>
+    <string name="twin_offers_sort_least_disputed">Les moins disputées</string>
+    <string name="twin_offers_sort_best_paid">Mieux payées</string>
+    <string name="twin_offers_sort_most_recent">Récentes</string>
+    <string name="twin_offers_company_place">%1$s · %2$s</string>
+    <string name="twin_offers_salary">%1$d-%2$d k€</string>
+    <string name="twin_offers_applicants">≈ %1$d candidats</string>
+    <string name="twin_offers_open_offer">Ouvrir l'offre %1$s</string>
+    <string name="twin_offers_alert_title">Alerte « calme »</string>
+    <string name="twin_offers_alert_message">Préviens-moi dès qu'une offre jumelle passe sous %1$d.</string>
+    <string name="twin_offers_alert_on">Alerte activée : on te prévient dès qu'une offre jumelle passe sous %1$d.</string>
+    <string name="twin_offers_alert_off">Alerte désactivée.</string>
+    <string name="twin_offers_empty_title">Pas encore d'offre à surveiller</string>
+    <string name="twin_offers_empty_message">Jauge une offre : on te montrera ici les mêmes postes, avec moins de candidats.</string>
+    <string name="twin_offers_empty_action">Jauger une offre</string>
+    <string name="twin_offers_no_twins_title">Aucune offre jumelle pour l'instant</string>
+    <string name="twin_offers_no_twins_message">On n'a pas trouvé d'offre comparable autour de toi. Active l'alerte : on te prévient dès qu'il y en a une.</string>
 </resources>

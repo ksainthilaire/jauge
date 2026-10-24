@@ -2,4 +2,25 @@
 <resources>
     <string name="twin_offers_title">Twin offers</string>
     <string name="alerts_permission_title">Allow alerts</string>
+
+    <!-- 06 Twin offers -->
+    <string name="action_back">Back</string>
+    <string name="twin_offers_overline">Watch · %1$s</string>
+    <string name="twin_offers_headline">Same job,\nfewer people.</string>
+    <string name="twin_offers_sort_least_disputed">Least disputed</string>
+    <string name="twin_offers_sort_best_paid">Best paid</string>
+    <string name="twin_offers_sort_most_recent">Recent</string>
+    <string name="twin_offers_company_place">%1$s · %2$s</string>
+    <string name="twin_offers_salary">€%1$d-%2$dk</string>
+    <string name="twin_offers_applicants">≈ %1$d applicants</string>
+    <string name="twin_offers_open_offer">Open the offer %1$s</string>
+    <string name="twin_offers_alert_title">“Calm” alert</string>
+    <string name="twin_offers_alert_message">Tell me as soon as a twin offer goes under %1$d.</string>
+    <string name="twin_offers_alert_on">Alert on: we will tell you as soon as a twin offer goes under %1$d.</string>
+    <string name="twin_offers_alert_off">Alert off.</string>
+    <string name="twin_offers_empty_title">Nothing to watch yet</string>
+    <string name="twin_offers_empty_message">Gauge an offer: we will show you the same jobs here, with fewer applicants.</string>
+    <string name="twin_offers_empty_action">Gauge an offer</string>
+    <string name="twin_offers_no_twins_title">No twin offer for now</string>
+    <string name="twin_offers_no_twins_message">We found no comparable offer around you. Turn on the alert: we will tell you as soon as there is one.</string>
 </resources>
