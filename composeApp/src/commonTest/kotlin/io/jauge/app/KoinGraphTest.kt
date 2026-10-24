@@ -10,6 +10,8 @@ import io.jauge.core.common.configuration.AppEnvironment
 import io.jauge.core.common.platform.Platform
 import io.jauge.core.common.platform.currentPlatform
 import io.jauge.core.data.dataModule
+import io.jauge.core.data.preferences.InMemoryKeyValueStore
+import io.jauge.core.data.preferences.KeyValueStore
 import io.jauge.core.domain.domainModule
 import io.jauge.core.domain.repository.AnalysisRepository
 import io.jauge.core.domain.repository.SubscriptionRepository
@@ -41,6 +43,7 @@ class KoinGraphTest {
         )
         val koin = koinApplication {
             modules(module { single { environment } }, commonModule, networkModule, billingModule, authenticationModule, notificationsModule, dataModule, domainModule, appModule)
+            modules(module { single<KeyValueStore> { InMemoryKeyValueStore() } })
             modules(featureModules)
         }.koin
         koin.get<JaugeApi>()

@@ -1,13 +1,18 @@
 package io.jauge.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import io.jauge.core.domain.model.OnboardingStep
+import io.jauge.feature.account.navigation.AccountRoute
+import io.jauge.feature.account.navigation.PrivacyPolicyRoute
+import io.jauge.feature.account.navigation.TermsOfUseRoute
 import io.jauge.feature.account.navigation.accountGraph
 import io.jauge.feature.analysis.navigation.HomeRoute
 import io.jauge.feature.analysis.navigation.analysisGraph
+import io.jauge.feature.onboarding.navigation.AlertsPermissionRoute
 import io.jauge.feature.onboarding.navigation.WelcomeRoute
 import io.jauge.feature.onboarding.navigation.onboardingGraph
 import io.jauge.feature.paywall.navigation.paywallGraph
@@ -20,32 +25,60 @@ import io.jauge.feature.verdict.navigation.verdictGraph
  * through the callbacks of each `xxxGraph` function.
  *
  * @param navigationController controller shared with the tab bar.
+ * @param startStep step of the first launch the app opens on.
  * @param modifier modifier of the host.
  */
 @Composable
 fun JaugeNavigationHost(
     navigationController: NavHostController,
+    startStep: OnboardingStep,
     modifier: Modifier = Modifier,
 ) {
     val onBack: () -> Unit = { navigationController.popBackStack() }
+    val openHome: () -> Unit = {
+        navigationController.navigate(HomeRoute) {
+            popUpTo(navigationController.graph.id) { inclusive = true }
+        }
+    }
+    val startDestination: Any = remember {
+        when (startStep) {
+            OnboardingStep.WELCOME -> WelcomeRoute
+            OnboardingStep.ACCOUNT -> AccountRoute(fromOnboarding = true)
+            OnboardingStep.ALERTS -> AlertsPermissionRoute
+            OnboardingStep.DONE -> HomeRoute
+        }
+    }
     NavHost(
         navController = navigationController,
-        startDestination = WelcomeRoute,
+        startDestination = startDestination,
         modifier = modifier,
     ) {
         onboardingGraph(
-            onStartAnalysis = {
-                navigationController.navigate(HomeRoute) {
-                    popUpTo(WelcomeRoute) { inclusive = true }
-                }
-            },
+            onStartAnalysis = { navigationController.navigate(AccountRoute(fromOnboarding = true)) },
+            onSignIn = { navigationController.navigate(AccountRoute(fromOnboarding = true)) },
+            onSkip = openHome,
+            onAlertsDone = openHome,
         )
         analysisGraph(onBack = onBack)
         verdictGraph(onBack = onBack)
         twinsGraph(onBack = onBack)
         shareGraph(onBack = onBack)
         paywallGraph(onBack = onBack)
-        accountGraph(onBack = onBack)
+        accountGraph(
+            onBack = onBack,
+            onOpenEmailSignIn = { route -> navigationController.navigate(route) },
+            onAccountDone = { fromOnboarding ->
+                if (fromOnboarding) {
+                    navigationController.navigate(AlertsPermissionRoute) {
+                        popUpTo(navigationController.graph.id) { inclusive = true }
+                    }
+                } else {
+                    navigationController.popBackStack<AccountRoute>(inclusive = true)
+                }
+            },
+            onOpenTerms = { navigationController.navigate(TermsOfUseRoute) },
+            onOpenPrivacyPolicy = { navigationController.navigate(PrivacyPolicyRoute) },
+        )
     }
 }
 
@@ -56,7 +89,7 @@ fun JaugeNavigationHost(
  */
 fun NavHostController.navigateToTopLevelDestination(destination: TopLevelDestination) {
     navigate(destination.route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+        popUpTo(HomeRoute) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }

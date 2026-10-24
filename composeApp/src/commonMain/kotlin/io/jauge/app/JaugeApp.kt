@@ -39,6 +39,7 @@ fun JaugeApp() {
     JaugeTheme {
         val appViewModel: AppViewModel = koinViewModel()
         val uiState by appViewModel.uiState.collectAsStateWithLifecycle()
+        val onboardingStep by appViewModel.onboardingStep.collectAsStateWithLifecycle()
         val navigationController = rememberNavController()
         val backStackEntry by navigationController.currentBackStackEntryAsState()
         val currentDestination = backStackEntry?.destination
@@ -55,10 +56,16 @@ fun JaugeApp() {
             if (uiState.isOfflineMode) {
                 OfflineModeIndicator()
             }
-            JaugeNavigationHost(
-                navigationController = navigationController,
-                modifier = Modifier.weight(1f),
-            )
+            val startStep = onboardingStep
+            if (startStep != null) {
+                JaugeNavigationHost(
+                    navigationController = navigationController,
+                    startStep = startStep,
+                    modifier = Modifier.weight(1f),
+                )
+            } else {
+                Box(Modifier.weight(1f))
+            }
             if (selectedTab != null) {
                 JaugeTabBar(
                     items = TopLevelDestination.entries.map { tab ->

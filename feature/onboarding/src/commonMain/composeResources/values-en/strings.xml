@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="welcome_title">Welcome</string>
+    <string name="app_name">Jauge</string>
+    <string name="welcome_skip">Skip</string>
+    <string name="welcome_calm_badge">CALM · %1$d</string>
+    <string name="welcome_crowded_badge">CROWDED · %1$d</string>
+    <string name="welcome_page_one_title_start">Before you apply,</string>
+    <string name="welcome_page_one_title_highlight">look at the crowd.</string>
+    <string name="welcome_page_one_text">Paste the link or a screenshot of a job offer. Jauge estimates how many people go for it, what it really pays and where you have better chances.</string>
+    <string name="welcome_page_two_title_start">The hidden salary,</string>
+    <string name="welcome_page_two_title_highlight">finally estimated.</string>
+    <string name="welcome_page_two_text">No salary in the offer? Jauge estimates it from comparable offers in your region, with its range and how reliable it is.</string>
+    <string name="welcome_page_three_title_start">Go for the</string>
+    <string name="welcome_page_three_title_highlight">calmer offers.</string>
+    <string name="welcome_page_three_text">Jauge shows you less disputed twin offers around you and lets you know when an offer calms down.</string>
+    <string name="welcome_page_indicator">Page %1$d of %2$d</string>
     <string name="welcome_start">Analyze my first offer</string>
+    <string name="welcome_have_account">I already have an account ·</string>
+    <string name="welcome_sign_in">Sign in</string>
+    <string name="alerts_later">Later</string>
+    <string name="alerts_example_time_recent">2 h ago</string>
+    <string name="alerts_example_time_now">now</string>
+    <string name="alerts_example_moved_title">Your gauge moved</string>
+    <string name="alerts_example_moved_text">Digital marketing officer is now "crowded". Apply before Thursday.</string>
+    <string name="alerts_example_calm_title">A calm twin offer just appeared</string>
+    <string name="alerts_example_calm_text">Acquisition manager · Lyon 6e · ≈ 22 estimated applicants</string>
+    <string name="alerts_title">Get notified\nwhen it calms down.</string>
+    <string name="alerts_text">We only write for your "calm" alerts and the offers you follow.</string>
+    <string name="alerts_promise_frequency">3 messages a week at most</string>
+    <string name="alerts_promise_no_ads">Never ads or sponsored offers</string>
+    <string name="alerts_promise_settings">Adjustable offer by offer, at any time</string>
+    <string name="alerts_continue">Continue</string>
+    <string name="alerts_system_prompt_ios">iOS will ask for your permission.\nYou can change your mind in Settings.</string>
+    <string name="alerts_system_prompt_android">Android will ask for your permission.\nYou can change your mind in the settings.</string>
 </resources>

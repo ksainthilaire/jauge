@@ -3,6 +3,8 @@ package io.jauge.app
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.jauge.core.common.configuration.ApiModeController
+import io.jauge.core.domain.model.OnboardingStep
+import io.jauge.core.domain.usecase.ObservePreferencesUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -23,8 +25,17 @@ data class AppUiState(
  * View model of the app shell: exposes the offline mode indicator and the hidden debug switch.
  *
  * @param apiModeController holder of the current API mode.
+ * @param observePreferences preferences of the user, for the first launch.
  */
-class AppViewModel(private val apiModeController: ApiModeController) : ViewModel() {
+class AppViewModel(
+    private val apiModeController: ApiModeController,
+    observePreferences: ObservePreferencesUseCase,
+) : ViewModel() {
+
+    /** Step of the first launch the app opens on, null until the preferences are read. */
+    val onboardingStep: StateFlow<OnboardingStep?> = observePreferences()
+        .map { it.onboardingStep }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLISECONDS), null)
 
     /** Observed state of the shell. */
     val uiState: StateFlow<AppUiState> = apiModeController.isOfflineMode

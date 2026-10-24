@@ -17,7 +17,7 @@ object JaugeIcons {
     val Link: ImageVector by lazy { strokeIcon("Link", "M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7 M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7") }
 
     /** Icon for a screenshot. */
-    val Image: ImageVector by lazy { strokeIcon("Image", "M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3z M7 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0z m21 15-5-5L5 21") }
+    val Image: ImageVector by lazy { strokeIcon("Image", "M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3z M7 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0z M21 15l-5-5L5 21") }
 
     /** Icon for taking a photo. */
     val Camera: ImageVector by lazy { strokeIcon("Camera", "M4 8h3l2-3h6l2 3h3v11H4z M8.5 13a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z") }
@@ -92,7 +92,7 @@ object JaugeIcons {
     val Shield: ImageVector by lazy { strokeIcon("Shield", "M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z") }
 
     /** Icon for email. */
-    val Mail: ImageVector by lazy { strokeIcon("Mail", "M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2z m3 7 9 6 9-6") }
+    val Mail: ImageVector by lazy { strokeIcon("Mail", "M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2z M3 7l9 6 9-6") }
 
     /** Icon for a locked feature. */
     val Lock: ImageVector by lazy { strokeIcon("Lock", "M6 11h12a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2z M8 11V7a4 4 0 0 1 8 0v4") }

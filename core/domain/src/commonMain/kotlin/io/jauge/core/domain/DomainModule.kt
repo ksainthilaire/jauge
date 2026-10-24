@@ -1,12 +1,14 @@
 package io.jauge.core.domain
 
 import io.jauge.core.domain.usecase.AnalyzeOfferUseCase
+import io.jauge.core.domain.usecase.CompleteOnboardingStepUseCase
 import io.jauge.core.domain.usecase.CompleteSignInUseCase
 import io.jauge.core.domain.usecase.GetNotificationsUseCase
 import io.jauge.core.domain.usecase.GetPushPermissionUseCase
 import io.jauge.core.domain.usecase.MarkNotificationAsReadUseCase
 import io.jauge.core.domain.usecase.ObserveAuthenticationStateUseCase
 import io.jauge.core.domain.usecase.ObserveIncomingCalmAlertsUseCase
+import io.jauge.core.domain.usecase.ObservePreferencesUseCase
 import io.jauge.core.domain.usecase.RegisterDeviceUseCase
 import io.jauge.core.domain.usecase.RequestPushPermissionUseCase
 import io.jauge.core.domain.usecase.SendMagicLinkUseCase
@@ -35,6 +37,7 @@ import io.jauge.core.domain.usecase.PurchaseSubscriptionUseCase
 import io.jauge.core.domain.usecase.RestorePurchasesUseCase
 import io.jauge.core.domain.usecase.SubmitActualApplicantsUseCase
 import io.jauge.core.domain.usecase.UpdateConsentsUseCase
+import io.jauge.core.domain.usecase.UpdateSettingsUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -69,6 +72,9 @@ val domainModule = module {
     factoryOf(::SendMagicLinkUseCase)
     factoryOf(::CompleteSignInUseCase)
     factoryOf(::SignOutUseCase)
+    factoryOf(::ObservePreferencesUseCase)
+    factoryOf(::CompleteOnboardingStepUseCase)
+    factoryOf(::UpdateSettingsUseCase)
     factoryOf(::ObserveIncomingCalmAlertsUseCase)
     factoryOf(::GetNotificationsUseCase)
     factoryOf(::MarkNotificationAsReadUseCase)
