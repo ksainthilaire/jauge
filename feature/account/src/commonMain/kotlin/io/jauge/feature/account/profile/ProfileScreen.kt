@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import io.jauge.core.designsystem.component.SkeletonCard
 import io.jauge.core.designsystem.icon.JaugeIcons
 import io.jauge.core.designsystem.theme.JaugePalette
 import io.jauge.core.designsystem.theme.JaugeTheme
+import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Subscription
 import io.jauge.core.domain.model.SignInMethod
 import io.jauge.core.domain.model.SubscriptionStatus
@@ -90,6 +92,7 @@ import io.jauge.feature.account.resources.profile_provider_email
 import io.jauge.feature.account.resources.profile_provider_google
 import io.jauge.feature.account.resources.profile_restore
 import io.jauge.feature.account.resources.profile_restored
+import io.jauge.feature.account.resources.profile_restoring
 import io.jauge.feature.account.resources.profile_search_area
 import io.jauge.feature.account.resources.profile_search_area_none
 import io.jauge.feature.account.resources.profile_search_area_value
@@ -109,6 +112,7 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlinx.coroutines.launch
 
 /** Price shown while the store has not answered, from the offer decided by the user. */
 private const val DEFAULT_MONTHLY_PRICE = "6,99 €"
@@ -150,6 +154,7 @@ fun ProfileScreen(navigation: ProfileNavigation) {
     val uriHandler = LocalUriHandler.current
     val share = rememberTextSharer()
     val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
     var isSignOutDialogShown by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(state.managementUrl) {
@@ -165,16 +170,20 @@ fun ProfileScreen(navigation: ProfileNavigation) {
         }
     }
     LaunchedEffect(state.message, state.actionError) {
+        val error = state.actionError
         val text = when {
-            state.actionError != null -> getString(state.actionError!!.toFriendlyMessage().message)
+            error == JaugeError.NothingToRestore -> getString(error.toFriendlyMessage().title)
+            error != null -> getString(error.toFriendlyMessage().message)
             state.message == ProfileMessage.PURCHASES_RESTORED -> getString(Res.string.profile_restored)
             state.message == ProfileMessage.SIGNED_OUT -> getString(Res.string.profile_signed_out)
             state.message == ProfileMessage.NOTHING_TO_EXPORT -> getString(Res.string.profile_export_empty)
             else -> null
         }
         if (text != null) {
+            // Shown in a scope that outlives this effect: dismissing the message changes the keys and would
+            // cancel the snackbar before it is visible.
+            snackbarScope.launch { snackbarHostState.showSnackbar(text) }
             viewModel.dismissMessage()
-            snackbarHostState.showSnackbar(text)
         }
     }
     if (isSignOutDialogShown) {
@@ -285,7 +294,14 @@ fun ProfileContent(
                 content?.latestAnalysisId?.let { analysisId ->
                     add(SettingsRowItem(JaugeIcons.Info, stringResource(Res.string.profile_methodology)) { navigation.onOpenMethodology(analysisId) })
                 }
-                add(SettingsRowItem(JaugeIcons.Document, stringResource(Res.string.profile_restore), onClick = onRestore))
+                add(
+                    SettingsRowItem(
+                        icon = JaugeIcons.Document,
+                        label = stringResource(Res.string.profile_restore),
+                        value = if (state.isRestoring) stringResource(Res.string.profile_restoring) else null,
+                        onClick = { if (!state.isRestoring) onRestore() },
+                    ),
+                )
             }
             SettingsListCard(settingsRows)
             SettingsGroupTitle(stringResource(Res.string.profile_group_data))

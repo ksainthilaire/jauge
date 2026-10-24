@@ -47,7 +47,7 @@ data class ProfileContent(
 
 /** Short messages shown at the bottom of the profile. */
 enum class ProfileMessage {
-    /** "Restaurer les achats" succeeded. */
+    /** "Restaurer les achats" found an active Jauge Plus subscription. */
     PURCHASES_RESTORED,
 
     /** The user signed out. */
@@ -157,7 +157,10 @@ class ProfileViewModel(
         }
     }
 
-    /** "Restaurer les achats". */
+    /**
+     * "Restaurer les achats", like the paywall: a success message only when an active Jauge Plus entitlement
+     * comes back, [JaugeError.NothingToRestore] when the store has nothing, friendly errors otherwise.
+     */
     fun restore() {
         if (state.value.isRestoring) return
         viewModelScope.launch {
@@ -165,9 +168,11 @@ class ProfileViewModel(
             when (val outcome = restorePurchases()) {
                 is Outcome.Success -> state.update { current ->
                     val content = current.content.content?.copy(subscription = outcome.value)
+                    val isRestored = outcome.value.isPlus
                     current.copy(
                         isRestoring = false,
-                        message = ProfileMessage.PURCHASES_RESTORED,
+                        message = if (isRestored) ProfileMessage.PURCHASES_RESTORED else null,
+                        actionError = if (isRestored) null else JaugeError.NothingToRestore,
                         content = current.content.copy(content = content ?: current.content.content),
                     )
                 }
