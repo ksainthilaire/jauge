@@ -16,7 +16,7 @@ import io.jauge.feature.analysis.navigation.analysisGraph
 import io.jauge.feature.onboarding.navigation.AlertsPermissionRoute
 import io.jauge.feature.onboarding.navigation.WelcomeRoute
 import io.jauge.feature.onboarding.navigation.onboardingGraph
-import io.jauge.feature.paywall.navigation.PaywallRoute
+import io.jauge.feature.paywall.navigation.QuotaPaywallRoute
 import io.jauge.feature.paywall.navigation.paywallGraph
 import io.jauge.feature.share.navigation.ShareRoute
 import io.jauge.feature.share.navigation.shareGraph
@@ -78,7 +78,7 @@ fun JaugeNavigationHost(
                         if (replaceCurrent) navigationController.currentDestination?.id?.let { popUpTo(it) { inclusive = true } }
                     }
                 },
-                onOpenPaywall = { navigationController.navigate(PaywallRoute) },
+                onOpenPaywall = { navigationController.navigate(QuotaPaywallRoute) },
             ),
         )
         verdictGraph(
