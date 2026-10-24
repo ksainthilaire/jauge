@@ -21,9 +21,8 @@
     <string name="paywall_plan_per_month">per month</string>
     <string name="paywall_offer_loading">Preparing your offer…</string>
     <string name="paywall_timeline_today">Today</string>
-    <string name="paywall_timeline_today_details">Everything unlocked</string>
-    <string name="paywall_timeline_reminder_details">We remind you</string>
-    <string name="paywall_timeline_payment_details">%1$s if you stay</string>
+    <string name="paywall_timeline_today_details">€0, everything unlocked</string>
+    <string name="paywall_timeline_payment_details">Then %1$s/month</string>
     <string name="paywall_short_date">%2$s %1$d</string>
     <string-array name="paywall_short_months">
         <item>Jan</item>
@@ -41,7 +40,7 @@
     </string-array>
     <string name="paywall_start_trial">Try %1$d days free</string>
     <string name="paywall_subscribe">Subscribe for %1$s/month</string>
-    <string name="paywall_legal_trial">Free for %1$d days, then %2$s per month, charged to your %3$s account at the end of the trial. Renews automatically every month unless cancelled at least 24 hours before the end of the period (%4$s). Reminder the day before the trial ends.</string>
+    <string name="paywall_legal_trial">Free for %1$d days, then %2$s per month, charged to your %3$s account at the end of the trial. Renews automatically every month unless cancelled at least 24 hours before the end of the period (%4$s).</string>
     <string name="paywall_legal_no_trial">%1$s per month, charged to your %2$s account when you confirm the purchase. Renews automatically every month unless cancelled at least 24 hours before the end of the period (%3$s).</string>
     <string name="paywall_store_apple">Apple</string>
     <string name="paywall_store_google">Google Play</string>
@@ -50,7 +49,7 @@
     <string name="paywall_terms">Terms of use</string>
     <string name="paywall_privacy">Privacy</string>
     <string name="paywall_success_title">Welcome to Jauge Plus</string>
-    <string name="paywall_success_trial_message">Your %1$d free days start now. We remind you the day before they end.</string>
+    <string name="paywall_success_trial_message">Your %1$d free days start now. You can cancel at any time in the store settings, at least 24 hours before the trial ends.</string>
     <string name="paywall_success_message">Every offer can be gauged, without limit.</string>
     <string name="paywall_restored_title">Purchases restored</string>
     <string name="paywall_restored_message">Jauge Plus is active again on this phone.</string>

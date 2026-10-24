@@ -63,51 +63,49 @@ corrigés. Voici ce qui reste, dans l'ordre.
 3. **Me dire qui lit les captures** : si les images partent chez un fournisseur d'IA (OpenAI, Anthropic, Google...),
    Apple exige de le nommer et de demander l'accord de l'utilisateur avant le premier envoi. Donne-moi le nom :
    j'ajoute l'écran d'accord et je complète la politique de confidentialité.
-4. **Le rappel la veille de la fin de l'essai** : le paywall le promet. Soit on le fait (le serveur reçoit l'essai
-   depuis RevenueCat et envoie une notification la veille), soit on retire la phrase. Dis-moi ton choix.
-5. **Côté serveur, la suppression du compte** doit aussi effacer le client RevenueCat et révoquer la connexion Apple
+4. **Côté serveur, la suppression du compte** doit aussi effacer le client RevenueCat et révoquer la connexion Apple
    (c'est écrit dans `docs/api.md`, ligne `DELETE /v1/account`).
 
 ### Le site jauge.io
 
-6. Publier le dossier `docs/web` sur `https://jauge.io` (HTTPS, sans redirection) :
+5. Publier le dossier `docs/web` sur `https://jauge.io` (HTTPS, sans redirection) :
    - `/confidentialite/`, `/conditions/`, `/mentions-legales/` : les liens à donner aux stores ;
    - `/supprimer-mon-compte/` : le lien de suppression demandé par Google ;
    - `/.well-known/assetlinks.json` : remplace `REPLACE_WITH_THE_SHA256_FINGERPRINT...` par l'empreinte SHA-256 de la
      clé de signature (Play Console › Intégrité de l'app › Signature de l'app) ;
    - `/.well-known/apple-app-site-association` : remplace `REPLACE_WITH_TEAM_ID` par ton Team ID Apple.
-7. Créer les boîtes `contact@jauge.io` et `privacy@jauge.io` (elles sont écrites dans l'app) et répondre aux demandes
+6. Créer les boîtes `contact@jauge.io` et `privacy@jauge.io` (elles sont écrites dans l'app) et répondre aux demandes
    de suppression sous 30 jours.
 
 ### Comptes et abonnement
 
-8. **Compte Google Play Console** (25 $ une fois) et **Apple Developer Program** (99 $ par an), au nom de la société.
-9. **Abonnement** `jauge_plus_monthly` à 6,99 € par mois avec 3 jours d'essai, dans la Play Console (offre de base
+7. **Compte Google Play Console** (25 $ une fois) et **Apple Developer Program** (99 $ par an), à ton nom (entrepreneur individuel).
+8. **Abonnement** `jauge_plus_monthly` à 6,99 € par mois avec 3 jours d'essai, dans la Play Console (offre de base
    `monthly`) et dans App Store Connect (groupe « Jauge Plus »), puis dans RevenueCat (produit, droit `plus`, offre
    `default`). Sur l'émulateur, le paywall affiche « Achats indisponibles » parce que le Test Store RevenueCat n'a
    encore **aucun produit** : ajoute le produit de test (voir `docs/revenuecat.md`) et je testerai l'achat et l'achat
    annulé. Signe aussi l'accord « Paid Apps » chez Apple et le profil de paiement chez Google.
-10. **Supabase › Authentication › SMTP** : branche ton propre service d'e-mail (Brevo, Resend...). Le service
+9. **Supabase › Authentication › SMTP** : branche ton propre service d'e-mail (Brevo, Resend...). Le service
     d'e-mail fourni par Supabase n'envoie que quelques e-mails par heure et refuse les adresses de test : pendant
     l'essai, « Recevoir un lien » a répondu « On souffle un instant ».
-11. **Apple** : sur l'identifiant `io.jauge.app`, active « Push Notifications », « Associated Domains » et « Sign in
+10. **Apple** : sur l'identifiant `io.jauge.app`, active « Push Notifications », « Associated Domains » et « Sign in
     with Apple » ; crée la clé APNs `.p8`. Dans Xcode, garde la cible en « iPhone » seulement.
 
 ### Les fiches des stores
 
-12. **Google Play** : remplis le formulaire « Sécurité des données » avec le tableau de `google-play.md` (section 4),
+11. **Google Play** : remplis le formulaire « Sécurité des données » avec le tableau de `google-play.md` (section 4),
     le questionnaire de classification (section 7), public cible « 18 ans et plus » seulement, « pas de
     publicité », « accès à l'app : aucun compte nécessaire », l'URL de suppression et l'URL de la politique.
-13. **App Store** : remplis « Confidentialité de l'app » avec le tableau de `app-store.md` (section 6), réponds
+12. **App Store** : remplis « Confidentialité de l'app » avec le tableau de `app-store.md` (section 6), réponds
     « Non » au suivi, mets l'URL de la politique et un lien vers les conditions dans la description, ajoute les notes
     pour l'examinateur (section 9).
-14. **Captures de store finales** : prends-les sur la version release (sans le bandeau orange « Mode sans API »),
+13. **Captures de store finales** : prends-les sur la version release (sans le bandeau orange « Mode sans API »),
     avec de vraies analyses : Google 1080 × 1920 au moins, Apple 1320 × 2868 (iPhone 6,9 pouces). Les captures de
     `docs/screenshots/device/` servent de contrôle, pas de fiche.
-15. **Textes des fiches** : nom « Jauge », sous-titre (30 caractères, par exemple « Vois la foule avant de
+14. **Textes des fiches** : nom « Jauge », sous-titre (30 caractères, par exemple « Vois la foule avant de
     postuler »), description, mots-clés, catégorie (Productivité ou Entreprise), e-mail et site de contact.
 
 ### À décider (facultatif)
 
-16. Deux couleurs de la marque sont un peu pâles pour les personnes qui voient mal (gris secondaire et texte blanc sur
+15. Deux couleurs de la marque sont un peu pâles pour les personnes qui voient mal (gris secondaire et texte blanc sur
     le bouton corail, détails dans `app-store.md` section 8). Je peux foncer légèrement le gris si tu es d'accord.

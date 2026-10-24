@@ -53,7 +53,7 @@
     <string name="profile_status_active">Actif</string>
     <string name="profile_status_free">Gratuit</string>
     <string name="profile_status_expired">Terminé</string>
-    <string name="profile_trial_text">Se termine le %1$s, puis %2$s par mois. Rappel la veille.</string>
+    <string name="profile_trial_text">Se termine le %1$s, puis %2$s par mois.</string>
     <string name="profile_active_text">Renouvelé le %1$s, %2$s par mois.</string>
     <string name="profile_ending_text">Se termine le %1$s, sans renouvellement.</string>
     <plurals name="profile_free_text">

@@ -7,7 +7,7 @@ enum class NotificationKind {
     /** A twin offer became calm (mockups 06 and 12). */
     CALM_ALERT,
 
-    /** The free trial ends tomorrow (mockup 08: "On te rappelle"). */
+    /** Kind reserved by the server for a trial notice; the app promises no reminder before the end of the trial. */
     TRIAL_REMINDER,
 
     /** Any other message (kept for kinds added later on the server). */

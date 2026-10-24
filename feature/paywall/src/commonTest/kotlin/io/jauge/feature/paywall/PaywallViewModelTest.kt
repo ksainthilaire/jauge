@@ -90,7 +90,6 @@ class PaywallViewModelTest {
         advanceUntilIdle()
         val state = viewModel.uiState.value
         assertEquals("6,99 €", state.offer.content?.formattedPrice)
-        assertEquals(LocalDate(2026, 10, 25), state.timeline?.reminderOn)
         assertEquals(LocalDate(2026, 10, 26), state.timeline?.firstPaymentOn)
         assertTrue(state.canPurchase)
         assertFalse(state.isAlreadyPlus)

@@ -97,7 +97,7 @@ app still starts: purchases are disabled cleanly and the paywall says "Achats in
 
 The paywall shows, next to the button: the name and length of the subscription (monthly), the price per month after
 the trial, the trial length, when the payment is taken, the automatic renewal, how and when to cancel (24 h before
-the end of the period, in the store settings), the reminder before the end of the trial, and links to the terms of use
+the end of the period, in the store settings), and links to the terms of use
 and the privacy policy. The App Store also needs these two links in the app description (or the standard Apple EULA).
 
 ## 7. Testing

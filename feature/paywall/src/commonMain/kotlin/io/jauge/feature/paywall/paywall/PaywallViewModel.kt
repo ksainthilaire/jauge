@@ -39,7 +39,7 @@ enum class PaywallCompletion {
  * Observed state of the paywall (mockup 08, single monthly offer).
  *
  * @property offer the monthly offer with its store price, loaded from the store.
- * @property timeline trial timeline (today, reminder, first payment), null when the user gets no trial.
+ * @property timeline trial timeline (today for free, then the first payment), null when the user gets no trial.
  * @property subscription current subscription, null until known.
  * @property platform store of the phone, for the legal text.
  * @property isPurchasing true while the store purchase sheet is open.
