@@ -1,6 +1,17 @@
 package io.jauge.core.domain
 
 import io.jauge.core.domain.usecase.AnalyzeOfferUseCase
+import io.jauge.core.domain.usecase.CompleteSignInUseCase
+import io.jauge.core.domain.usecase.GetNotificationsUseCase
+import io.jauge.core.domain.usecase.GetPushPermissionUseCase
+import io.jauge.core.domain.usecase.MarkNotificationAsReadUseCase
+import io.jauge.core.domain.usecase.ObserveAuthenticationStateUseCase
+import io.jauge.core.domain.usecase.ObserveIncomingCalmAlertsUseCase
+import io.jauge.core.domain.usecase.RegisterDeviceUseCase
+import io.jauge.core.domain.usecase.RequestPushPermissionUseCase
+import io.jauge.core.domain.usecase.SendMagicLinkUseCase
+import io.jauge.core.domain.usecase.SignInWithProviderUseCase
+import io.jauge.core.domain.usecase.SignOutUseCase
 import io.jauge.core.domain.usecase.ComputeTrialTimelineUseCase
 import io.jauge.core.domain.usecase.CreateCalmAlertUseCase
 import io.jauge.core.domain.usecase.CreateShareUseCase
@@ -53,4 +64,15 @@ val domainModule = module {
     factoryOf(::PurchaseSubscriptionUseCase)
     factoryOf(::RestorePurchasesUseCase)
     factory { ComputeTrialTimelineUseCase() }
+    factoryOf(::ObserveAuthenticationStateUseCase)
+    factoryOf(::SignInWithProviderUseCase)
+    factoryOf(::SendMagicLinkUseCase)
+    factoryOf(::CompleteSignInUseCase)
+    factoryOf(::SignOutUseCase)
+    factoryOf(::ObserveIncomingCalmAlertsUseCase)
+    factoryOf(::GetNotificationsUseCase)
+    factoryOf(::MarkNotificationAsReadUseCase)
+    factoryOf(::GetPushPermissionUseCase)
+    factoryOf(::RequestPushPermissionUseCase)
+    factoryOf(::RegisterDeviceUseCase)
 }
