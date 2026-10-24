@@ -1,0 +1,82 @@
+package io.jauge.feature.verdict
+
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import com.github.takahirom.roborazzi.captureRoboImage
+import io.jauge.core.designsystem.theme.JaugeTheme
+import io.jauge.core.ui.state.ContentState
+import io.jauge.feature.verdict.details.DetailsLayout
+import io.jauge.feature.verdict.details.DetailsSection
+import io.jauge.feature.verdict.details.DetailsUiState
+import io.jauge.feature.verdict.methodology.MethodologyLayout
+import io.jauge.feature.verdict.methodology.MethodologyUiState
+import io.jauge.feature.verdict.verdict.VerdictLayout
+import io.jauge.core.domain.error.JaugeError
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+/**
+ * Renders the screens of the verdict feature with the data of the mockups into `docs/screenshots`, to compare them
+ * with `annonce-emploi/ecran-04`, `05` and `09`.
+ */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [35], qualifiers = "fr-w393dp-h852dp-xhdpi")
+class VerdictScreenshotTest {
+
+    private fun capture(name: String, content: @Composable () -> Unit) {
+        val directory = System.getProperty("jauge.screenshots.directory") ?: "build/screenshots"
+        captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = false) { content() } }
+    }
+
+    @Test
+    fun verdict() = capture("04-verdict") {
+        VerdictLayout(
+            state = ContentState(content = SampleData.analysis, isLoading = false),
+            onBack = {}, onRefresh = {}, onShare = {}, onOpenDetails = {}, onOpenMethodology = {}, onOpenTwins = {}, onOpenTrend = {},
+            animateGauge = false,
+        )
+    }
+
+    @Test
+    fun verdictLoading() = capture("04-verdict-loading") {
+        VerdictLayout(
+            state = ContentState(),
+            onBack = {}, onRefresh = {}, onShare = {}, onOpenDetails = {}, onOpenMethodology = {}, onOpenTwins = {}, onOpenTrend = {},
+        )
+    }
+
+    @Test
+    fun verdictError() = capture("04-verdict-error") {
+        VerdictLayout(
+            state = ContentState(isLoading = false, error = JaugeError.NoConnection),
+            onBack = {}, onRefresh = {}, onShare = {}, onOpenDetails = {}, onOpenMethodology = {}, onOpenTwins = {}, onOpenTrend = {},
+        )
+    }
+
+    @Test
+    fun details() = capture("05-details") {
+        DetailsLayout(
+            state = DetailsUiState(
+                salary = ContentState(SampleData.salary, isLoading = false),
+                skills = ContentState(SampleData.skills, isLoading = false),
+                trend = ContentState(SampleData.trend, isLoading = false),
+                reliability = SampleData.analysis.reliability,
+            ),
+            initialSection = DetailsSection.SALARIES,
+            onBack = {}, onRefresh = {}, onOpenMethodology = {},
+        )
+    }
+
+    @Test
+    fun methodology() = capture("09-methodology") {
+        MethodologyLayout(
+            state = MethodologyUiState(methodology = ContentState(SampleData.methodology, isLoading = false)),
+            snackbarHostState = SnackbarHostState(),
+            onBack = {}, onRefresh = {}, onOpenFeedback = {}, onFeedbackTextChange = {}, onSendFeedback = {}, onDismissFeedback = {},
+        )
+    }
+}
