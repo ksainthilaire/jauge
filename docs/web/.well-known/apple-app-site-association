@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["REPLACE_WITH_TEAM_ID.io.jauge.app"],
+        "components": [
+          { "/": "/a/*", "comment": "Public link of an analysis: https://jauge.io/a/{analysisId}" }
+        ]
+      }
+    ]
+  }
+}

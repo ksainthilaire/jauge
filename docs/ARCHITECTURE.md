@@ -250,6 +250,26 @@ Linking the iOS framework and running the app need Xcode: open `iosApp/iosApp.xc
 Tests live in `src/commonTest` (run on the JVM as Android host tests) and `src/androidHostTest` (Android only, for
 example the Retrofit client with MockWebServer).
 
+## Share links and App Links
+
+The public link of an analysis is `https://jauge.io/a/{analysisId}` (`ShareLinks.forAnalysis`). Opening it on a
+phone with the app installed opens the verdict:
+
+- Android: `androidApp/src/main/AndroidManifest.xml` declares an `autoVerify` intent filter for `https://jauge.io/a/`
+  (and `www.`); `MainActivity` (`singleTask`) hands the link to `IncomingLinks`.
+- iOS: `iosApp/iosApp/iosApp.entitlements` declares `applinks:jauge.io`; `iOSApp.swift` calls
+  `MainViewControllerKt.openIncomingLink` from `onOpenURL` and `onContinueUserActivity`.
+- `JaugeApp` reads `IncomingLinks.pending`, parses it with `AnalysisLink` (`feature:share`) and opens `VerdictRoute`.
+- The website must serve the two verification files, templates in `docs/web/.well-known/`: `assetlinks.json` (package
+  `io.jauge.app` and the SHA 256 fingerprints of the Play app signing key and of the upload key) and
+  `apple-app-site-association` (team identifier and bundle `io.jauge.app`, path `/a/*`), both over HTTPS, without
+  redirection, with the `application/json` content type.
+
+The share card (`feature:share`) is rendered by the app from the card drawn on screen (`GraphicsLayer`), encoded as
+PNG and sent with `NativeSharer`: Android intents with a `FileProvider` declared in the manifest of `feature:share`,
+MediaStore to save it; iOS `UIActivityViewController`, `MFMessageComposeViewController` and the photo album
+(`NSPhotoLibraryAddUsageDescription` in `Info.plist`).
+
 ## Git flow
 
 `main` holds releases, `develop` is the integration branch. One branch per feature, `feature/<name>`, from
