@@ -42,4 +42,23 @@
     <string name="error_action_enter_manually">Enter the job and city manually</string>
     <string name="error_action_back_home">Back to home</string>
     <string name="error_action_try_screenshot">Try with a screenshot</string>
+    <string name="error_purchase_already_owned_title">You already have Jauge Plus</string>
+    <string name="error_purchase_already_owned_message">This subscription is already active on your store account. Tap "Restore purchases" to get it back here.</string>
+    <string name="error_purchase_owned_by_another_account_title">Subscription linked to another account</string>
+    <string name="error_purchase_owned_by_another_account_message">This subscription is already used by another Jauge account. Sign in with that account, or write to us if you need help.</string>
+    <string name="error_purchase_not_allowed_title">Purchase not allowed</string>
+    <string name="error_purchase_not_allowed_message">This phone or store account does not allow purchases (parental controls, restricted account). Nothing was charged.</string>
+    <string name="error_purchase_failed_title">The payment did not go through</string>
+    <string name="error_purchase_failed_message">The store could not complete the purchase. Nothing was charged: check your payment method, then try again.</string>
+    <string name="error_nothing_to_restore_title">Nothing to restore</string>
+    <string name="error_nothing_to_restore_message">We found no active Jauge Plus subscription on this store account. Check that you use the same account as for the purchase.</string>
+    <string name="error_invalid_email_title">Check the email address</string>
+    <string name="error_invalid_email_message">This address does not look complete. Example: name@example.com</string>
+    <string name="error_sign_in_cancelled_title">Sign in cancelled</string>
+    <string name="error_sign_in_cancelled_message">You can sign in whenever you like, or continue without an account.</string>
+    <string name="error_sign_in_link_expired_title">This link has expired</string>
+    <string name="error_sign_in_link_expired_message">Sign in links work only once and for one hour. Ask for a new link.</string>
+    <string name="error_sign_in_failed_title">Sign in is not possible right now</string>
+    <string name="error_sign_in_failed_message">Signing in did not work. Try again in a moment, or choose another way to sign in.</string>
+    <string name="error_action_restore">Restore purchases</string>
 </resources>

@@ -43,7 +43,8 @@ core/domain           Models, repository interfaces, use cases, JaugeError, Outc
 core/data             Repository implementations, payload mapping, error mapping, offline mode
 core/network          JaugeApi interface and payloads, Retrofit/OkHttp (Android), Ktor (iOS)
 core/billing          Store purchases (BillingClient); RevenueCat comes later
-core/notifications    Push notifications and Supabase realtime alerts (later phase, empty for now)
+core/notifications    NotificationRepository: push tokens (FCM, APNs), notifications table, Realtime calm alerts
+core/authentication   AuthenticationRepository: Supabase Auth (Apple, Google, email link), simulated without Supabase
 core/common           Build configuration, AppEnvironment, ApiModeController, dispatchers, platform
 build-logic           Convention plugins shared by the modules
 ```

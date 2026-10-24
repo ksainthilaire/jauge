@@ -42,4 +42,23 @@
     <string name="error_action_enter_manually">Saisir le poste et la ville à la main</string>
     <string name="error_action_back_home">Retour à l'accueil</string>
     <string name="error_action_try_screenshot">Essayer avec une capture</string>
+    <string name="error_purchase_already_owned_title">Tu as déjà Jauge Plus</string>
+    <string name="error_purchase_already_owned_message">Cet abonnement est déjà actif sur ton compte du store. Touche « Restaurer les achats » pour le retrouver ici.</string>
+    <string name="error_purchase_owned_by_another_account_title">Abonnement lié à un autre compte</string>
+    <string name="error_purchase_owned_by_another_account_message">Cet abonnement est déjà utilisé par un autre compte Jauge. Connecte-toi avec ce compte, ou écris-nous si tu as besoin d'aide.</string>
+    <string name="error_purchase_not_allowed_title">Achat non autorisé</string>
+    <string name="error_purchase_not_allowed_message">Ce téléphone ou ce compte du store ne permet pas les achats (contrôle parental, compte limité). Aucun paiement n'a été fait.</string>
+    <string name="error_purchase_failed_title">Le paiement n'est pas passé</string>
+    <string name="error_purchase_failed_message">Le store n'a pas pu finaliser l'achat. Aucun paiement n'a été fait : vérifie ton moyen de paiement, puis réessaie.</string>
+    <string name="error_nothing_to_restore_title">Aucun achat à restaurer</string>
+    <string name="error_nothing_to_restore_message">On n'a pas trouvé d'abonnement Jauge Plus actif sur ce compte du store. Vérifie que tu utilises le même compte qu'à l'achat.</string>
+    <string name="error_invalid_email_title">Adresse e-mail à vérifier</string>
+    <string name="error_invalid_email_message">Cette adresse ne semble pas complète. Exemple : prenom@exemple.fr</string>
+    <string name="error_sign_in_cancelled_title">Connexion annulée</string>
+    <string name="error_sign_in_cancelled_message">Tu peux te connecter quand tu veux, ou continuer sans compte.</string>
+    <string name="error_sign_in_link_expired_title">Ce lien a expiré</string>
+    <string name="error_sign_in_link_expired_message">Les liens de connexion ne servent qu'une fois et pendant une heure. Demande un nouveau lien.</string>
+    <string name="error_sign_in_failed_title">Connexion impossible pour le moment</string>
+    <string name="error_sign_in_failed_message">La connexion n'a pas abouti. Réessaie dans un instant, ou choisis une autre façon de te connecter.</string>
+    <string name="error_action_restore">Restaurer les achats</string>
 </resources>

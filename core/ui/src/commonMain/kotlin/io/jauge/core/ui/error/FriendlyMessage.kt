@@ -44,6 +44,25 @@ import io.jauge.core.ui.resources.error_unreadable_offer_message
 import io.jauge.core.ui.resources.error_unreadable_offer_title
 import io.jauge.core.ui.resources.error_unsupported_link_message
 import io.jauge.core.ui.resources.error_unsupported_link_title
+import io.jauge.core.ui.resources.error_purchase_already_owned_title
+import io.jauge.core.ui.resources.error_purchase_already_owned_message
+import io.jauge.core.ui.resources.error_purchase_owned_by_another_account_title
+import io.jauge.core.ui.resources.error_purchase_owned_by_another_account_message
+import io.jauge.core.ui.resources.error_purchase_not_allowed_title
+import io.jauge.core.ui.resources.error_purchase_not_allowed_message
+import io.jauge.core.ui.resources.error_purchase_failed_title
+import io.jauge.core.ui.resources.error_purchase_failed_message
+import io.jauge.core.ui.resources.error_nothing_to_restore_title
+import io.jauge.core.ui.resources.error_nothing_to_restore_message
+import io.jauge.core.ui.resources.error_invalid_email_title
+import io.jauge.core.ui.resources.error_invalid_email_message
+import io.jauge.core.ui.resources.error_sign_in_cancelled_title
+import io.jauge.core.ui.resources.error_sign_in_cancelled_message
+import io.jauge.core.ui.resources.error_sign_in_link_expired_title
+import io.jauge.core.ui.resources.error_sign_in_link_expired_message
+import io.jauge.core.ui.resources.error_sign_in_failed_title
+import io.jauge.core.ui.resources.error_sign_in_failed_message
+import io.jauge.core.ui.resources.error_action_restore
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -63,6 +82,9 @@ enum class FriendlyAction {
 
     /** Try with a screenshot instead of a link. */
     USE_SCREENSHOT,
+
+    /** Restore the store purchases ("Restaurer les achats"). */
+    RESTORE_PURCHASES,
 
     /** Nothing to do: the message is informative. */
     NONE,
@@ -126,13 +148,32 @@ fun JaugeError.toFriendlyMessage(): FriendlyMessage = when (this) {
     JaugeError.PurchaseCancelled -> informative(Res.string.error_purchase_cancelled_title, Res.string.error_purchase_cancelled_message)
     JaugeError.PurchaseUnavailable -> informative(Res.string.error_purchase_unavailable_title, Res.string.error_purchase_unavailable_message)
     JaugeError.PurchasePending -> informative(Res.string.error_purchase_pending_title, Res.string.error_purchase_pending_message)
+    JaugeError.PurchaseAlreadyOwned -> FriendlyMessage(
+        Res.string.error_purchase_already_owned_title,
+        Res.string.error_purchase_already_owned_message,
+        Res.string.error_action_restore,
+        FriendlyAction.RESTORE_PURCHASES,
+    )
+    JaugeError.PurchaseOwnedByAnotherAccount -> FriendlyMessage(
+        Res.string.error_purchase_owned_by_another_account_title,
+        Res.string.error_purchase_owned_by_another_account_message,
+        Res.string.error_action_sign_in,
+        FriendlyAction.SIGN_IN,
+    )
+    JaugeError.PurchaseNotAllowed -> informative(Res.string.error_purchase_not_allowed_title, Res.string.error_purchase_not_allowed_message)
+    JaugeError.PurchaseFailed -> retry(Res.string.error_purchase_failed_title, Res.string.error_purchase_failed_message)
+    JaugeError.NothingToRestore -> informative(Res.string.error_nothing_to_restore_title, Res.string.error_nothing_to_restore_message)
+    JaugeError.InvalidEmail -> informative(Res.string.error_invalid_email_title, Res.string.error_invalid_email_message)
+    JaugeError.SignInCancelled -> informative(Res.string.error_sign_in_cancelled_title, Res.string.error_sign_in_cancelled_message)
+    JaugeError.SignInLinkExpired -> informative(Res.string.error_sign_in_link_expired_title, Res.string.error_sign_in_link_expired_message)
+    JaugeError.SignInFailed -> retry(Res.string.error_sign_in_failed_title, Res.string.error_sign_in_failed_message)
     JaugeError.InvalidData -> retry(Res.string.error_invalid_data_title, Res.string.error_invalid_data_message)
     JaugeError.Unknown -> retry(Res.string.error_unknown_title, Res.string.error_unknown_message)
 }
 
-/** True when the error should be shown silently (no error screen), for example a cancelled purchase. */
+/** True when the error should be shown silently (no error screen), for example a cancelled purchase or sign in. */
 val JaugeError.isSilent: Boolean
-    get() = this == JaugeError.PurchaseCancelled
+    get() = this == JaugeError.PurchaseCancelled || this == JaugeError.SignInCancelled
 
 private fun retry(title: StringResource, message: StringResource) =
     FriendlyMessage(title, message, Res.string.error_action_retry, FriendlyAction.RETRY)
