@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -247,7 +248,8 @@ private fun HistorySection(
     }
     when {
         history.isLoading && analyses.isEmpty() -> SkeletonList(rowCount = HOME_HISTORY_COUNT, modifier = Modifier.padding(top = 12.dp))
-        history.showsFullScreenError -> FriendlyErrorView(error = history.error!!, onAction = onErrorAction)
+        // An empty list that failed to refresh is unknown, not empty: show the friendly error, never "no analysis yet".
+        history.error != null && analyses.isEmpty() -> FriendlyErrorView(error = history.error!!, onAction = onErrorAction)
         analyses.isEmpty() -> EmptyState(
             title = stringResource(Res.string.home_empty_title),
             message = stringResource(Res.string.home_empty_message),
@@ -339,8 +341,9 @@ private fun SourceCard(
                 text = text,
                 style = JaugeTheme.typography.body.copy(fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp),
                 color = JaugeTheme.colors.textPrimary,
-                maxLines = 1,
-                softWrap = false,
+                // Two lines with large text sizes (accessibility settings) rather than a cut word.
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

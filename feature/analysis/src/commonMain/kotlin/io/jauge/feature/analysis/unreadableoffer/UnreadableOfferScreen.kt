@@ -282,7 +282,7 @@ private fun ReadLine(label: String, value: String?) {
     val stateDescription = stringResource(if (value != null) Res.string.unreadable_read else Res.string.unreadable_not_read)
     Row(
         modifier = Modifier.fillMaxWidth().height(46.dp).padding(horizontal = 16.dp).semantics(mergeDescendants = true) {
-            contentDescription = "$label, ${value ?: ""}, $stateDescription"
+            contentDescription = listOfNotNull(label, value?.takeIf { it.isNotBlank() }, stateDescription).joinToString(", ")
         },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
