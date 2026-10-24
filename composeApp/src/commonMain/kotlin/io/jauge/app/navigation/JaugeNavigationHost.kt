@@ -20,6 +20,7 @@ import io.jauge.feature.share.navigation.ShareRoute
 import io.jauge.feature.share.navigation.shareGraph
 import io.jauge.feature.twins.navigation.TwinOffersRoute
 import io.jauge.feature.twins.navigation.twinsGraph
+import io.jauge.feature.verdict.navigation.VerdictRoute
 import io.jauge.feature.verdict.navigation.verdictGraph
 
 /**
@@ -72,7 +73,10 @@ fun JaugeNavigationHost(
             onBack = onBack,
             onAnalyzeOffer = { navigationController.navigateToTopLevelDestination(TopLevelDestination.ANALYZE) },
         )
-        shareGraph(onBack = onBack)
+        shareGraph(
+            onBack = onBack,
+            onOpenAnalysis = { analysisId -> navigationController.navigate(VerdictRoute(analysisId)) },
+        )
         paywallGraph(
             onBack = onBack,
             onOpenTerms = { navigationController.navigate(TermsOfUseRoute) },
