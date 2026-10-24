@@ -1,6 +1,8 @@
 package io.jauge.core.data.offline
 
 import io.jauge.core.data.preferences.FavoriteStore
+import io.jauge.core.network.payload.AreaPayload
+import io.jauge.core.network.payload.TwinOffersPayload
 import io.jauge.core.data.preferences.InMemoryKeyValueStore
 import io.jauge.core.data.error.ApiErrorCodes
 import io.jauge.core.network.JaugeApi
@@ -24,7 +26,6 @@ import io.jauge.core.network.payload.ShareListPayload
 import io.jauge.core.network.payload.SkillsInsightPayload
 import io.jauge.core.network.payload.SubscriptionPayload
 import io.jauge.core.network.payload.TrendInsightPayload
-import io.jauge.core.network.payload.TwinOffersPayload
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -75,12 +76,12 @@ class OfflineJaugeApi(
             )
             else -> base.copy(offer = base.offer?.copy(sourceUrl = request.url))
         }
-        startAnalysis(completed, unreadable = false)
+        startAnalysis(completed.withArea(request.area), unreadable = false)
     }
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String): AnalysisPayload =
+    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload =
         simulate(isAnalysisCreation = true) {
-            val completed = dataset.marketingAnalysis(id = nextId(), createdHoursAgo = 0)
+            val completed = dataset.marketingAnalysis(id = nextId(), createdHoursAgo = 0).withArea(area)
             startAnalysis(completed, unreadable = scenarios.scenario.value == OfflineScenario.UNREADABLE_OFFER)
         }
 
@@ -118,17 +119,38 @@ class OfflineJaugeApi(
         favoriteStore.write(favorites)
     }
 
-    override suspend fun getSalary(analysisId: String): SalaryInsightPayload = simulate { requireAnalysis(analysisId); dataset.salary() }
+    override suspend fun getSalary(analysisId: String, area: AreaPayload?): SalaryInsightPayload = simulate {
+        requireAnalysis(analysisId)
+        val salary = dataset.salary()
+        if (area == null) salary else salary.copy(areaName = area.city)
+    }
 
     override suspend fun getSkills(analysisId: String): SkillsInsightPayload = simulate { requireAnalysis(analysisId); dataset.skills() }
 
     override suspend fun getTrend(analysisId: String): TrendInsightPayload = simulate { requireAnalysis(analysisId); dataset.trend() }
 
-    override suspend fun getTwins(analysisId: String, sort: String): TwinOffersPayload = simulate {
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload = simulate {
         requireAnalysis(analysisId)
-        val twins = dataset.twins()
+        val twins = dataset.twins().around(area)
         if (isEmptyScenario()) twins.copy(items = emptyList()) else twins
     }
+
+    /** Twins of the sample data moved around the area of the user: inside the radius, in its city outside Rhône. */
+    private fun TwinOffersPayload.around(area: AreaPayload?): TwinOffersPayload {
+        if (area == null) return this
+        val isSampleArea = area.departmentCode == OfflineDataset.SAMPLE_DEPARTMENT_CODE
+        return TwinOffersPayload(
+            areaName = "${area.city} + ${area.radiusKilometers} km",
+            radiusKilometers = area.radiusKilometers,
+            items = items
+                .filter { it.distanceKilometers <= area.radiusKilometers }
+                .map { if (isSampleArea) it else it.copy(place = area.city) },
+        )
+    }
+
+    /** Sample analysis with the radius of the search area of the user. */
+    private fun AnalysisPayload.withArea(area: AreaPayload?): AnalysisPayload =
+        if (area == null) this else copy(result = result?.copy(twinRadiusKilometers = area.radiusKilometers))
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) = simulate {
         requireAnalysis(analysisId)

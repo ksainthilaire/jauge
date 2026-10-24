@@ -40,6 +40,8 @@ import io.jauge.core.domain.usecase.RestorePurchasesUseCase
 import io.jauge.core.domain.usecase.SubmitActualApplicantsUseCase
 import io.jauge.core.domain.usecase.UpdateConsentsUseCase
 import io.jauge.core.domain.usecase.UpdateSettingsUseCase
+import io.jauge.core.domain.usecase.LocateSearchAreaUseCase
+import io.jauge.core.domain.usecase.ObserveSearchAreaUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -78,7 +80,9 @@ val domainModule = module {
     factoryOf(::SignOutUseCase)
     factoryOf(::ObservePreferencesUseCase)
     factoryOf(::CompleteOnboardingStepUseCase)
-    factoryOf(::UpdateSettingsUseCase)
+    factory { UpdateSettingsUseCase(get(), get()) }
+    factoryOf(::ObserveSearchAreaUseCase)
+    factoryOf(::LocateSearchAreaUseCase)
     factoryOf(::ObserveIncomingCalmAlertsUseCase)
     factoryOf(::GetNotificationsUseCase)
     factoryOf(::MarkNotificationAsReadUseCase)

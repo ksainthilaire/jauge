@@ -108,7 +108,7 @@
     <string name="settings_alerts_text">Une notification quand une offre que tu suis se calme ou qu'une offre jumelle calme apparaît. 3 messages par semaine au plus.</string>
     <string name="settings_alerts_system">Si les notifications sont coupées dans les réglages du téléphone, Jauge ne peut pas te prévenir. Tu peux les rétablir à tout moment.</string>
     <string name="settings_area_title">Zone de recherche</string>
-    <string name="settings_area_text">Jauge cherche les offres jumelles dans ce rayon autour de ta ville.</string>
+    <string name="settings_area_text">Jauge compare tes offres à celles de ta ville et cherche les offres jumelles dans ce rayon autour d'elle.</string>
     <string name="settings_area_city">Ville</string>
     <string name="settings_area_city_placeholder">Lyon</string>
     <string name="settings_area_radius">Rayon</string>
@@ -135,4 +135,8 @@
     <string name="about_website">Site web</string>
     <string name="about_contact_address">contact@jauge.io</string>
     <string name="about_website_address">https://jauge.io</string>
+    <string name="settings_area_origin_device">Ville trouvée grâce à la position de ton téléphone. Seule la ville est utilisée.</string>
+    <string name="settings_area_origin_manual">Ville choisie par toi.</string>
+    <string name="settings_area_origin_default">Ville par défaut. Écris ta ville ou utilise ta position.</string>
+    <string name="settings_area_use_position">Utiliser ma position</string>
 </resources>

@@ -42,6 +42,9 @@ internal interface RetrofitJaugeService {
     suspend fun createAnalysisFromImage(
         @Part image: MultipartBody.Part,
         @Part("origin") origin: RequestBody,
+        @Part("areaCity") areaCity: RequestBody?,
+        @Part("areaDepartment") areaDepartment: RequestBody?,
+        @Part("areaRadius") areaRadius: RequestBody?,
     ): AnalysisPayload
 
     @GET("v1/analyses")
@@ -60,7 +63,11 @@ internal interface RetrofitJaugeService {
     suspend fun removeFavorite(@Path("id") analysisId: String): Response<Unit>
 
     @GET("v1/analyses/{id}/salary")
-    suspend fun getSalary(@Path("id") analysisId: String): SalaryInsightPayload
+    suspend fun getSalary(
+        @Path("id") analysisId: String,
+        @Query("city") city: String?,
+        @Query("department") department: String?,
+    ): SalaryInsightPayload
 
     @GET("v1/analyses/{id}/skills")
     suspend fun getSkills(@Path("id") analysisId: String): SkillsInsightPayload
@@ -69,7 +76,13 @@ internal interface RetrofitJaugeService {
     suspend fun getTrend(@Path("id") analysisId: String): TrendInsightPayload
 
     @GET("v1/analyses/{id}/twins")
-    suspend fun getTwins(@Path("id") analysisId: String, @Query("sort") sort: String): TwinOffersPayload
+    suspend fun getTwins(
+        @Path("id") analysisId: String,
+        @Query("sort") sort: String,
+        @Query("city") city: String?,
+        @Query("department") department: String?,
+        @Query("radius") radiusKilometers: Int?,
+    ): TwinOffersPayload
 
     @POST("v1/analyses/{id}/feedback")
     suspend fun sendApplicantFeedback(@Path("id") analysisId: String, @Body request: ApplicantFeedbackRequestPayload): Response<Unit>

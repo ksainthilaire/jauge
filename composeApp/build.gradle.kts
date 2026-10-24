@@ -21,6 +21,7 @@ kotlin {
             implementation(projects.core.network)
             implementation(projects.core.billing)
             implementation(projects.core.notifications)
+            implementation(projects.core.location)
             implementation(projects.core.authentication)
 
             implementation(projects.feature.onboarding)

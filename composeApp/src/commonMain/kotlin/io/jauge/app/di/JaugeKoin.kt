@@ -10,6 +10,7 @@ import io.jauge.core.common.configuration.AppEnvironment
 import io.jauge.core.data.dataModule
 import io.jauge.core.domain.domainModule
 import io.jauge.core.network.networkModule
+import io.jauge.core.location.locationModule
 import io.jauge.core.notifications.notificationsModule
 import io.jauge.feature.account.di.accountModule
 import io.jauge.feature.analysis.di.analysisModule
@@ -58,6 +59,7 @@ fun startJaugeKoin(environment: AppEnvironment, platformDeclaration: KoinAppDecl
             billingModule,
             authenticationModule,
             notificationsModule,
+            locationModule,
             dataModule,
             domainModule,
             appModule,

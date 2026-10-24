@@ -22,6 +22,8 @@ import io.jauge.app.notifications.CalmAlertBannerHost
 import io.jauge.app.navigation.TopLevelDestination
 import io.jauge.app.navigation.navigateToTopLevelDestination
 import io.jauge.app.resources.Res
+import io.jauge.core.domain.model.OnboardingStep
+import io.jauge.feature.onboarding.location.LocationPromptHost
 import io.jauge.app.resources.offline_mode_indicator
 import io.jauge.core.designsystem.component.JaugePill
 import io.jauge.core.designsystem.component.JaugeTabBar
@@ -70,6 +72,9 @@ fun JaugeApp() {
                         startStep = startStep,
                         modifier = Modifier.fillMaxSize(),
                     )
+                }
+                if (startStep == OnboardingStep.DONE) {
+                    LocationPromptHost()
                 }
                 CalmAlertBannerHost(
                     onOpen = { analysisId -> navigationController.navigate(TwinOffersRoute(analysisId)) },

@@ -32,4 +32,10 @@
     <string name="alerts_continue">Continue</string>
     <string name="alerts_system_prompt_ios">iOS will ask for your permission.\nYou can change your mind in Settings.</string>
     <string name="alerts_system_prompt_android">Android will ask for your permission.\nYou can change your mind in the settings.</string>
+    <string name="location_prompt_title">Where are you looking?</string>
+    <string name="location_prompt_message">Jauge uses your city to compare each offer with the job ads of your region and to find twin offers near you.</string>
+    <string name="location_prompt_privacy">Only your city and your department are used. Your exact position never leaves your phone.</string>
+    <string name="location_prompt_allow">Allow location</string>
+    <string name="location_prompt_later">Not now</string>
+    <string name="location_prompt_default">Without location, Jauge uses Paris. You can change the city at any time in Settings.</string>
 </resources>

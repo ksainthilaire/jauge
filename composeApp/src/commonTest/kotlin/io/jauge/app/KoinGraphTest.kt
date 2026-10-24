@@ -28,6 +28,10 @@ import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import io.jauge.core.domain.repository.LocationRepository
+import io.jauge.core.domain.repository.UnavailableLocationRepository
+import io.jauge.core.domain.usecase.LocateSearchAreaUseCase
+import io.jauge.core.domain.usecase.UpdateSettingsUseCase
 
 class KoinGraphTest {
 
@@ -45,6 +49,7 @@ class KoinGraphTest {
         val koin = koinApplication {
             modules(module { single { environment } }, commonModule, networkModule, billingModule, authenticationModule, notificationsModule, dataModule, domainModule, appModule)
             modules(module { single<KeyValueStore> { InMemoryKeyValueStore() } })
+            modules(module { single<LocationRepository> { UnavailableLocationRepository() } })
             modules(featureModules)
         }.koin
         koin.get<JaugeApi>()
@@ -57,6 +62,8 @@ class KoinGraphTest {
         koin.get<NotificationRepository>()
         koin.get<SignOutUseCase>()
         koin.get<SessionSynchronizer>()
+        koin.get<LocateSearchAreaUseCase>()
+        koin.get<UpdateSettingsUseCase>()
         assertFalse(koin.get<BillingClient>().isAvailable, "No RevenueCat key: purchases must be disabled")
         check(environment.platform == Platform.ANDROID || environment.platform == Platform.IOS)
     }

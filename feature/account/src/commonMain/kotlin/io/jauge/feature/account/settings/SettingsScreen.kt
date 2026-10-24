@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.jauge.core.designsystem.component.JaugeButton
+import io.jauge.core.designsystem.component.JaugeButtonSize
 import io.jauge.core.designsystem.component.JaugeButtonStyle
 import io.jauge.core.designsystem.component.JaugeCard
 import io.jauge.core.designsystem.component.JaugeChip
@@ -32,6 +33,7 @@ import io.jauge.core.designsystem.component.RoundIconButton
 import io.jauge.core.designsystem.icon.JaugeIcons
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.core.domain.model.SearchArea
+import io.jauge.core.domain.model.SearchAreaOrigin
 import io.jauge.feature.account.components.SettingsGroupTitle
 import io.jauge.feature.account.resources.Res
 import io.jauge.feature.account.resources.account_back
@@ -40,7 +42,11 @@ import io.jauge.feature.account.resources.settings_alerts_text
 import io.jauge.feature.account.resources.settings_alerts_title
 import io.jauge.feature.account.resources.settings_area_city
 import io.jauge.feature.account.resources.settings_area_city_placeholder
+import io.jauge.feature.account.resources.settings_area_origin_default
+import io.jauge.feature.account.resources.settings_area_origin_device
+import io.jauge.feature.account.resources.settings_area_origin_manual
 import io.jauge.feature.account.resources.settings_area_radius
+import io.jauge.feature.account.resources.settings_area_use_position
 import io.jauge.feature.account.resources.settings_area_radius_value
 import io.jauge.feature.account.resources.settings_area_text
 import io.jauge.feature.account.resources.settings_area_title
@@ -66,6 +72,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         onCityChange = viewModel::onCityChange,
         onRadiusChange = viewModel::onRadiusChange,
         onSave = viewModel::saveSearchArea,
+        onUseDevicePosition = viewModel::useDevicePosition,
     )
 }
 
@@ -79,6 +86,7 @@ fun SettingsScreen(onBack: () -> Unit) {
  * @param onRadiusChange radius chosen.
  * @param onSave "Enregistrer".
  * @param modifier modifier of the screen.
+ * @param onUseDevicePosition "Utiliser ma position".
  */
 @Composable
 fun SettingsContent(
@@ -89,6 +97,7 @@ fun SettingsContent(
     onRadiusChange: (Int) -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
+    onUseDevicePosition: () -> Unit = {},
 ) {
     val colors = JaugeTheme.colors
     val typography = JaugeTheme.typography
@@ -138,6 +147,27 @@ fun SettingsContent(
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onSave() }),
                 modifier = Modifier.padding(top = 12.dp),
+            )
+            Text(
+                text = stringResource(
+                    when (state.origin) {
+                        SearchAreaOrigin.DEVICE -> Res.string.settings_area_origin_device
+                        SearchAreaOrigin.MANUAL -> Res.string.settings_area_origin_manual
+                        SearchAreaOrigin.DEFAULT -> Res.string.settings_area_origin_default
+                    },
+                ),
+                style = typography.caption,
+                color = colors.textSecondary,
+                modifier = Modifier.padding(top = 8.dp, start = 4.dp),
+            )
+            JaugeButton(
+                text = stringResource(Res.string.settings_area_use_position),
+                onClick = onUseDevicePosition,
+                style = JaugeButtonStyle.OUTLINED,
+                size = JaugeButtonSize.MEDIUM,
+                leadingIcon = JaugeIcons.Pin,
+                isLoading = state.isLocating,
+                modifier = Modifier.padding(top = 10.dp),
             )
             Text(
                 text = stringResource(Res.string.settings_area_radius),

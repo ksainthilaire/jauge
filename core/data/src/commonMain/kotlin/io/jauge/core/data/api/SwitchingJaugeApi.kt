@@ -2,6 +2,7 @@ package io.jauge.core.data.api
 
 import io.jauge.core.common.configuration.ApiModeController
 import io.jauge.core.network.JaugeApi
+import io.jauge.core.network.payload.AreaPayload
 import io.jauge.core.network.payload.ApplicantFeedbackRequestPayload
 import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
@@ -27,8 +28,8 @@ class SwitchingJaugeApi(
 
     override suspend fun createAnalysis(request: CreateAnalysisRequestPayload) = current.createAnalysis(request)
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String) =
-        current.createAnalysisFromImage(image, mimeType, origin)
+    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?) =
+        current.createAnalysisFromImage(image, mimeType, origin, area)
 
     override suspend fun getAnalyses(cursor: String?, limit: Int) = current.getAnalyses(cursor, limit)
 
@@ -40,13 +41,13 @@ class SwitchingJaugeApi(
 
     override suspend fun removeFavorite(analysisId: String) = current.removeFavorite(analysisId)
 
-    override suspend fun getSalary(analysisId: String) = current.getSalary(analysisId)
+    override suspend fun getSalary(analysisId: String, area: AreaPayload?) = current.getSalary(analysisId, area)
 
     override suspend fun getSkills(analysisId: String) = current.getSkills(analysisId)
 
     override suspend fun getTrend(analysisId: String) = current.getTrend(analysisId)
 
-    override suspend fun getTwins(analysisId: String, sort: String) = current.getTwins(analysisId, sort)
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?) = current.getTwins(analysisId, sort, area)
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) =
         current.sendApplicantFeedback(analysisId, request)

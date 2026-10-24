@@ -70,13 +70,15 @@ Aucun plantage (`adb logcat -b crash` vide) sur tout le passage.
 | `INTERNET`, `ACCESS_NETWORK_STATE` | app, Ktor/OkHttp, Firebase | Analyses, compte, achats. |
 | `POST_NOTIFICATIONS` | `core:notifications`, `feature:onboarding` | Alertes « calme ». Demandée seulement à l'écran 12, après une explication, avec « Plus tard ». Refus géré (réglage expliqué dans Réglages). |
 | `WAKE_LOCK`, `com.google.android.c2dm.permission.RECEIVE` | Firebase Cloud Messaging | Réception des notifications push. |
+| `ACCESS_COARSE_LOCATION` | `core:location` | Ville de la zone de recherche (analyses, offres jumelles). Position **approximative** seulement, jamais `ACCESS_FINE_LOCATION` ni `ACCESS_BACKGROUND_LOCATION`. Demandée une fois, après la pop-up d'explication de l'app (« Où cherches-tu ? », avec « Plus tard »). La position est convertie en ville **sur le téléphone** (table des préfectures et grandes villes, sans réseau) et n'est jamais envoyée ; refus ou indisponibilité : Paris, modifiable dans Réglages. `uses-feature` location non requis. |
 | `com.android.vending.BILLING` | RevenueCat | Abonnement Jauge Plus par Google Play Billing. |
 | `io.jauge.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | AndroidX | Interne à l'app, ajoutée automatiquement. |
 
 Absentes, et c'est voulu : `CAMERA` (l'appareil photo passe par l'appli photo du téléphone, `ACTION_IMAGE_CAPTURE`),
 `READ_MEDIA_IMAGES` / `READ_EXTERNAL_STORAGE` (sélecteur de photos Android, conforme à la règle « Photos et vidéos »
-de Google Play), `WRITE_EXTERNAL_STORAGE` (enregistrement par MediaStore), localisation, contacts, `AD_ID`.
-Aucune autorisation sensible : pas de déclaration particulière dans la Play Console.
+de Google Play), `WRITE_EXTERNAL_STORAGE` (enregistrement par MediaStore), localisation précise et en arrière-plan, contacts, `AD_ID`.
+Pas de localisation en arrière-plan : pas de déclaration « Location permissions » dans la Play Console (elle ne
+concerne que `ACCESS_BACKGROUND_LOCATION`).
 
 ## 4. Sécurité des données (formulaire « Data safety », prérempli)
 
@@ -98,10 +100,11 @@ Réponses générales :
 | Photos et vidéos | Photos | Oui (effacées sous 24 h) | Non | Oui | Fonctionnement de l'app |
 | Activité dans l'app | Autre contenu généré par l'utilisateur (liens d'offres, alertes, partages, chiffres signalés) | Oui | Non | Non | Fonctionnement de l'app |
 | Informations financières | Historique des achats | Oui | Non | Oui | Fonctionnement de l'app, gestion du compte |
+| Position | Position approximative | Oui (seulement la ville et le département de la zone de recherche, trouvés sur le téléphone ; la position n'est jamais envoyée) | Non | Oui (refus : Paris, ville modifiable) | Fonctionnement de l'app |
 | Identifiants de l'appareil | Jeton de notification (FCM) | Oui | Non | Oui (seulement si les alertes sont activées) | Fonctionnement de l'app |
 | Infos et performances de l'app | Diagnostics (version de l'app, système, langue, journaux techniques côté serveur) | Oui | Non | Non | Fonctionnement de l'app, analyses techniques |
 
-Non collectés : localisation (la ville est tapée par l'utilisateur, elle n'est pas lue par le GPS), contacts, messages,
+Non collectés : position précise, localisation en arrière-plan, contacts, messages,
 audio, fichiers, santé, identifiant publicitaire, historique de navigation. Aucun SDK de publicité, de mesure
 d'audience ni de rapport de plantage (vérifié dans toutes les dépendances).
 

@@ -22,6 +22,8 @@ import io.jauge.feature.account.profile.ProfileMessage
 import io.jauge.feature.account.profile.ProfileViewModel
 import io.jauge.feature.account.profile.analysesToCsv
 import io.jauge.feature.account.settings.SettingsViewModel
+import io.jauge.core.domain.repository.UnavailableLocationRepository
+import io.jauge.core.domain.usecase.LocateSearchAreaUseCase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -172,7 +174,7 @@ class ProfileViewModelTest {
 
     @Test
     fun settingsSaveAlertsAndArea() {
-        val viewModel = SettingsViewModel(ObservePreferencesUseCase(preferences), UpdateSettingsUseCase(preferences))
+        val viewModel = SettingsViewModel(ObservePreferencesUseCase(preferences), UpdateSettingsUseCase(preferences), LocateSearchAreaUseCase(preferences, UnavailableLocationRepository()))
         viewModel.setCalmAlertsEnabled(true)
         viewModel.onCityChange("Lyon")
         viewModel.onRadiusChange(50)

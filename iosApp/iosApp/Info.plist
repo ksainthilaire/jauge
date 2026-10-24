@@ -31,6 +31,10 @@
 	</dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Jauge utilise ta ville pour comparer les offres à celles de ta région et trouver les offres jumelles près de chez toi. Ta position exacte ne quitte jamais ton téléphone.</string>
+	<key>NSLocationDefaultAccuracyReduced</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Jauge utilise l'appareil photo pour photographier une offre d'emploi et la lire.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>

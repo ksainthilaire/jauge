@@ -41,6 +41,9 @@ paths:
                 origin:
                   type: string
                   enum: [screenshot, photo]
+                areaCity: { type: string, description: City of the search area of the user (never a position). }
+                areaDepartment: { type: string, description: French department of that city (`69`, `2A`, `974`). }
+                areaRadius: { type: integer, description: Radius of the search area in kilometers. }
       responses:
         '202':
           description: Analysis accepted, status `processing`. Poll GET /v1/analyses/{id}.
@@ -119,6 +122,9 @@ paths:
       tags: [Insights]
       summary: Salary of the position in the area
       operationId: getSalary
+      parameters:
+        - $ref: '#/components/parameters/AreaCity'
+        - $ref: '#/components/parameters/AreaDepartment'
       responses:
         '200':
           description: Salary insight.
@@ -171,6 +177,12 @@ paths:
             type: string
             enum: [least_disputed, best_paid, most_recent]
             default: least_disputed
+        - $ref: '#/components/parameters/AreaCity'
+        - $ref: '#/components/parameters/AreaDepartment'
+        - name: radius
+          in: query
+          description: Radius of the search area in kilometers (10, 30, 50 or 100). Twins are looked for within it.
+          schema: { type: integer, minimum: 1, maximum: 200 }
       responses:
         '200':
           description: Twin offers.
@@ -380,6 +392,16 @@ components:
       in: path
       required: true
       schema: { type: string }
+    AreaCity:
+      name: city
+      in: query
+      description: City of the search area of the user (Paris by default). Never a position.
+      schema: { type: string }
+    AreaDepartment:
+      name: department
+      in: query
+      description: French department of the city (`75`, `2A`, `974`), absent when unknown.
+      schema: { type: string }
   responses:
     Error:
       description: Error. `error.code` is machine readable, `error.message` is for developers only.
@@ -407,6 +429,15 @@ components:
         url: { type: string, format: uri, description: Required for `link`. }
         jobTitle: { type: string, description: Required for `manual`. }
         city: { type: string, description: Required for `manual`. }
+        area: { $ref: '#/components/schemas/Area' }
+    Area:
+      type: object
+      description: Search area of the user. Only a city and its department, never a position (found on the phone).
+      required: [city, radiusKilometers]
+      properties:
+        city: { type: string, example: Lyon }
+        departmentCode: { type: [string, 'null'], example: '69' }
+        radiusKilometers: { type: integer, example: 30 }
     SalaryRange:
       type: object
       required: [minimum, maximum]
