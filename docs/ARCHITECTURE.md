@@ -279,6 +279,12 @@ The user never sees technical details: no library names, no build numbers, no in
 shows only the public version ("Version 1.0", `displayVersion`). The notices required by the licenses of the
 libraries ship with the app in `composeApp/src/commonMain/composeResources/files/third_party_notices.txt`, not shown.
 
+## Orientation
+
+The app is portrait only: `android:screenOrientation="portrait"` on `MainActivity` (`"behind"` on the translucent
+notification permission activity), `UISupportedInterfaceOrientations` = portrait on iOS (iPhone only). Android 16
+ignores the forced orientation on large screens, which is accepted.
+
 ## Git flow
 
 `main` holds releases, `develop` is the integration branch. One branch per feature, `feature/<name>`, from

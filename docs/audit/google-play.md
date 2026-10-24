@@ -61,6 +61,7 @@ Aucun plantage (`adb logcat -b crash` vide) sur tout le passage.
 | Sauvegarde | OK | `allowBackup="false"` : la session n'est pas copiée vers un autre appareil. |
 | Icône | OK | Icône adaptative + monochrome (thème des icônes Android 13+) ; icône de la fiche 512 × 512 sans transparence (`androidApp/src/main/playstore/ic_launcher-playstore.png`). |
 | Nom | OK | « Jauge », 5 caractères. |
+| Orientation | OK | Portrait seulement : `screenOrientation="portrait"` sur `MainActivity`, `"behind"` sur l'activité transparente de demande de notifications (une orientation fixe sur une activité transparente plante sous Android 8.0). Android 16 ignore l'orientation forcée sur les grands écrans (tablettes, pliables ouverts, largeur ≥ 600 dp) : l'app s'affiche alors aussi en paysage, c'est accepté. |
 
 ## 3. Autorisations (manifeste fusionné)
 

@@ -98,7 +98,7 @@ navigation ou de recherche, données d'usage pour analyse, diagnostics côté ap
 | Universal Links | OK dans l'app, À toi en ligne | `applinks:jauge.io` et `applinks:www.jauge.io`, ouverture gérée (`onContinueUserActivity`). Remplacer `REPLACE_WITH_TEAM_ID` dans `docs/web/.well-known/apple-app-site-association` par ton Team ID et publier `docs/web` sur jauge.io (HTTPS, sans redirection). Activer « Associated Domains » sur l'identifiant. |
 | Retour de connexion `io.jauge.app://login-callback` | OK | Déclaré dans `CFBundleURLTypes`. |
 | Icône 1024 × 1024 sans transparence | OK | `AppIcon.png`, pas de canal alpha. |
-| Orientation | OK | Portrait seulement (iPhone). L'iPad n'est pas visé : vérifier dans Xcode que la cible est « iPhone » seulement, sinon Apple demande des captures iPad. |
+| Orientation | OK | Portrait seulement (iPhone) : `UISupportedInterfaceOrientations` = `UIInterfaceOrientationPortrait` dans `Info.plist` et dans les réglages de la cible. La cible est « iPhone » seulement (`TARGETED_DEVICE_FAMILY = 1`), donc pas de `UIRequiresFullScreen` ni de captures iPad. |
 
 ## 8. Accessibilité de base
 
