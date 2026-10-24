@@ -43,7 +43,7 @@ class KotlinMultiplatformLibraryConventionPlugin : Plugin<Project> {
                 applyDefaultHierarchyTemplate()
 
                 compilerOptions {
-                    freeCompilerArgs.add("-Xexpect-actual-classes")
+                    freeCompilerArgs.addAll("-Xexpect-actual-classes", "-opt-in=kotlin.time.ExperimentalTime")
                 }
 
                 sourceSets.apply {

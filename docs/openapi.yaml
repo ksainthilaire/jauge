@@ -1,0 +1,592 @@
+openapi: 3.1.0
+info:
+  title: Jauge API
+  version: 1.0.0
+  description: |
+    API of the Jauge mobile app. Paths are in English, bodies are JSON (except image uploads, multipart).
+    All dates are ISO 8601. Salaries are annual gross amounts in thousands of euros.
+    Every error answer uses the `Error` body; the app maps `error.code` (or the HTTP status) to a friendly message.
+    See docs/api.md for the behaviour of each endpoint.
+servers:
+  - url: https://api.jauge.io
+security:
+  - bearerAuth: []
+tags:
+  - name: Analyses
+  - name: Insights
+  - name: Alerts
+  - name: Shares
+  - name: Account
+paths:
+  /v1/analyses:
+    post:
+      tags: [Analyses]
+      summary: Start the analysis of an offer (link, manual entry or image)
+      operationId: createAnalysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnalysisRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image, origin]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: JPEG, PNG or HEIC, 10 MB at most.
+                origin:
+                  type: string
+                  enum: [screenshot, photo]
+      responses:
+        '202':
+          description: Analysis accepted, status `processing`. Poll GET /v1/analyses/{id}.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '402': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+    get:
+      tags: [Analyses]
+      summary: Analyses of the user, newest first
+      operationId: listAnalyses
+      parameters:
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: One page of analyses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisPage'
+        '401': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    get:
+      tags: [Analyses]
+      summary: One analysis (polled while processing)
+      operationId: getAnalysis
+      responses:
+        '200':
+          description: The analysis.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Analyses]
+      summary: Delete an analysis
+      operationId: deleteAnalysis
+      responses:
+        '204': { description: Deleted. }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}/salary:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    get:
+      tags: [Insights]
+      summary: Salary of the position in the area
+      operationId: getSalary
+      responses:
+        '200':
+          description: Salary insight.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryInsight'
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}/skills:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    get:
+      tags: [Insights]
+      summary: Skills asked for by twin offers
+      operationId: getSkills
+      responses:
+        '200':
+          description: Skills insight.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillsInsight'
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}/trend:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    get:
+      tags: [Insights]
+      summary: Applicants per offer over 12 months
+      operationId: getTrend
+      responses:
+        '200':
+          description: Trend insight.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendInsight'
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}/twins:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    get:
+      tags: [Insights]
+      summary: Twin offers (same job, fewer applicants)
+      operationId: getTwins
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [least_disputed, best_paid, most_recent]
+            default: least_disputed
+      responses:
+        '200':
+          description: Twin offers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwinOffers'
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}/feedback:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    post:
+      tags: [Insights]
+      summary: Send the real number of applicants known by the user
+      operationId: sendApplicantFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actualApplicants]
+              properties:
+                actualApplicants: { type: integer, minimum: 1, maximum: 100000 }
+      responses:
+        '204': { description: Thank you. }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /v1/methodology:
+    get:
+      tags: [Insights]
+      summary: How the estimate of an analysis was made
+      operationId: getMethodology
+      parameters:
+        - name: analysisId
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Methodology.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Methodology'
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/alerts:
+    get:
+      tags: [Alerts]
+      summary: Calm alerts of the user
+      operationId: listAlerts
+      responses:
+        '200':
+          description: Alerts.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Alert' }
+    post:
+      tags: [Alerts]
+      summary: Create a calm alert on the twins of an analysis
+      operationId: createAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [analysisId, threshold]
+              properties:
+                analysisId: { type: string }
+                threshold: { type: integer, minimum: 1, maximum: 100, default: 30 }
+      responses:
+        '201':
+          description: Alert created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Alert' }
+        '402': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/alerts/{id}:
+    delete:
+      tags: [Alerts]
+      summary: Delete a calm alert
+      operationId: deleteAlert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted. }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/shares:
+    get:
+      tags: [Shares]
+      summary: Shares of the user, newest first
+      operationId: listShares
+      responses:
+        '200':
+          description: Shares.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Share' }
+    post:
+      tags: [Shares]
+      summary: Share an analysis (public link and card image)
+      operationId: createShare
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [analysisId, format]
+              properties:
+                analysisId: { type: string }
+                format: { type: string, enum: [story, square, link] }
+                hideCompany: { type: boolean, default: false }
+                showCalmTwin: { type: boolean, default: true }
+      responses:
+        '201':
+          description: Share created. `url` is always https://jauge.io/a/{analysisId}.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Share' }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/shares/{id}:
+    delete:
+      tags: [Shares]
+      summary: Delete a share (the public link stops working)
+      operationId: deleteShare
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted. }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/account:
+    get:
+      tags: [Account]
+      summary: The current account
+      operationId: getAccount
+      responses:
+        '200':
+          description: Account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Account' }
+        '401': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Account]
+      summary: Delete the account and all its data
+      operationId: deleteAccount
+      responses:
+        '202': { description: Deletion scheduled; the account is no longer usable. }
+        '401': { $ref: '#/components/responses/Error' }
+  /v1/account/consents:
+    patch:
+      tags: [Account]
+      summary: Update the consents
+      operationId: updateConsents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Consents' }
+      responses:
+        '200':
+          description: Updated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Account' }
+  /v1/subscription:
+    get:
+      tags: [Account]
+      summary: Jauge Plus entitlement known by the server and free quota of the week
+      operationId: getSubscription
+      responses:
+        '200':
+          description: Subscription.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Subscription' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Supabase access token of the user (anonymous sessions included).
+  parameters:
+    AnalysisId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    Error:
+      description: Error. `error.code` is machine readable, `error.message` is for developers only.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code]
+          properties:
+            code:
+              type: string
+              enum: [quota_reached, unreadable_offer, invalid_link, unsupported_link, image_too_large, validation_failed, unauthorized, not_found, rate_limited, maintenance, internal]
+            message: { type: string }
+    CreateAnalysisRequest:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [link, manual] }
+        url: { type: string, format: uri, description: Required for `link`. }
+        jobTitle: { type: string, description: Required for `manual`. }
+        city: { type: string, description: Required for `manual`. }
+    SalaryRange:
+      type: object
+      required: [minimum, maximum]
+      properties:
+        minimum: { type: integer, description: Thousands of euros, annual gross. }
+        maximum: { type: integer }
+    Applicants:
+      type: object
+      required: [estimate, low, high]
+      properties:
+        estimate: { type: integer }
+        low: { type: integer }
+        high: { type: integer }
+    Offer:
+      type: object
+      required: [jobTitle, city]
+      properties:
+        jobTitle: { type: string }
+        company: { type: [string, 'null'] }
+        city: { type: string }
+        contractType: { type: string, enum: [permanent, fixed_term, apprenticeship, internship, freelance, temporary, other] }
+        workMode: { type: [string, 'null'] }
+        publishedOn: { type: [string, 'null'], format: date }
+        displayedSalary: { oneOf: [ { $ref: '#/components/schemas/SalaryRange' }, { type: 'null' } ] }
+        skills: { type: array, items: { type: string } }
+        sourceUrl: { type: [string, 'null'], format: uri }
+    ReadingStep:
+      type: object
+      required: [kind, status]
+      properties:
+        kind: { type: string, enum: [position_and_place, skills, comparison, applicants] }
+        status: { type: string, enum: [pending, running, done] }
+        detail: { type: [string, 'null'] }
+    AnalysisResult:
+      type: object
+      required: [score, percentileInRegion, regionName, applicants, reliability]
+      properties:
+        score: { type: integer, minimum: 0, maximum: 100, description: '0 to 33 calm, 34 to 66 disputed, 67 to 100 crowded.' }
+        percentileInRegion: { type: integer, minimum: 0, maximum: 100 }
+        regionName: { type: string }
+        applicants: { $ref: '#/components/schemas/Applicants' }
+        reliability: { type: string, enum: [high, medium, low] }
+        estimatedSalary: { oneOf: [ { $ref: '#/components/schemas/SalaryRange' }, { type: 'null' } ] }
+        twinOfferCount: { type: integer }
+        twinRadiusKilometers: { type: integer }
+        trendThreeMonthsPercent: { type: integer }
+        comparableOfferCount: { type: integer }
+        timingAdvice:
+          type: [object, 'null']
+          properties:
+            applyBefore: { type: string, enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY] }
+            sharePercent: { type: integer }
+            withinDays: { type: integer }
+    Analysis:
+      type: object
+      required: [id, status, createdAt]
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [processing, completed, failed] }
+        createdAt: { type: string, format: date-time }
+        progressPercent: { type: integer, minimum: 0, maximum: 100 }
+        steps: { type: array, items: { $ref: '#/components/schemas/ReadingStep' } }
+        publishedDaysAgo: { type: [integer, 'null'] }
+        hasDisplayedSalary: { type: [boolean, 'null'] }
+        offer: { oneOf: [ { $ref: '#/components/schemas/Offer' }, { type: 'null' } ] }
+        result: { oneOf: [ { $ref: '#/components/schemas/AnalysisResult' }, { type: 'null' } ] }
+        failure:
+          type: [object, 'null']
+          properties:
+            code: { type: string, enum: [unreadable_offer, unsupported_link, internal] }
+            recognizedCompany: { type: [string, 'null'] }
+    AnalysisSummary:
+      type: object
+      required: [id, createdAt, jobTitle, place, score]
+      properties:
+        id: { type: string }
+        createdAt: { type: string, format: date-time }
+        jobTitle: { type: string }
+        company: { type: [string, 'null'] }
+        place: { type: string }
+        score: { type: integer }
+    AnalysisPage:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/AnalysisSummary' } }
+        nextCursor: { type: [string, 'null'] }
+    SalaryInsight:
+      type: object
+      required: [areaName, offerCount, scaleMinimum, scaleMaximum, middleHalf, median]
+      properties:
+        areaName: { type: string }
+        offerCount: { type: integer }
+        scaleMinimum: { type: integer }
+        scaleMaximum: { type: integer }
+        middleHalf: { $ref: '#/components/schemas/SalaryRange' }
+        median: { type: integer }
+        offerRange: { oneOf: [ { $ref: '#/components/schemas/SalaryRange' }, { type: 'null' } ] }
+        negotiationTarget: { type: [integer, 'null'] }
+    SkillsInsight:
+      type: object
+      required: [skills]
+      properties:
+        skills:
+          type: array
+          items:
+            type: object
+            required: [name, sharePercent]
+            properties:
+              name: { type: string }
+              sharePercent: { type: integer }
+              owned: { type: [boolean, 'null'] }
+    TrendInsight:
+      type: object
+      required: [points, changeThreeMonthsPercent]
+      properties:
+        points:
+          type: array
+          items:
+            type: object
+            required: [month, applicantsPerOffer]
+            properties:
+              month: { type: string, pattern: '^[0-9]{4}-[0-9]{2}$' }
+              applicantsPerOffer: { type: integer }
+        changeThreeMonthsPercent: { type: integer }
+    TwinOffers:
+      type: object
+      required: [areaName, radiusKilometers, items]
+      properties:
+        areaName: { type: string }
+        radiusKilometers: { type: integer }
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, jobTitle, company, place, estimatedApplicants, score, distanceKilometers]
+            properties:
+              id: { type: string }
+              jobTitle: { type: string }
+              company: { type: string }
+              place: { type: string }
+              salary: { oneOf: [ { $ref: '#/components/schemas/SalaryRange' }, { type: 'null' } ] }
+              estimatedApplicants: { type: integer }
+              score: { type: integer }
+              distanceKilometers: { type: integer }
+              publishedOn: { type: [string, 'null'], format: date }
+              url: { type: [string, 'null'], format: uri }
+    Methodology:
+      type: object
+      required: [applicants, reliability, comparableOfferCount, regionName, salarySourceCount]
+      properties:
+        applicants: { $ref: '#/components/schemas/Applicants' }
+        reliability: { type: string, enum: [high, medium, low] }
+        reliabilityReasons: { type: array, items: { type: string }, description: In the language of Accept-Language. }
+        comparableOfferCount: { type: integer }
+        regionName: { type: string }
+        salarySourceCount: { type: integer }
+    Alert:
+      type: object
+      required: [id, analysisId, threshold]
+      properties:
+        id: { type: string }
+        analysisId: { type: string }
+        threshold: { type: integer }
+        active: { type: boolean }
+    Share:
+      type: object
+      required: [id, analysisId, url, format, createdAt]
+      properties:
+        id: { type: string }
+        analysisId: { type: string }
+        url: { type: string, format: uri, example: 'https://jauge.io/a/demo-marketing-digital' }
+        imageUrl: { type: [string, 'null'], format: uri }
+        format: { type: string, enum: [story, square, link] }
+        hideCompany: { type: boolean }
+        showCalmTwin: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    Consents:
+      type: object
+      required: [marketingEmails]
+      properties:
+        marketingEmails: { type: boolean }
+    Account:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        displayName: { type: [string, 'null'] }
+        email: { type: [string, 'null'], format: email }
+        signInMethod: { type: string, enum: [apple, google, email, none] }
+        analysisCount: { type: integer }
+        consents: { $ref: '#/components/schemas/Consents' }
+    Subscription:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [free, trial, active, expired] }
+        trialEndsOn: { type: [string, 'null'], format: date }
+        renewsOn: { type: [string, 'null'], format: date }
+        freeAnalysesLeftThisWeek: { type: integer }

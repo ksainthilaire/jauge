@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_no_connection_title">No connection</string>
+    <string name="error_no_connection_message">Check your Wi-Fi or mobile data, then try again. Nothing is lost.</string>
+    <string name="error_timeout_title">This is taking a while</string>
+    <string name="error_timeout_message">The network is slow to answer. Try again in a moment.</string>
+    <string name="error_server_unavailable_title">Jauge is taking a break</string>
+    <string name="error_server_unavailable_message">Our service is briefly unavailable. Try again in a few minutes.</string>
+    <string name="error_too_many_requests_title">Let's catch our breath</string>
+    <string name="error_too_many_requests_message">That was quick! Wait a few seconds before trying again.</string>
+    <string name="error_not_found_title">Not found</string>
+    <string name="error_not_found_message">This analysis no longer exists or was deleted.</string>
+    <string name="error_session_expired_title">Please sign in again</string>
+    <string name="error_session_expired_message">Your session has expired. Sign in again to get your analyses back.</string>
+    <string name="error_quota_reached_title">Your free analysis of the week is used</string>
+    <string name="error_quota_reached_message">Upgrade to Jauge Plus to gauge every offer, with 3 free days.</string>
+    <string name="error_unreadable_offer_title">We could not read this screenshot.</string>
+    <string name="error_unreadable_offer_message">The text is too blurry to recognize the job and the city. This attempt does not count in your free analysis.</string>
+    <string name="error_invalid_link_title">This is not a link</string>
+    <string name="error_invalid_link_message">Paste the full address of the offer, for example from the Share button of the site.</string>
+    <string name="error_unsupported_link_title">We cannot read this site</string>
+    <string name="error_unsupported_link_message">Try a screenshot of the offer instead: it works with every site.</string>
+    <string name="error_image_too_large_title">Image too large</string>
+    <string name="error_image_too_large_message">Pick a screenshot rather than a very high resolution photo.</string>
+    <string name="error_storage_full_title">Your phone is full</string>
+    <string name="error_storage_full_message">Free up some space to save the card, then try again.</string>
+    <string name="error_purchase_cancelled_title">Purchase cancelled</string>
+    <string name="error_purchase_cancelled_message">No payment was made. You can try again whenever you like.</string>
+    <string name="error_purchase_unavailable_title">Purchases unavailable</string>
+    <string name="error_purchase_unavailable_message">Purchases are not available on this device right now.</string>
+    <string name="error_purchase_pending_title">Payment pending</string>
+    <string name="error_purchase_pending_message">Your payment is waiting for approval. Jauge Plus will start as soon as it is accepted.</string>
+    <string name="error_invalid_data_title">Something is off</string>
+    <string name="error_invalid_data_message">Some information could not be read. Try again in a moment.</string>
+    <string name="error_unknown_title">Oops, something unexpected</string>
+    <string name="error_unknown_message">Something did not work. Try again, and if it keeps happening, write to us.</string>
+    <string name="error_action_retry">Try again</string>
+    <string name="error_action_see_plus">Discover Jauge Plus</string>
+    <string name="error_action_sign_in">Sign in</string>
+    <string name="error_action_paste_link">Paste the link instead</string>
+    <string name="error_action_take_photo_again">Take the photo again</string>
+    <string name="error_action_enter_manually">Enter the job and city manually</string>
+    <string name="error_action_back_home">Back to home</string>
+    <string name="error_action_try_screenshot">Try with a screenshot</string>
+</resources>

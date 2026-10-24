@@ -1,0 +1,84 @@
+package io.jauge.core.network
+
+import io.jauge.core.network.payload.CreateAnalysisRequestPayload
+import kotlinx.coroutines.test.runTest
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.util.concurrent.TimeUnit
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
+
+class RetrofitJaugeApiTest {
+
+    private lateinit var server: MockWebServer
+    private lateinit var api: JaugeApi
+
+    @BeforeTest
+    fun setUp() {
+        server = MockWebServer()
+        server.start()
+        val client = OkHttpClient.Builder().readTimeout(1, TimeUnit.SECONDS).build()
+        val service = Retrofit.Builder()
+            .baseUrl(server.url("/"))
+            .client(client)
+            .addConverterFactory(JaugeJson.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(RetrofitJaugeService::class.java)
+        api = RetrofitJaugeApi(service)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        server.close()
+    }
+
+    @Test
+    fun createsAnAnalysisFromALink() = runTest {
+        server.enqueue(
+            MockResponse.Builder()
+                .code(202)
+                .body("""{"id":"a1","status":"processing","createdAt":"2026-10-23T08:00:00Z","progressPercent":20}""")
+                .build(),
+        )
+        val analysis = api.createAnalysis(CreateAnalysisRequestPayload(type = "link", url = "https://example.com/job"))
+        assertEquals("a1", analysis.id)
+        val request = server.takeRequest()
+        assertEquals("/v1/analyses", request.url.encodedPath)
+        assertTrue(request.body?.utf8().orEmpty().contains("\"url\":\"https://example.com/job\""))
+    }
+
+    @Test
+    fun errorBodiesBecomeHttpFailuresWithTheirCode() = runTest {
+        server.enqueue(MockResponse.Builder().code(402).body("""{"error":{"code":"quota_reached"}}""").build())
+        val failure = assertFailsWith<NetworkFailure.Http> { api.getAnalysis("a1") }
+        assertEquals(402, failure.statusCode)
+        assertEquals("quota_reached", failure.errorCode)
+    }
+
+    @Test
+    fun deleteFailuresAreReported() = runTest {
+        server.enqueue(MockResponse.Builder().code(404).body("""{"error":{"code":"not_found"}}""").build())
+        val failure = assertFailsWith<NetworkFailure.Http> { api.deleteAlert("missing") }
+        assertEquals("not_found", failure.errorCode)
+    }
+
+    @Test
+    fun malformedJsonIsAnInvalidResponse() = runTest {
+        server.enqueue(MockResponse.Builder().code(200).body("""{"unexpected": """).build())
+        assertFailsWith<NetworkFailure.InvalidResponse> { api.getAccount() }
+    }
+
+    @Test
+    fun slowServersTimeOut() = runTest {
+        server.enqueue(MockResponse.Builder().code(200).body("{}").headersDelay(3, TimeUnit.SECONDS).build())
+        assertFailsWith<NetworkFailure.Timeout> { api.getSubscription() }
+    }
+}

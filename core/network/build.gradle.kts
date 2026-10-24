@@ -15,6 +15,12 @@ kotlin {
             implementation(libs.okhttp)
             implementation(libs.okhttp.loggingInterceptor)
         }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.okhttp.mockWebServer)
+            implementation(libs.retrofit)
+            implementation(libs.retrofit.converter.kotlinxSerialization)
+            implementation(libs.okhttp)
+        }
         iosMain.dependencies {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.darwin)
