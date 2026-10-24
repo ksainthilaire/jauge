@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * Convention for `feature:*` modules (one module per user journey).
  *
  * A feature module gets Compose, type safe navigation (serializable routes), Koin view models and the core modules a
- * screen needs: design system, user interface helpers, domain and common. A feature never depends on another feature
+ * screen needs: design system, user interface helpers (friendly error messages), domain and common. A feature never depends on another feature
  * nor on the data layer: navigation between features is wired in `composeApp` through callbacks.
  */
 class FeatureConventionPlugin : Plugin<Project> {
@@ -26,6 +26,7 @@ class FeatureConventionPlugin : Plugin<Project> {
                         implementation(project(":core:common"))
                         implementation(project(":core:designsystem"))
                         implementation(project(":core:domain"))
+                        implementation(project(":core:ui"))
                         implementation(libraries.libraryOf("koin-compose"))
                         implementation(libraries.libraryOf("koin-compose-viewmodel"))
                         implementation(libraries.libraryOf("androidx-lifecycle-viewmodel-compose"))

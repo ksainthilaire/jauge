@@ -1,8 +1,12 @@
 package io.jauge.app.di
 
 import io.jauge.app.AppViewModel
+import io.jauge.core.billing.billingModule
 import io.jauge.core.common.commonModule
 import io.jauge.core.common.configuration.AppEnvironment
+import io.jauge.core.data.dataModule
+import io.jauge.core.domain.domainModule
+import io.jauge.core.network.networkModule
 import io.jauge.feature.account.di.accountModule
 import io.jauge.feature.analysis.di.analysisModule
 import io.jauge.feature.onboarding.di.onboardingModule
@@ -44,6 +48,10 @@ fun startJaugeKoin(environment: AppEnvironment, platformDeclaration: KoinAppDecl
         modules(
             module { single { environment } },
             commonModule,
+            networkModule,
+            billingModule,
+            dataModule,
+            domainModule,
             appModule,
         )
         modules(featureModules)

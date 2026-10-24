@@ -1,0 +1,131 @@
+package io.jauge.core.domain.usecase
+
+import io.jauge.core.domain.error.JaugeError
+import io.jauge.core.domain.model.Account
+import io.jauge.core.domain.model.Consents
+import io.jauge.core.domain.model.Outcome
+import io.jauge.core.domain.model.Subscription
+import io.jauge.core.domain.model.SubscriptionOffer
+import io.jauge.core.domain.model.TrialTimeline
+import io.jauge.core.domain.repository.AccountRepository
+import io.jauge.core.domain.repository.SubscriptionRepository
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
+import kotlin.time.Clock
+
+/**
+ * The current account (mockup 13).
+ *
+ * @param repository account repository.
+ */
+class GetAccountUseCase(private val repository: AccountRepository) {
+    /** Loads the account. */
+    suspend operator fun invoke(): Outcome<Account> = repository.getAccount()
+}
+
+/**
+ * Updates the consents (mockup 11).
+ *
+ * @param repository account repository.
+ */
+class UpdateConsentsUseCase(private val repository: AccountRepository) {
+    /**
+     * Saves the consents.
+     *
+     * @param consents new consents.
+     */
+    suspend operator fun invoke(consents: Consents): Outcome<Account> = repository.updateConsents(consents)
+}
+
+/**
+ * Deletes the account and its data (required by the stores).
+ *
+ * @param repository account repository.
+ */
+class DeleteAccountUseCase(private val repository: AccountRepository) {
+    /** Deletes the account. */
+    suspend operator fun invoke(): Outcome<Unit> = repository.deleteAccount()
+}
+
+/**
+ * Current subscription (mockup 13).
+ *
+ * @param repository subscription repository.
+ */
+class GetSubscriptionUseCase(private val repository: SubscriptionRepository) {
+    /** Loads the subscription. */
+    suspend operator fun invoke(): Outcome<Subscription> = repository.getSubscription()
+}
+
+/**
+ * The single monthly offer of the paywall (mockup 08).
+ *
+ * @param repository subscription repository.
+ */
+class GetSubscriptionOfferUseCase(private val repository: SubscriptionRepository) {
+    /** Loads the offer with its store price. */
+    suspend operator fun invoke(): Outcome<SubscriptionOffer> = repository.getOffer()
+}
+
+/**
+ * Starts the free trial of Jauge Plus.
+ *
+ * @param repository subscription repository.
+ */
+class PurchaseSubscriptionUseCase(private val repository: SubscriptionRepository) {
+    /**
+     * Buys the offer. A cancellation comes back as [JaugeError.PurchaseCancelled].
+     *
+     * @param offer the offer shown on the paywall.
+     */
+    suspend operator fun invoke(offer: SubscriptionOffer): Outcome<Subscription> =
+        if (offer.productId.isBlank()) Outcome.Failure(JaugeError.PurchaseUnavailable) else repository.purchase(offer)
+}
+
+/**
+ * Restores previous purchases ("Restaurer les achats").
+ *
+ * @param repository subscription repository.
+ */
+class RestorePurchasesUseCase(private val repository: SubscriptionRepository) {
+    /** Restores the purchases. */
+    suspend operator fun invoke(): Outcome<Subscription> = repository.restorePurchases()
+}
+
+/**
+ * Computes the trial timeline of the paywall from today's date: reminder the day before the end, first payment at
+ * the end of the trial (mockup 08: today 23 Oct, reminder 25 Oct, payment 26 Oct).
+ *
+ * @param clock source of the current time.
+ * @param timeZone time zone of the user.
+ */
+class ComputeTrialTimelineUseCase(
+    private val clock: Clock = Clock.System,
+    private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+) {
+    /**
+     * Computes the timeline.
+     *
+     * @param trialDays length of the trial.
+     */
+    operator fun invoke(trialDays: Int = SubscriptionOffer.TRIAL_DAYS): TrialTimeline = timelineFrom(clock.todayIn(timeZone), trialDays)
+
+    /** Pure computation, shared with tests. */
+    companion object {
+        /**
+         * Timeline of a trial starting on [startsOn].
+         *
+         * @param startsOn first day of the trial.
+         * @param trialDays length of the trial, at least 1.
+         */
+        fun timelineFrom(startsOn: LocalDate, trialDays: Int): TrialTimeline {
+            val days = trialDays.coerceAtLeast(1)
+            val firstPayment = startsOn.plus(DatePeriod(days = days))
+            val reminder = if (days > 1) startsOn.plus(DatePeriod(days = days - 1)) else startsOn
+            return TrialTimeline(startsOn = startsOn, reminderOn = reminder, firstPaymentOn = firstPayment)
+        }
+    }
+}

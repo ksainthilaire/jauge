@@ -1,0 +1,105 @@
+# Jauge API contract
+
+The API does not exist yet. This document and `docs/openapi.yaml` (OpenAPI 3.1, the reference) describe what the app
+expects. Until the API is deployed, the app runs in **offline mode** (see the end of this document).
+
+- Base URL: `https://api.jauge.io/` (configurable with `jauge.api.baseUrl`).
+- Paths in English, versioned under `/v1`. JSON bodies in UTF-8, except image uploads (multipart).
+- Dates: ISO 8601 (`2026-10-23`, `2026-10-23T08:00:00Z`). Months: `2026-10`.
+- Salaries: annual gross, in thousands of euros (`{"minimum": 36, "maximum": 41}` means 36 to 41 k€).
+- Scores: integer from 0 to 100. 0 to 33 is calm, 34 to 66 disputed, 67 to 100 crowded.
+- Unknown fields must be ignored by clients (the app does), so the API can add fields at any time.
+
+## Headers
+
+| Header | Value |
+|---|---|
+| `Authorization` | `Bearer <Supabase access token>` (anonymous sessions included). Absent until authentication is wired. |
+| `Accept-Language` | Language of the device (`fr-FR`, `en-US`). Texts written by the API (reliability reasons) follow it. |
+| `Accept` | `application/json` |
+
+## Endpoints
+
+| Method and path | Purpose | Screen |
+|---|---|---|
+| `POST /v1/analyses` | Start an analysis: JSON `{type: "link", url}` or `{type: "manual", jobTitle, city}`, or multipart `image` + `origin` (`screenshot` or `photo`). Answers `202` with status `processing`. | 02, 10 |
+| `GET /v1/analyses?cursor=&limit=` | Analyses of the user, newest first, paginated with `nextCursor`. | 02 |
+| `GET /v1/analyses/{id}` | One analysis. Polled about every second while `status` is `processing`. | 03, 04 |
+| `DELETE /v1/analyses/{id}` | Delete an analysis. | 02 |
+| `GET /v1/analyses/{id}/salary` | Salary scale of the area, median, middle half, estimated range of the offer, negotiation target. | 05 |
+| `GET /v1/analyses/{id}/skills` | Skills asked for by twin offers, with the share of offers and whether the user has them. | 05 |
+| `GET /v1/analyses/{id}/trend` | Applicants per offer over 12 months and the change over 3 months. | 05 |
+| `GET /v1/analyses/{id}/twins?sort=` | Twin offers, `sort` = `least_disputed` (default), `best_paid` or `most_recent`. | 06 |
+| `POST /v1/analyses/{id}/feedback` | `{actualApplicants}`: the real number known by the user. | 09 |
+| `GET /v1/methodology?analysisId=` | How the estimate was made: range, reliability and its reasons, sources. | 09 |
+| `GET /v1/alerts` | Calm alerts of the user. | 06, 12 |
+| `POST /v1/alerts` | `{analysisId, threshold}` (30 by default): notify when a twin goes under the threshold. | 06 |
+| `DELETE /v1/alerts/{id}` | Delete a calm alert. | 06 |
+| `GET /v1/shares` | Shares of the user. | tab "Partages" |
+| `POST /v1/shares` | `{analysisId, format, hideCompany, showCalmTwin}`: creates the public link and the card image. | 07 |
+| `DELETE /v1/shares/{id}` | Delete a share: the public link stops working. | tab "Partages" |
+| `GET /v1/account` | The account (name, sign in method, number of analyses, consents). | 11, 13 |
+| `PATCH /v1/account/consents` | `{marketingEmails}`. | 11 |
+| `DELETE /v1/account` | Delete the account and its data (required by the stores). Answers `202`. | 13 |
+| `GET /v1/subscription` | Jauge Plus status known by the server (from RevenueCat webhooks) and free analyses left this week. | 08, 13 |
+
+### Analysis lifecycle
+
+1. `POST /v1/analyses` answers `202` with `status: "processing"`, `progressPercent` and `steps`
+   (`position_and_place`, `skills`, `comparison`, `applicants`, each `pending`, `running` or `done`, with an optional
+   `detail`). `publishedDaysAgo` and `hasDisplayedSalary` appear as soon as they are known (box "Déjà trouvé").
+2. The app polls `GET /v1/analyses/{id}` every second (90 polls at most, then a timeout message).
+3. `status: "completed"` brings `offer` and `result`. `status: "failed"` brings `failure.code`:
+   `unreadable_offer` (with `recognizedCompany` when the company could still be read) or `unsupported_link`.
+4. An unreadable image does not use the free analysis of the week.
+
+### Share links
+
+The public link of an analysis is always `https://jauge.io/a/{analysisId}`. `POST /v1/shares` returns it in `url`,
+and the app rebuilds it from the analysis identifier anyway. The card image (`imageUrl`) is rendered by the server
+for the `story` and `square` formats, with the options chosen by the user (company hidden, calm twin shown).
+
+## Errors
+
+Every `4xx` and `5xx` answer has this body. `message` is for developers and is never shown to the user.
+
+```json
+{ "error": { "code": "quota_reached", "message": "Weekly free analysis already used" } }
+```
+
+| Code | HTTP | Meaning | What the user sees |
+|---|---|---|---|
+| `quota_reached` | 402 | Free analysis of the week used | Paywall invitation |
+| `unreadable_offer` | 422 | Image unreadable | Mockup 10 (retake, paste link, manual entry) |
+| `invalid_link` | 422 | Not a link | "Ce n'est pas un lien" |
+| `unsupported_link` | 422 | Site or page not readable | Suggests a screenshot |
+| `image_too_large` | 413 | Image over 10 MB | Suggests a screenshot |
+| `validation_failed` | 400, 422 | Invalid body | Generic friendly message |
+| `unauthorized` | 401 | Session expired | Sign in again |
+| `not_found` | 404 | Item deleted or unknown | "Introuvable" |
+| `rate_limited` | 429 | Too many requests | Wait a few seconds |
+| `maintenance` | 503 | Planned maintenance | "Jauge fait une pause" |
+| `internal` | 500 | Server bug | Generic friendly message |
+
+Without a known code, the app maps the HTTP status (401/403 session, 402 quota, 404/410 not found, 408 timeout,
+413 image too large, 400/422 invalid data, 429 rate limit, 5xx unavailable). Network failures (offline, timeout) and
+unreadable bodies are mapped too. The mapping lives in `core/data/.../error/ErrorMapping.kt` and the texts in
+`core/ui/src/commonMain/composeResources/values*/strings.xml`.
+
+## Clients in the app
+
+- Common interface: `core/network/src/commonMain/.../JaugeApi.kt`. Implementations throw only `NetworkFailure`.
+- Android: Retrofit + OkHttp (`RetrofitJaugeService`, `RetrofitJaugeApi`, timeouts 15 s connect, 30 s read/write).
+- iOS: Ktor with the Darwin engine (`KtorJaugeApi`), same interface and same failures.
+- Offline: `core/data/.../offline/OfflineJaugeApi.kt`.
+
+## Offline mode ("mode sans API")
+
+`OfflineJaugeApi` implements the same interface with realistic data from the mockups (Atelier Sorel, score 78,
+about 210 applicants, 36 to 41 k€, twins around Lyon), a simulated latency (350 to 900 ms) and an analysis that
+progresses 20, 40, 62, 85 % then completes. New analyses, alerts and shares are kept in memory.
+
+It is on when `jauge.api.offlineMode` is not `false` (the default while the API does not exist). In debug builds a
+long press on the "Profil" tab switches between offline and real API at runtime. `OfflineScenarioController`
+simulates failures: `NO_CONNECTION`, `TIMEOUT`, `SERVER_UNAVAILABLE`, `SESSION_EXPIRED`, `QUOTA_REACHED`,
+`UNREADABLE_OFFER`, `INVALID_RESPONSE` and `EMPTY` (empty lists).

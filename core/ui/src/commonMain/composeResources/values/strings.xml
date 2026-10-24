@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_no_connection_title">Pas de connexion</string>
+    <string name="error_no_connection_message">Vérifie ton Wi-Fi ou tes données mobiles, puis réessaie. Rien n'est perdu.</string>
+    <string name="error_timeout_title">C'est un peu long</string>
+    <string name="error_timeout_message">Le réseau met du temps à répondre. Réessaie dans un instant.</string>
+    <string name="error_server_unavailable_title">Jauge fait une pause</string>
+    <string name="error_server_unavailable_message">Notre service est momentanément indisponible. Réessaie dans quelques minutes.</string>
+    <string name="error_too_many_requests_title">On souffle un instant</string>
+    <string name="error_too_many_requests_message">Tu es allé(e) vite ! Attends quelques secondes avant de réessayer.</string>
+    <string name="error_not_found_title">Introuvable</string>
+    <string name="error_not_found_message">Cette analyse n'existe plus ou a été supprimée.</string>
+    <string name="error_session_expired_title">Reconnecte-toi</string>
+    <string name="error_session_expired_message">Ta session a expiré. Reconnecte-toi pour retrouver tes analyses.</string>
+    <string name="error_quota_reached_title">Ton analyse gratuite de la semaine est utilisée</string>
+    <string name="error_quota_reached_message">Passe à Jauge Plus pour jauger toutes tes offres, avec 3 jours gratuits.</string>
+    <string name="error_unreadable_offer_title">On n'a pas pu lire cette capture.</string>
+    <string name="error_unreadable_offer_message">Le texte est trop flou pour reconnaître le poste et la ville. Cet essai ne compte pas dans ton analyse gratuite.</string>
+    <string name="error_invalid_link_title">Ce n'est pas un lien</string>
+    <string name="error_invalid_link_message">Colle l'adresse complète de l'offre, par exemple depuis le bouton Partager du site.</string>
+    <string name="error_unsupported_link_title">On ne sait pas lire ce site</string>
+    <string name="error_unsupported_link_message">Essaie avec une capture d'écran de l'offre : ça marche avec tous les sites.</string>
+    <string name="error_image_too_large_title">Image trop lourde</string>
+    <string name="error_image_too_large_message">Choisis une capture d'écran plutôt qu'une photo en très haute définition.</string>
+    <string name="error_storage_full_title">Plus de place sur ton téléphone</string>
+    <string name="error_storage_full_message">Libère un peu d'espace pour enregistrer la carte, puis réessaie.</string>
+    <string name="error_purchase_cancelled_title">Achat annulé</string>
+    <string name="error_purchase_cancelled_message">Aucun paiement n'a été fait. Tu peux réessayer quand tu veux.</string>
+    <string name="error_purchase_unavailable_title">Achats indisponibles</string>
+    <string name="error_purchase_unavailable_message">Les achats ne sont pas disponibles pour le moment sur cet appareil.</string>
+    <string name="error_purchase_pending_title">Paiement en attente</string>
+    <string name="error_purchase_pending_message">Ton paiement attend une validation. Jauge Plus s'activera dès qu'il sera accepté.</string>
+    <string name="error_invalid_data_title">Quelque chose cloche</string>
+    <string name="error_invalid_data_message">Certaines informations n'ont pas pu être lues. Réessaie dans un instant.</string>
+    <string name="error_unknown_title">Oups, un imprévu</string>
+    <string name="error_unknown_message">Quelque chose n'a pas marché. Réessaie, et si ça continue, écris-nous.</string>
+    <string name="error_action_retry">Réessayer</string>
+    <string name="error_action_see_plus">Découvrir Jauge Plus</string>
+    <string name="error_action_sign_in">Me reconnecter</string>
+    <string name="error_action_paste_link">Coller le lien à la place</string>
+    <string name="error_action_take_photo_again">Reprendre en photo</string>
+    <string name="error_action_enter_manually">Saisir le poste et la ville à la main</string>
+    <string name="error_action_back_home">Retour à l'accueil</string>
+    <string name="error_action_try_screenshot">Essayer avec une capture</string>
+</resources>
