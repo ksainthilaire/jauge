@@ -123,4 +123,8 @@
     <string name="methodology_feedback_send">Send</string>
     <string name="methodology_feedback_cancel">Cancel</string>
     <string name="methodology_feedback_thanks">Thanks! Your number helps us estimate better.</string>
+    <string name="verdict_favorite_add">Add to favorites</string>
+    <string name="verdict_favorite_remove">Remove from favorites</string>
+    <string name="verdict_favorite_add_failed">The star could not be saved. Try again in a moment.</string>
+    <string name="verdict_favorite_remove_failed">The star could not be removed. Try again in a moment.</string>
 </resources>

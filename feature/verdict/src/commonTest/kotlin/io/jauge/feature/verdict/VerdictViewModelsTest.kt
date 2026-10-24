@@ -2,6 +2,7 @@ package io.jauge.feature.verdict
 
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Outcome
+import io.jauge.core.domain.usecase.FavoriteAnalysisUseCase
 import io.jauge.core.domain.usecase.GetAnalysisUseCase
 import io.jauge.core.domain.usecase.GetMethodologyUseCase
 import io.jauge.core.domain.usecase.GetSalaryInsightUseCase
@@ -13,10 +14,13 @@ import io.jauge.feature.verdict.common.formatSigned
 import io.jauge.feature.verdict.details.DetailsViewModel
 import io.jauge.feature.verdict.methodology.MethodologyEvent
 import io.jauge.feature.verdict.methodology.MethodologyViewModel
+import io.jauge.feature.verdict.verdict.VerdictFavoriteFailure
 import io.jauge.feature.verdict.verdict.VerdictViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -45,7 +49,7 @@ class VerdictViewModelsTest {
     @Test
     fun verdictLoadsTheAnalysis() = runTest {
         val repository = FakeAnalysisRepository()
-        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository))
+        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository), FavoriteAnalysisUseCase(repository))
 
         val state = viewModel.uiState.value
         assertEquals(SampleData.analysis, state.content)
@@ -56,7 +60,7 @@ class VerdictViewModelsTest {
     @Test
     fun verdictShowsAFriendlyErrorThenRecoversOnRefresh() = runTest {
         val repository = FakeAnalysisRepository(noConnection)
-        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository))
+        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository), FavoriteAnalysisUseCase(repository))
         assertTrue(viewModel.uiState.value.showsFullScreenError)
         assertEquals(JaugeError.NoConnection, viewModel.uiState.value.error)
 
@@ -70,7 +74,7 @@ class VerdictViewModelsTest {
     @Test
     fun verdictKeepsTheContentWhenARefreshFails() = runTest {
         val repository = FakeAnalysisRepository()
-        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository))
+        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository), FavoriteAnalysisUseCase(repository))
         repository.outcome = noConnection
 
         viewModel.refresh()
@@ -175,4 +179,22 @@ class VerdictViewModelsTest {
         getMethodology = GetMethodologyUseCase(insights),
         submitActualApplicants = SubmitActualApplicantsUseCase(insights),
     )
+
+    @Test
+    fun verdictStarIsOptimisticAndUndoneWhenTheServerRefuses() = runTest {
+        val repository = FakeAnalysisRepository()
+        val viewModel = VerdictViewModel("analysis-marketing", GetAnalysisUseCase(repository), FavoriteAnalysisUseCase(repository))
+        assertFalse(viewModel.isFavorite.value)
+
+        viewModel.toggleFavorite(true)
+        assertTrue(viewModel.isFavorite.value)
+
+        repository.favoriteError = JaugeError.NoConnection
+        val failures = mutableListOf<VerdictFavoriteFailure>()
+        val collection = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.favoriteFailures.toList(failures) }
+        viewModel.toggleFavorite(false)
+        assertTrue(viewModel.isFavorite.value)
+        assertEquals(listOf(VerdictFavoriteFailure(wasAdding = false, error = JaugeError.NoConnection)), failures)
+        collection.cancel()
+    }
 }

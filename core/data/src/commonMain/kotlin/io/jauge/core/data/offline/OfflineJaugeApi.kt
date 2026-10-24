@@ -1,5 +1,7 @@
 package io.jauge.core.data.offline
 
+import io.jauge.core.data.preferences.FavoriteStore
+import io.jauge.core.data.preferences.InMemoryKeyValueStore
 import io.jauge.core.data.error.ApiErrorCodes
 import io.jauge.core.network.JaugeApi
 import io.jauge.core.network.NetworkFailure
@@ -31,16 +33,19 @@ import kotlin.random.Random
 /**
  * Offline implementation of [JaugeApi] ("mode sans API"): realistic data from the mockups, simulated latency, an
  * analysis that progresses step by step when polled, and failures chosen with [OfflineScenarioController].
- * It keeps its state in memory (new analyses, alerts, shares) until the app is closed.
+ * It keeps its state in memory (new analyses, alerts, shares) until the app is closed, except the favorites, kept in
+ * [favoriteStore] like a server would.
  *
  * @param dataset sample payloads.
  * @param scenarios simulated scenario and latency.
  * @param random source of randomness for the latency.
+ * @param favoriteStore favorites known by the simulated server.
  */
 class OfflineJaugeApi(
     private val dataset: OfflineDataset,
     private val scenarios: OfflineScenarioController,
     private val random: Random = Random.Default,
+    private val favoriteStore: FavoriteStore = FavoriteStore(InMemoryKeyValueStore(), FavoriteStore.OFFLINE_KEY),
 ) : JaugeApi {
 
     private val mutex = Mutex()
@@ -48,6 +53,7 @@ class OfflineJaugeApi(
     private val order = analyses.keys.toMutableList()
     private val pending = mutableMapOf<String, PendingAnalysis>()
     private val alerts = mutableListOf<AlertPayload>()
+    private val favorites = favoriteStore.read().toMutableSet()
     private val shares = dataset.initialShares().toMutableList()
     private var consents = ConsentsPayload(marketingEmails = false)
     private var counter = 0
@@ -83,18 +89,33 @@ class OfflineJaugeApi(
         val start = cursor?.toIntOrNull() ?: 0
         val ids = order.drop(start).take(limit)
         val next = (start + ids.size).takeIf { it < order.size }?.toString()
-        AnalysisPagePayload(items = ids.mapNotNull { analyses[it]?.let(dataset::summaryOf) }, nextCursor = next)
+        AnalysisPagePayload(
+            items = ids.mapNotNull { id -> analyses[id]?.let(dataset::summaryOf)?.copy(isFavorite = id in favorites) },
+            nextCursor = next,
+        )
     }
 
     override suspend fun getAnalysis(analysisId: String): AnalysisPayload = simulate {
         pending[analysisId]?.let { return@simulate advance(analysisId, it) }
-        analyses[analysisId] ?: throw notFound()
+        analyses[analysisId]?.copy(isFavorite = analysisId in favorites) ?: throw notFound()
     }
 
     override suspend fun deleteAnalysis(analysisId: String) = simulate {
         if (analyses.remove(analysisId) == null) throw notFound()
         order.remove(analysisId)
-        Unit
+        if (favorites.remove(analysisId)) favoriteStore.write(favorites)
+    }
+
+    override suspend fun addFavorite(analysisId: String) = simulate {
+        requireAnalysis(analysisId)
+        favorites.add(analysisId)
+        favoriteStore.write(favorites)
+    }
+
+    override suspend fun removeFavorite(analysisId: String) = simulate {
+        requireAnalysis(analysisId)
+        favorites.remove(analysisId)
+        favoriteStore.write(favorites)
     }
 
     override suspend fun getSalary(analysisId: String): SalaryInsightPayload = simulate { requireAnalysis(analysisId); dataset.salary() }
@@ -164,6 +185,8 @@ class OfflineJaugeApi(
         analyses.clear()
         order.clear()
         alerts.clear()
+        favorites.clear()
+        favoriteStore.write(favorites)
         shares.clear()
     }
 

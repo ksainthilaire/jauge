@@ -126,6 +126,7 @@ internal fun AnalysisPayload.toDomainAnalysis(): Analysis {
                 TimingAdvice(day, advice.sharePercent.coerceIn(0, 100), advice.withinDays.coerceAtLeast(1))
             }
         },
+        isFavorite = isFavorite,
     )
 }
 
@@ -165,7 +166,7 @@ internal fun AnalysisPayload.toProgress(): AnalysisProgress = when (status) {
 internal fun AnalysisSummaryPayload.toDomainOrNull(): AnalysisSummary? {
     val created = createdAt.toInstantOrNull() ?: return null
     if (jobTitle.isBlank()) return null
-    return AnalysisSummary(id, created, jobTitle.trim(), company?.takeIf { it.isNotBlank() }, place, score.coerceIn(0, 100))
+    return AnalysisSummary(id, created, jobTitle.trim(), company?.takeIf { it.isNotBlank() }, place, score.coerceIn(0, 100), isFavorite)
 }
 
 /** Maps the salary insight. */

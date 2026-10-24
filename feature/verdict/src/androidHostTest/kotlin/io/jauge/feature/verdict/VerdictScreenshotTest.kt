@@ -32,6 +32,21 @@ class VerdictScreenshotTest {
         captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = darkTheme) { content() } }
     }
 
+    /** Verdict of a favorite analysis (filled star), light and dark themes. */
+    @Test
+    fun verdictFavorite() {
+        listOf(false, true).forEach { dark ->
+            capture(if (dark) "04-verdict-favori-sombre" else "04-verdict-favori", darkTheme = dark) {
+                VerdictLayout(
+                    state = ContentState(content = SampleData.analysis, isLoading = false),
+                    onBack = {}, onRefresh = {}, onShare = {}, onOpenDetails = {}, onOpenMethodology = {}, onOpenTwins = {}, onOpenTrend = {},
+                    animateGauge = false,
+                    isFavorite = true,
+                )
+            }
+        }
+    }
+
     /** Pull to refresh running: the indicator is whole, below the top bar (light theme). */
     @Test
     fun verdictRefreshingLight() = verdictRefreshing(darkTheme = false)

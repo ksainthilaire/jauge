@@ -8,15 +8,20 @@ import io.jauge.core.domain.model.AuthenticationState
 import io.jauge.core.domain.model.OfferSource
 import io.jauge.core.domain.model.Outcome
 import io.jauge.core.domain.usecase.AnalyzeOfferUseCase
+import io.jauge.core.domain.usecase.FavoriteAnalysisUseCase
 import io.jauge.core.domain.usecase.GetAnalysisHistoryUseCase
 import io.jauge.core.domain.usecase.ObserveAuthenticationStateUseCase
 import io.jauge.core.ui.state.ContentState
+import io.jauge.feature.analysis.favorites.FavoriteFailure
 import io.jauge.feature.analysis.pending.PendingAnalysisStore
 import io.jauge.feature.analysis.picker.PickedImage
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -47,17 +52,23 @@ data class HomeUiState(
  * @param observeAuthenticationState authentication state, for the greeting.
  * @param getHistory analyses of the user.
  * @param pendingAnalyses keeps the chosen offer for the reading screen.
+ * @param favoriteAnalysis adds or removes the star of an analysis.
  */
 class HomeViewModel(
     observeAuthenticationState: ObserveAuthenticationStateUseCase,
     private val getHistory: GetAnalysisHistoryUseCase,
     private val pendingAnalyses: PendingAnalysisStore,
+    private val favoriteAnalysis: FavoriteAnalysisUseCase,
 ) : ViewModel() {
     private val state = MutableStateFlow(HomeUiState())
+    private val favoriteFailureChannel = Channel<FavoriteFailure>(Channel.BUFFERED)
     private var hasLoadedOnce = false
 
     /** Observed state of the screen. */
     val uiState: StateFlow<HomeUiState> = state.asStateFlow()
+
+    /** Star changes refused by the server (already undone), to tell the user. */
+    val favoriteFailures: Flow<FavoriteFailure> = favoriteFailureChannel.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -134,6 +145,20 @@ class HomeViewModel(
         }
         state.update { it.copy(isImageUnreadable = false) }
         start(OfferSource.Image(image.bytes, image.mimeType, image.origin))
+    }
+
+    /**
+     * Adds or removes the star of an analysis of the list. The star changes at once; when the server refuses, it
+     * comes back and [favoriteFailures] tells the user.
+     *
+     * @param analysisId identifier of the analysis.
+     * @param isFavorite new value.
+     */
+    fun toggleFavorite(analysisId: String, isFavorite: Boolean) {
+        viewModelScope.launch {
+            val outcome = favoriteAnalysis(analysisId, isFavorite)
+            if (outcome is Outcome.Failure) favoriteFailureChannel.send(FavoriteFailure(isFavorite, outcome.error))
+        }
     }
 
     /** The reading screen was opened for [HomeUiState.startedRequestId]. */

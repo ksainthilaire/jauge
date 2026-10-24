@@ -16,6 +16,8 @@ import io.jauge.core.domain.model.map
 import io.jauge.core.domain.repository.AnalysisRepository
 import io.jauge.core.network.ImageOrigins
 import io.jauge.core.network.JaugeApi
+import io.jauge.core.data.preferences.FavoriteStore
+import io.jauge.core.data.preferences.InMemoryKeyValueStore
 import io.jauge.core.network.payload.AnalysisPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
 import kotlinx.coroutines.CancellationException
@@ -23,26 +25,37 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * [AnalysisRepository] backed by the Jauge API (real or offline). An analysis is created, then polled every
  * [pollIntervalMilliseconds] until it completes, fails or [maximumPolls] is reached (then [JaugeError.Timeout]).
  * The history is cached in memory and updated after every change.
  *
+ * Favorites are kept on the device ([favoriteStore]) so the stars survive a restart and show at once. A star change
+ * is optimistic: the local set changes first, then the API is called, and the change is undone if the call fails.
+ * The server is the reference for the analyses it lists: a refresh copies their `isFavorite` into the local set.
+ *
  * @param api the API client.
+ * @param favoriteStore favorites kept on the device.
  * @param pollIntervalMilliseconds delay between two polls.
  * @param maximumPolls number of polls before giving up.
  */
 class AnalysisRepositoryImplementation(
     private val api: JaugeApi,
+    private val favoriteStore: FavoriteStore = FavoriteStore(InMemoryKeyValueStore()),
     private val pollIntervalMilliseconds: Long = 1_000,
     private val maximumPolls: Int = 90,
 ) : AnalysisRepository {
 
     private val history = MutableStateFlow<List<AnalysisSummary>>(emptyList())
     private val analysesById = mutableMapOf<String, Analysis>()
+    private val favoriteIds = MutableStateFlow(favoriteStore.read())
+    private val favoriteMutex = Mutex()
 
     override fun analyze(source: OfferSource): Flow<AnalysisProgress> = flow {
         try {
@@ -68,20 +81,28 @@ class AnalysisRepositoryImplementation(
         }
     }
 
-    override fun observeHistory(): Flow<List<AnalysisSummary>> = history.asStateFlow()
+    override fun observeHistory(): Flow<List<AnalysisSummary>> =
+        combine(history, favoriteIds) { list, favorites -> list.map { it.copy(isFavorite = it.id in favorites) } }
 
     override suspend fun refreshHistory(): Outcome<Unit> = outcomeOf {
         val page = api.getAnalyses(cursor = null, limit = HISTORY_PAGE_SIZE)
-        history.value = page.items.mapNotNull { it.toDomainOrNull() }.sortedByDescending { it.createdAt }
+        val summaries = page.items.mapNotNull { it.toDomainOrNull() }.sortedByDescending { it.createdAt }
+        applyServerFavorites(summaries.associate { it.id to it.isFavorite })
+        history.value = summaries
     }
 
     override suspend fun getAnalysis(analysisId: String): Outcome<Analysis> {
-        analysesById[analysisId]?.let { return Outcome.Success(it) }
+        analysesById[analysisId]?.let { return Outcome.Success(it.copy(isFavorite = analysisId in favoriteIds.value)) }
         return outcomeOf { api.getAnalysis(analysisId) }.let { outcome ->
             when (outcome) {
                 is Outcome.Failure -> outcome
                 is Outcome.Success -> when (outcome.value.status) {
-                    AnalysisPayload.STATUS_COMPLETED -> outcomeOf { outcome.value.toDomainAnalysis().also(::remember) }
+                    AnalysisPayload.STATUS_COMPLETED -> outcomeOf {
+                        val analysis = outcome.value.toDomainAnalysis()
+                        applyServerFavorites(mapOf(analysis.id to analysis.isFavorite))
+                        remember(analysis)
+                        analysis
+                    }
                     else -> Outcome.Failure(JaugeError.NotFound)
                 }
             }
@@ -92,7 +113,36 @@ class AnalysisRepositoryImplementation(
         outcomeOf { api.deleteAnalysis(analysisId) }.map {
             analysesById.remove(analysisId)
             history.update { list -> list.filterNot { it.id == analysisId } }
+            changeFavorites { it - analysisId }
         }
+
+    override fun observeFavoriteIds(): Flow<Set<String>> = favoriteIds.asStateFlow()
+
+    override suspend fun setFavorite(analysisId: String, isFavorite: Boolean): Outcome<Unit> {
+        val wasFavorite = analysisId in favoriteIds.value
+        if (wasFavorite == isFavorite) return Outcome.Success(Unit)
+        changeFavorites { if (isFavorite) it + analysisId else it - analysisId }
+        val outcome = outcomeOf { if (isFavorite) api.addFavorite(analysisId) else api.removeFavorite(analysisId) }
+        if (outcome is Outcome.Failure) {
+            changeFavorites { if (wasFavorite) it + analysisId else it - analysisId }
+        }
+        return outcome
+    }
+
+    /** Forgets every favorite kept on the device (account deleted). */
+    suspend fun clearLocalFavorites() = changeFavorites { emptySet() }
+
+    private suspend fun applyServerFavorites(serverValues: Map<String, Boolean>) = changeFavorites { current ->
+        current - serverValues.filterValues { !it }.keys + serverValues.filterValues { it }.keys
+    }
+
+    private suspend fun changeFavorites(transform: (Set<String>) -> Set<String>) = favoriteMutex.withLock {
+        val updated = transform(favoriteIds.value)
+        if (updated != favoriteIds.value) {
+            favoriteIds.value = updated
+            favoriteStore.write(updated)
+        }
+    }
 
     private suspend fun create(source: OfferSource): AnalysisPayload = when (source) {
         is OfferSource.Link -> api.createAnalysis(CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_LINK, url = source.url))

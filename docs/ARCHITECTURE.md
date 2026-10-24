@@ -285,6 +285,14 @@ The app is portrait only: `android:screenOrientation="portrait"` on `MainActivit
 notification permission activity), `UISupportedInterfaceOrientations` = portrait on iOS (iPhone only). Android 16
 ignores the forced orientation on large screens, which is accepted.
 
+## Favorites
+
+`AnalysisRepository.setFavorite` is optimistic: the identifier set (`observeFavoriteIds`, kept on the device by
+`FavoriteStore`) changes at once, the API is called (`PUT`/`DELETE /v1/analyses/{id}/favorite`), and the change is
+undone on failure. `observeHistory` merges the set into `AnalysisSummary.isFavorite`. Screens use
+`FavoriteAnalysisUseCase` and the `FavoriteStarButton` component (home 02, "Tout voir" with the filter `AnalysisFilter`,
+verdict 04); a refused star shows a friendly snackbar. Deleting the account clears the local set.
+
 ## Git flow
 
 `main` holds releases, `develop` is the integration branch. One branch per feature, `feature/<name>`, from

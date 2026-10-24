@@ -112,6 +112,24 @@ class FakeAnalysisRepository(var outcome: Outcome<Analysis> = Outcome.Success(Sa
     }
 
     override suspend fun deleteAnalysis(analysisId: String): Outcome<Unit> = Outcome.Success(Unit)
+
+    /** Favorite identifiers. */
+    val favoriteIds = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
+
+    /** Error returned by the next star change (after undoing it), null for a success. */
+    var favoriteError: JaugeError? = null
+
+    override fun observeFavoriteIds(): Flow<Set<String>> = favoriteIds
+
+    override suspend fun setFavorite(analysisId: String, isFavorite: Boolean): Outcome<Unit> {
+        val before = favoriteIds.value
+        favoriteIds.value = if (isFavorite) before + analysisId else before - analysisId
+        favoriteError?.let {
+            favoriteIds.value = before
+            return Outcome.Failure(it)
+        }
+        return Outcome.Success(Unit)
+    }
 }
 
 /** Insight repository with configurable answers. */

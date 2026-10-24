@@ -96,7 +96,36 @@ object JaugeIcons {
 
     /** Icon for a locked feature. */
     val Lock: ImageVector by lazy { strokeIcon("Lock", "M6 11h12a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2z M8 11V7a4 4 0 0 1 8 0v4") }
+
+    /** Empty star: the analysis is not a favorite. */
+    val Star: ImageVector by lazy { strokeIcon("Star", "M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z") }
+
+    /** Filled star: the analysis is a favorite. */
+    val StarFilled: ImageVector by lazy { filledIcon("StarFilled", "M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z") }
 }
+
+/**
+ * Builds a filled 24 x 24 icon from SVG path data (same path drawn with a stroke too, so it has the size of its line
+ * version).
+ *
+ * @param name name of the vector, for debugging.
+ * @param pathData SVG path data.
+ */
+private fun filledIcon(name: String, pathData: String): ImageVector =
+    ImageVector.Builder(
+        name = name,
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).addPath(
+        pathData = addPathNodes(pathData),
+        fill = SolidColor(Color.Black),
+        stroke = SolidColor(Color.Black),
+        strokeLineWidth = 2f,
+        strokeLineCap = StrokeCap.Round,
+        strokeLineJoin = StrokeJoin.Round,
+    ).build()
 
 /**
  * Builds a stroked 24 x 24 icon from SVG path data.

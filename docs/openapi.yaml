@@ -95,6 +95,23 @@ paths:
       responses:
         '204': { description: Deleted. }
         '404': { $ref: '#/components/responses/Error' }
+  /v1/analyses/{id}/favorite:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    put:
+      tags: [Analyses]
+      summary: Mark the analysis as a favorite (star). Idempotent.
+      operationId: addFavorite
+      responses:
+        '204': { description: The analysis is a favorite. }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Analyses]
+      summary: Remove the analysis from the favorites. Idempotent.
+      operationId: removeFavorite
+      responses:
+        '204': { description: The analysis is not a favorite. }
+        '404': { $ref: '#/components/responses/Error' }
   /v1/analyses/{id}/salary:
     parameters:
       - $ref: '#/components/parameters/AnalysisId'
@@ -456,6 +473,7 @@ components:
         hasDisplayedSalary: { type: [boolean, 'null'] }
         offer: { oneOf: [ { $ref: '#/components/schemas/Offer' }, { type: 'null' } ] }
         result: { oneOf: [ { $ref: '#/components/schemas/AnalysisResult' }, { type: 'null' } ] }
+        isFavorite: { type: boolean, default: false, description: True when the user starred the analysis. }
         failure:
           type: [object, 'null']
           properties:
@@ -471,6 +489,7 @@ components:
         company: { type: [string, 'null'] }
         place: { type: string }
         score: { type: integer }
+        isFavorite: { type: boolean, default: false, description: True when the user starred the analysis. }
     AnalysisPage:
       type: object
       required: [items]

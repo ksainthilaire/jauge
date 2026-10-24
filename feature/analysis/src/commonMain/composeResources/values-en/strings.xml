@@ -81,4 +81,12 @@
     <string name="manual_entry_analyze">Gauge this offer</string>
     <string name="history_title">My gauged offers</string>
     <string name="history_back">Back</string>
+    <string name="favorite_add">Add %1$s to favorites</string>
+    <string name="favorite_remove">Remove %1$s from favorites</string>
+    <string name="favorite_add_failed">The star could not be saved. Try again in a moment.</string>
+    <string name="favorite_remove_failed">The star could not be removed. Try again in a moment.</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_favorites">Favorites</string>
+    <string name="history_favorites_empty_title">No favorites yet</string>
+    <string name="history_favorites_empty_message">Tap the star of an analyzed offer to find it here.</string>
 </resources>

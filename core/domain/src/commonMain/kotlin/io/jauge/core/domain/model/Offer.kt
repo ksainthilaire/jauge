@@ -83,6 +83,7 @@ data class TimingAdvice(
  * @property trendThreeMonthsPercent change of applicants per offer over 3 months, in percent.
  * @property comparableOfferCount number of comparable offers used ("1 284 offres du Rhône").
  * @property timingAdvice advice about when to apply, if any.
+ * @property isFavorite true when the user marked the analysis as a favorite (star).
  */
 data class Analysis(
     val id: String,
@@ -99,6 +100,7 @@ data class Analysis(
     val trendThreeMonthsPercent: Int,
     val comparableOfferCount: Int,
     val timingAdvice: TimingAdvice?,
+    val isFavorite: Boolean = false,
 ) {
     /** Competition level of [score]. */
     val level: CompetitionLevel
@@ -114,6 +116,7 @@ data class Analysis(
  * @property company company name, if known.
  * @property place city or district.
  * @property score competition score.
+ * @property isFavorite true when the user marked the analysis as a favorite (star).
  */
 data class AnalysisSummary(
     val id: String,
@@ -122,6 +125,7 @@ data class AnalysisSummary(
     val company: String?,
     val place: String,
     val score: Int,
+    val isFavorite: Boolean = false,
 ) {
     /** Competition level of [score]. */
     val level: CompetitionLevel

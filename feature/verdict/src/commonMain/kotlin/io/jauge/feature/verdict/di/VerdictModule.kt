@@ -8,7 +8,7 @@ import org.koin.dsl.module
 
 /** Koin module of the verdict feature: view models of the verdict, the details and the methodology. */
 val verdictModule = module {
-    viewModel { parameters -> VerdictViewModel(analysisId = parameters.get(), getAnalysis = get()) }
+    viewModel { parameters -> VerdictViewModel(analysisId = parameters.get(), getAnalysis = get(), favoriteAnalysis = get()) }
     viewModel { parameters ->
         DetailsViewModel(
             analysisId = parameters.get(),
