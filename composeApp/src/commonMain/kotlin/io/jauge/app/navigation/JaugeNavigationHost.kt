@@ -10,11 +10,13 @@ import io.jauge.feature.account.navigation.AccountRoute
 import io.jauge.feature.account.navigation.PrivacyPolicyRoute
 import io.jauge.feature.account.navigation.TermsOfUseRoute
 import io.jauge.feature.account.navigation.accountGraph
+import io.jauge.feature.analysis.navigation.AnalysisNavigator
 import io.jauge.feature.analysis.navigation.HomeRoute
 import io.jauge.feature.analysis.navigation.analysisGraph
 import io.jauge.feature.onboarding.navigation.AlertsPermissionRoute
 import io.jauge.feature.onboarding.navigation.WelcomeRoute
 import io.jauge.feature.onboarding.navigation.onboardingGraph
+import io.jauge.feature.paywall.navigation.PaywallRoute
 import io.jauge.feature.paywall.navigation.paywallGraph
 import io.jauge.feature.share.navigation.ShareRoute
 import io.jauge.feature.share.navigation.shareGraph
@@ -62,7 +64,23 @@ fun JaugeNavigationHost(
             onSkip = openHome,
             onAlertsDone = openHome,
         )
-        analysisGraph(onBack = onBack)
+        analysisGraph(
+            AnalysisNavigator(
+                onBack = onBack,
+                onNavigate = { route, replaceCurrent ->
+                    navigationController.navigate(route) {
+                        if (replaceCurrent) navigationController.currentDestination?.id?.let { popUpTo(it) { inclusive = true } }
+                    }
+                },
+                onBackToHome = { navigationController.popBackStack<HomeRoute>(inclusive = false) },
+                onOpenAnalysis = { analysisId, replaceCurrent ->
+                    navigationController.navigate(VerdictRoute(analysisId)) {
+                        if (replaceCurrent) navigationController.currentDestination?.id?.let { popUpTo(it) { inclusive = true } }
+                    }
+                },
+                onOpenPaywall = { navigationController.navigate(PaywallRoute) },
+            ),
+        )
         verdictGraph(
             navigationController = navigationController,
             onBack = onBack,
