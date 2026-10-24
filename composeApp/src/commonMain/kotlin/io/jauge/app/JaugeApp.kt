@@ -1,12 +1,9 @@
 package io.jauge.app
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,6 +16,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.jauge.app.link.IncomingLinks
 import io.jauge.app.navigation.JaugeNavigationHost
+import io.jauge.app.shell.JaugeShellFrame
+import io.jauge.app.shell.statusBarColorFor
 import io.jauge.app.notifications.CalmAlertBannerHost
 import io.jauge.app.navigation.TopLevelDestination
 import io.jauge.app.navigation.navigateToTopLevelDestination
@@ -59,12 +58,7 @@ fun JaugeApp() {
             currentDestination?.hierarchy?.any { it.hasRoute(tab.routeClass) } == true
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(JaugeTheme.colors.background)
-                .statusBarsPadding(),
-        ) {
+        JaugeShellFrame(statusBarColor = statusBarColorFor(currentDestination)) {
             if (uiState.isOfflineMode) {
                 OfflineModeIndicator()
             }

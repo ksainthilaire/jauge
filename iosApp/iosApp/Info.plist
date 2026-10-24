@@ -26,6 +26,10 @@
 	<string>Jauge enregistre ta carte de partage dans tes photos quand tu touches Enregistrer.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Jauge utilise l'appareil photo pour photographier une offre d'emploi et la lire.</string>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

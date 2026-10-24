@@ -2,23 +2,32 @@ package io.jauge.feature.account
 
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Account
+import io.jauge.core.domain.model.Analysis
+import io.jauge.core.domain.model.AnalysisProgress
+import io.jauge.core.domain.model.AnalysisSummary
 import io.jauge.core.domain.model.AuthenticatedUser
 import io.jauge.core.domain.model.AuthenticationProvider
 import io.jauge.core.domain.model.AuthenticationState
 import io.jauge.core.domain.model.Consents
+import io.jauge.core.domain.model.JaugeNotification
+import io.jauge.core.domain.model.OfferSource
 import io.jauge.core.domain.model.Outcome
+import io.jauge.core.domain.model.PushPermissionStatus
 import io.jauge.core.domain.model.SignInMethod
 import io.jauge.core.domain.model.Subscription
 import io.jauge.core.domain.model.SubscriptionOffer
 import io.jauge.core.domain.model.SubscriptionStatus
 import io.jauge.core.domain.model.UserPreferences
 import io.jauge.core.domain.repository.AccountRepository
+import io.jauge.core.domain.repository.AnalysisRepository
 import io.jauge.core.domain.repository.AuthenticationRepository
+import io.jauge.core.domain.repository.NotificationRepository
 import io.jauge.core.domain.repository.PreferencesRepository
 import io.jauge.core.domain.repository.SubscriptionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 
 /** Preferences kept in memory. */
 class FakePreferencesRepository : PreferencesRepository {
@@ -122,4 +131,51 @@ class FakeSubscriptionRepository : SubscriptionRepository {
 
     override suspend fun restorePurchases(): Outcome<Subscription> =
         restoreError?.let { Outcome.Failure(it) } ?: Outcome.Success(subscription)
+
+    override suspend fun getManagementUrl(): Outcome<String> = Outcome.Success(MANAGEMENT_URL)
+
+    /** Constants. */
+    companion object {
+        /** Store page returned by [getManagementUrl]. */
+        const val MANAGEMENT_URL = "https://apps.apple.com/account/subscriptions"
+    }
+}
+
+/** Notifications that do nothing. */
+class FakeNotificationRepository : NotificationRepository {
+    /** Number of unregistrations. */
+    var unregistrations = 0
+
+    override fun observeIncoming(): Flow<JaugeNotification> = emptyFlow()
+
+    override suspend fun getNotifications(): Outcome<List<JaugeNotification>> = Outcome.Success(emptyList())
+
+    override suspend fun markAsRead(notificationId: String): Outcome<Unit> = Outcome.Success(Unit)
+
+    override suspend fun getPermissionStatus(): PushPermissionStatus = PushPermissionStatus.GRANTED
+
+    override suspend fun requestPermission(): Outcome<PushPermissionStatus> = Outcome.Success(PushPermissionStatus.GRANTED)
+
+    override suspend fun registerDevice(): Outcome<Unit> = Outcome.Success(Unit)
+
+    override suspend fun unregisterDevice(): Outcome<Unit> {
+        unregistrations++
+        return Outcome.Success(Unit)
+    }
+}
+
+/** Analyses with a fixed history. */
+class FakeAnalysisRepository : AnalysisRepository {
+    /** Stored history. */
+    val history = MutableStateFlow<List<AnalysisSummary>>(emptyList())
+
+    override fun analyze(source: OfferSource): Flow<AnalysisProgress> = emptyFlow()
+
+    override fun observeHistory(): Flow<List<AnalysisSummary>> = history
+
+    override suspend fun refreshHistory(): Outcome<Unit> = Outcome.Success(Unit)
+
+    override suspend fun getAnalysis(analysisId: String): Outcome<Analysis> = Outcome.Failure(JaugeError.NotFound)
+
+    override suspend fun deleteAnalysis(analysisId: String): Outcome<Unit> = Outcome.Success(Unit)
 }

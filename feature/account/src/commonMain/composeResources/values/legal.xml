@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="legal_updated">Dernière mise à jour : 24 octobre 2026</string>
+    <string name="legal_to_complete">[à compléter avant publication]</string>
+
+    <string name="notice_1_title">Éditeur</string>
+    <string name="notice_1_body">L'application Jauge est éditée par %1$s, %2$s au capital de %3$s, immatriculée au registre du commerce et des sociétés sous le numéro %4$s, dont le siège est situé %5$s. Numéro de TVA intracommunautaire : %6$s.\n\nContact : contact@jauge.io</string>
+    <string name="notice_2_title">Directeur de la publication</string>
+    <string name="notice_2_body">Le directeur de la publication est %1$s, en qualité de représentant légal de l'éditeur.</string>
+    <string name="notice_3_title">Hébergement</string>
+    <string name="notice_3_body">Les données de l'application sont hébergées dans l'Union européenne par Supabase Inc. (supabase.com), sur des serveurs situés en Europe. Adresse postale de l'hébergeur : %1$s. Les achats intégrés sont traités par Apple (App Store), Google (Google Play) et RevenueCat Inc. (revenuecat.com).</string>
+    <string name="notice_4_title">Propriété intellectuelle</string>
+    <string name="notice_4_body">La marque Jauge, son logo, ses textes, ses illustrations et le code de l'application sont protégés par le droit de la propriété intellectuelle. Toute reproduction ou adaptation sans autorisation écrite de l'éditeur est interdite. Les polices de caractères utilisées sont distribuées sous licence SIL Open Font License 1.1.</string>
+    <string name="notice_5_title">Signaler un contenu</string>
+    <string name="notice_5_body">Pour signaler un contenu illicite ou une erreur, écris à contact@jauge.io en précisant le lien de partage ou l'offre concernée. Nous répondons sous 7 jours ouvrés.</string>
+
+    <string name="privacy_intro">Cette politique explique quelles données Jauge utilise, pourquoi, combien de temps et quels sont tes droits. Elle s'applique à l'application Jauge sur Android et iOS et aux pages de partage jauge.io/a/.</string>
+    <string name="privacy_1_title">1. Responsable du traitement</string>
+    <string name="privacy_1_body">Le responsable du traitement est l'éditeur de Jauge (voir les Mentions légales). Pour toute question sur tes données ou pour exercer tes droits : privacy@jauge.io.</string>
+    <string name="privacy_2_title">2. Données utilisées</string>
+    <string name="privacy_2_body">• Compte : identifiant, adresse e-mail et nom transmis par Apple, Google ou saisis par toi. Avec « Masquer mon adresse », Apple nous transmet une adresse relais.\n• Offres analysées : liens collés, captures d'écran et photos, poste, ville et résultats des analyses.\n• Alertes : offres suivies, seuils d'alerte et jeton de notification de ton appareil.\n• Abonnement : statut de Jauge Plus, dates d'essai et de renouvellement, transmis par l'App Store, Google Play et RevenueCat. Nous ne recevons jamais tes coordonnées bancaires.\n• Accords : ton choix de recevoir ou non des conseils par e-mail.\n• Technique : version de l'app, système, langue et journaux d'erreurs sans contenu personnel.\n\nNous ne collectons ni ta localisation précise, ni tes contacts, ni ton CV.</string>
+    <string name="privacy_3_title">3. Pourquoi et sur quelle base</string>
+    <string name="privacy_3_body">• Fournir les analyses, l'historique, les alertes et les partages : exécution du contrat (conditions d'utilisation).\n• Gérer l'abonnement et l'essai gratuit : exécution du contrat.\n• Envoyer des conseils de recherche par e-mail : ton consentement, retirable à tout moment.\n• Envoyer des notifications : ton consentement donné à ton téléphone, réglable dans ses paramètres.\n• Sécuriser le service, prévenir les abus et corriger les erreurs : notre intérêt légitime.\n• Respecter nos obligations comptables et légales : obligation légale.</string>
+    <string name="privacy_4_title">4. Tes captures d'écran</string>
+    <string name="privacy_4_body">Les captures et photos servent uniquement à lire l'offre. Elles sont effacées de nos serveurs dès la fin de la lecture, et au plus tard 24 heures après l'envoi. Seules les informations de l'offre (poste, entreprise, ville, compétences) sont conservées avec ton analyse. Ne photographie pas de données personnelles d'autres personnes.</string>
+    <string name="privacy_5_title">5. Qui reçoit tes données</string>
+    <string name="privacy_5_body">Tes données ne sont jamais vendues ni louées, et ne servent à aucune publicité. Ton nom n'est jamais montré aux employeurs. Elles sont transmises uniquement à nos sous-traitants, liés par contrat et tenus à la confidentialité :\n• Supabase (hébergement, base de données, authentification, notifications), serveurs dans l'Union européenne ;\n• RevenueCat (suivi des abonnements), États-Unis ;\n• Apple et Google (connexion, achats intégrés, envoi des notifications push).\n\nUn lien de partage ne montre que la carte de l'analyse que tu as choisi de partager, jamais ton nom ni ton e-mail. Tu peux supprimer un partage à tout moment.</string>
+    <string name="privacy_6_title">6. Transferts hors de l'Union européenne</string>
+    <string name="privacy_6_body">Certains sous-traitants (RevenueCat, Apple, Google) peuvent traiter des données aux États-Unis. Ces transferts sont encadrés par le cadre de protection des données UE et États-Unis (Data Privacy Framework) lorsque le prestataire y adhère, ou à défaut par les clauses contractuelles types de la Commission européenne.</string>
+    <string name="privacy_7_title">7. Durées de conservation</string>
+    <string name="privacy_7_body">• Captures et photos : 24 heures au plus.\n• Compte, analyses, alertes et partages : tant que ton compte existe. Après 3 ans sans aucune connexion, ton compte et ses données sont supprimés après un e-mail de prévenance.\n• Sans compte : les analyses liées à ton appareil sont supprimées après 12 mois d'inactivité.\n• Après suppression du compte : effacement immédiat dans l'app et complet sous 30 jours, sauvegardes comprises.\n• Données de facturation tenues par les stores et RevenueCat : selon leurs obligations légales, jusqu'à 10 ans.\n• Journaux techniques : 12 mois au plus.</string>
+    <string name="privacy_8_title">8. Tes droits</string>
+    <string name="privacy_8_body">Tu disposes des droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité, ainsi que du droit de retirer ton consentement à tout moment et de définir des directives sur le sort de tes données après ton décès.\n\nDans l'app : « Exporter mes analyses » te remet tes données dans un format ouvert, « Supprimer mon compte » efface ton compte et tes données. Pour tout autre droit, écris à privacy@jauge.io : nous répondons sous un mois.\n\nSi tu estimes que tes droits ne sont pas respectés, tu peux saisir la CNIL (www.cnil.fr) ou l'autorité de protection des données de ton pays.</string>
+    <string name="privacy_9_title">9. Sécurité</string>
+    <string name="privacy_9_body">Les échanges sont chiffrés (HTTPS), l'accès aux données est limité par des règles de sécurité par utilisateur, les mots de passe ne sont jamais utilisés (connexion par Apple, Google ou lien par e-mail) et les accès de l'équipe sont journalisés.</string>
+    <string name="privacy_10_title">10. Mineurs</string>
+    <string name="privacy_10_body">Jauge s'adresse aux personnes d'au moins 15 ans. Si tu as moins de 15 ans, l'accord d'un parent est nécessaire pour créer un compte.</string>
+    <string name="privacy_11_title">11. Traceurs</string>
+    <string name="privacy_11_body">L'application n'utilise aucun traceur publicitaire ni outil de mesure d'audience tiers. Elle conserve sur ton téléphone uniquement les réglages nécessaires à son fonctionnement (session, préférences).</string>
+    <string name="privacy_12_title">12. Modifications</string>
+    <string name="privacy_12_body">Si cette politique change de façon importante, nous te prévenons dans l'app avant l'entrée en vigueur des changements. La date de dernière mise à jour figure en haut de cette page.</string>
+
+    <string name="terms_intro">Ces conditions encadrent l'utilisation de l'application Jauge et de l'abonnement Jauge Plus. En utilisant Jauge, tu les acceptes.</string>
+    <string name="terms_1_title">1. Le service</string>
+    <string name="terms_1_body">Jauge estime, à partir du lien, de la capture ou de la photo d'une offre d'emploi, le nombre de candidats probable, le salaire de l'offre et des offres comparables plus calmes. Jauge n'est ni un recruteur ni un intermédiaire : nous ne transmettons aucune candidature.</string>
+    <string name="terms_2_title">2. Des estimations, pas des garanties</string>
+    <string name="terms_2_body">Les chiffres affichés sont des estimations statistiques fondées sur des données publiques et des offres comparables. Leur fiabilité est indiquée sur chaque analyse. Ils peuvent être inexacts et ne garantissent ni le nombre réel de candidats, ni le salaire, ni le résultat d'une candidature. Garde ton propre jugement.</string>
+    <string name="terms_3_title">3. Compte</string>
+    <string name="terms_3_body">Tu peux utiliser Jauge sans compte, ou en créer un avec Apple, Google ou ton adresse e-mail pour retrouver tes analyses sur tous tes appareils. Tu dois avoir au moins 15 ans, ou l'accord d'un parent. Tu es responsable de l'accès à ton compte. Tu peux le supprimer à tout moment depuis Profil, Supprimer mon compte.</string>
+    <string name="terms_4_title">4. Offre gratuite</string>
+    <string name="terms_4_body">Sans abonnement, tu bénéficies d'une analyse complète par semaine. Un essai qui n'a pas pu être lu (capture illisible) ne compte pas.</string>
+    <string name="terms_5_title">5. Jauge Plus</string>
+    <string name="terms_5_body">Jauge Plus débloque les analyses illimitées, les détails, les offres jumelles et les alertes « calme ». C'est un abonnement mensuel de 6,99 € par mois, toutes taxes comprises (prix indiqué par le store dans ta devise), avec 3 jours d'essai gratuit pour un premier abonnement.\n\nLe paiement est fait par l'App Store ou Google Play. Sauf annulation au moins 24 heures avant la fin de l'essai ou de la période en cours, l'abonnement est renouvelé automatiquement chaque mois au même prix. Tu reçois un rappel la veille de la fin de l'essai.\n\nTu gères et annules l'abonnement dans les réglages de ton compte App Store ou Google Play, ou depuis Profil, Gérer ou annuler l'abonnement. L'annulation prend effet à la fin de la période payée. Supprimer l'app ou ton compte n'annule pas l'abonnement.</string>
+    <string name="terms_6_title">6. Droit de rétractation et remboursements</string>
+    <string name="terms_6_body">En souscrivant, tu demandes l'accès immédiat au service et tu reconnais que ton droit de rétractation de 14 jours prend fin dès que le service est pleinement exécuté pour la période en cours, conformément à l'article L221-28 du Code de la consommation. L'essai gratuit te permet d'essayer Jauge Plus sans payer. Les demandes de remboursement sont traitées par Apple ou Google selon leurs règles.</string>
+    <string name="terms_7_title">7. Utilisation correcte</string>
+    <string name="terms_7_body">Tu t'engages à n'envoyer que des offres d'emploi, à ne pas envoyer de contenu illicite ou de données personnelles de tiers, à ne pas automatiser les analyses, à ne pas extraire en masse les résultats et à ne pas contourner les limites du service. En cas d'abus, nous pouvons suspendre l'accès après t'avoir prévenu·e, sauf urgence.</string>
+    <string name="terms_8_title">8. Partages</string>
+    <string name="terms_8_body">Quand tu partages une analyse, un lien public jauge.io/a/ est créé avec la carte choisie. Toute personne qui a le lien peut la voir. Tu peux supprimer le partage à tout moment : le lien cesse alors de fonctionner.</string>
+    <string name="terms_9_title">9. Propriété intellectuelle</string>
+    <string name="terms_9_body">Jauge, ses analyses et son contenu restent la propriété de l'éditeur. Tu peux utiliser et partager tes analyses pour ton usage personnel. Les offres analysées restent la propriété de leurs auteurs.</string>
+    <string name="terms_10_title">10. Disponibilité et responsabilité</string>
+    <string name="terms_10_body">Nous faisons de notre mieux pour que Jauge soit disponible et exact, sans pouvoir le garantir en permanence. Notre responsabilité ne peut être engagée pour une décision prise sur la base d'une estimation, ni pour une interruption due à un cas de force majeure ou à un tiers (store, hébergeur, réseau). Rien dans ces conditions ne limite tes droits de consommateur.</string>
+    <string name="terms_11_title">11. Données personnelles</string>
+    <string name="terms_11_body">L'utilisation de tes données est décrite dans la Politique de confidentialité, accessible depuis l'app.</string>
+    <string name="terms_12_title">12. Modifications</string>
+    <string name="terms_12_body">Nous pouvons faire évoluer ces conditions. Les changements importants te sont annoncés dans l'app au moins 30 jours avant leur entrée en vigueur. Si tu les refuses, tu peux arrêter d'utiliser Jauge et supprimer ton compte.</string>
+    <string name="terms_13_title">13. Litiges</string>
+    <string name="terms_13_body">Ces conditions sont soumises au droit français. En cas de difficulté, écris d'abord à contact@jauge.io. Tu peux aussi recourir gratuitement au médiateur de la consommation : %1$s, ou à la plateforme européenne de règlement en ligne des litiges. À défaut d'accord, les tribunaux compétents sont ceux prévus par la loi, notamment ceux de ton domicile.</string>
+</resources>
