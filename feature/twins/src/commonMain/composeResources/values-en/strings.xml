@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="twin_offers_title">Twin offers</string>
-    <string name="alerts_permission_title">Allow alerts</string>
 
     <!-- 06 Twin offers -->
     <string name="action_back">Back</string>
