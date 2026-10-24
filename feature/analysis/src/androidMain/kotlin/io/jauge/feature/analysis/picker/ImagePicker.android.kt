@@ -33,9 +33,16 @@ actual fun rememberImagePicker(onResult: (PickedImage?) -> Unit, onCancel: () ->
     val currentOnCancel by rememberUpdatedState(onCancel)
     var photoPath by rememberSaveable { mutableStateOf<String?>(null) }
 
-    fun deliver(uri: Uri, origin: ImageOrigin) {
+    fun deliver(uri: Uri, origin: ImageOrigin, temporaryFile: File? = null) {
         scope.launch {
-            val image = withContext(Dispatchers.IO) { runCatching { readImage(context, uri, origin) }.getOrNull() }
+            val image = withContext(Dispatchers.IO) {
+                try {
+                    runCatching { readImage(context, uri, origin) }.getOrNull()
+                } finally {
+                    // The photo of the offer is only needed in memory: the file is erased as soon as it is read.
+                    temporaryFile?.let { runCatching { it.delete() } }
+                }
+            }
             currentOnResult(image)
         }
     }
@@ -45,7 +52,13 @@ actual fun rememberImagePicker(onResult: (PickedImage?) -> Unit, onCancel: () ->
     }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
         val path = photoPath
-        if (saved && path != null) deliver(Uri.fromFile(File(path)), ImageOrigin.PHOTO) else currentOnCancel()
+        val file = path?.let(::File)
+        if (saved && file != null) {
+            deliver(Uri.fromFile(file), ImageOrigin.PHOTO, temporaryFile = file)
+        } else {
+            file?.let { runCatching { it.delete() } }
+            currentOnCancel()
+        }
     }
 
     return remember(context, galleryLauncher, cameraLauncher) {

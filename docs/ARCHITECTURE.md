@@ -226,7 +226,10 @@ offline mode and purchases disabled (`UnavailableBillingClient`), without crash.
 `OfflineJaugeApi` (core:data), which serves data from the mockups with a simulated latency. An indicator
 ("Mode sans API : données d'exemple") is shown at the top of the app while it is on.
 
-- Build setting: `jauge.api.offlineMode` (on by default while the API does not exist).
+- Build setting: `jauge.api.offlineMode` (on by default while the API does not exist). **Debug builds only**: release
+  builds always call the real API, never sign in with `SimulatedAuthenticationRepository` (they use
+  `UnavailableAuthenticationRepository` when Supabase is not configured) and an iOS Release framework never embeds the
+  Test Store key (see `docs/audit/securite.md`).
 - Hidden switch, debug builds only: long press on the "Profil" tab.
 - Error simulation: `OfflineScenarioController.select(OfflineScenario.UNREADABLE_OFFER)` (also `NO_CONNECTION`,
   `TIMEOUT`, `SERVER_UNAVAILABLE`, `SESSION_EXPIRED`, `QUOTA_REACHED`, `INVALID_RESPONSE`, `EMPTY`). It is a Koin

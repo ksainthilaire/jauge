@@ -19,6 +19,11 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.4
 const CALM_ALERT_WEEKLY_LIMIT = 3;
 const WEEK_MILLISECONDS = 7 * 24 * 60 * 60 * 1000;
 const ANDROID_CHANNEL = "calm_alerts";
+const MAXIMUM_BODY_BYTES = 4096;
+const MINIMUM_SECRET_LENGTH = 32;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const FCM_TOKEN_PATTERN = /^[A-Za-z0-9_:-]{32,4096}$/;
+const APNS_TOKEN_PATTERN = /^[0-9a-fA-F]{64,200}$/;
 
 interface NotificationRow {
   id: string;
@@ -42,14 +47,21 @@ Deno.serve(async (request) => {
   if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
   if (!isAuthorized(request)) return json({ error: "unauthorized" }, 401);
 
-  let notificationId: string | undefined;
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (!Number.isFinite(declaredLength) || declaredLength > MAXIMUM_BODY_BYTES) return json({ error: "body_too_large" }, 413);
+
+  let notificationId: unknown;
   try {
-    const payload = await request.json();
+    const text = await request.text();
+    if (new TextEncoder().encode(text).length > MAXIMUM_BODY_BYTES) return json({ error: "body_too_large" }, 413);
+    const payload = JSON.parse(text);
     notificationId = payload?.notification_id ?? payload?.record?.id;
   } catch {
     return json({ error: "invalid_body" }, 400);
   }
-  if (!notificationId || !/^[0-9a-f-]{36}$/i.test(notificationId)) return json({ error: "invalid_notification_id" }, 400);
+  if (typeof notificationId !== "string" || !UUID_PATTERN.test(notificationId)) {
+    return json({ error: "invalid_notification_id" }, 400);
+  }
 
   const database = createClient(requiredEnvironment("SUPABASE_URL"), requiredEnvironment("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -77,6 +89,11 @@ Deno.serve(async (request) => {
 
   const results: Record<string, number> = { sent: 0, invalid_token: 0, failed: 0, not_configured: 0 };
   for (const device of devices as DeviceRow[]) {
+    if (!isWellFormedToken(device)) {
+      results.invalid_token++;
+      await database.from("devices").delete().eq("token", device.token);
+      continue;
+    }
     const result = device.platform === "android"
       ? await sendWithFirebase(device.token, notification)
       : await sendWithApns(device.token, notification);
@@ -94,13 +111,23 @@ Deno.serve(async (request) => {
   return json({ status: "done", results });
 });
 
+// The caller is the database (shared secret, at least 32 characters) or a server holding the service role key.
 function isAuthorized(request: Request): boolean {
   const webhookSecret = Deno.env.get("JAUGE_WEBHOOK_SECRET");
   const header = request.headers.get("x-jauge-webhook-secret");
-  if (webhookSecret && header && timingSafeEqual(header, webhookSecret)) return true;
+  if (webhookSecret && webhookSecret.length >= MINIMUM_SECRET_LENGTH && header && timingSafeEqual(header, webhookSecret)) {
+    return true;
+  }
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   return Boolean(serviceRole && bearer && timingSafeEqual(bearer, serviceRole));
+}
+
+// Tokens are checked again here (register_device already does): an APNs token goes into the request URL.
+function isWellFormedToken(device: DeviceRow): boolean {
+  if (device.platform === "android") return FCM_TOKEN_PATTERN.test(device.token);
+  if (device.platform === "ios") return APNS_TOKEN_PATTERN.test(device.token);
+  return false;
 }
 
 function timingSafeEqual(left: string, right: string): boolean {
@@ -167,7 +194,8 @@ async function sendWithFirebase(token: string, notification: NotificationRow): P
     return "invalid_token";
   }
   if (response.status === 400 && text.includes("INVALID_ARGUMENT") && text.includes("token")) return "invalid_token";
-  console.error("FCM error", response.status, text.slice(0, 300));
+  // Only the status is logged: no token, no title, no body of the notification.
+  console.error("FCM error", response.status);
   return "failed";
 }
 
@@ -214,7 +242,7 @@ async function sendWithApns(token: string, notification: NotificationRow): Promi
   const bundleId = Deno.env.get("APNS_BUNDLE_ID");
   if (!keyP8 || !keyId || !teamId || !bundleId) return "not_configured";
   const host = Deno.env.get("APNS_USE_SANDBOX") === "true" ? "api.sandbox.push.apple.com" : "api.push.apple.com";
-  const response = await fetch(`https://${host}/3/device/${token}`, {
+  const response = await fetch(`https://${host}/3/device/${encodeURIComponent(token)}`, {
     method: "POST",
     headers: {
       authorization: `bearer ${await apnsToken(keyP8, keyId, teamId)}`,
@@ -231,7 +259,7 @@ async function sendWithApns(token: string, notification: NotificationRow): Promi
   if (response.ok) return "sent";
   const text = await response.text();
   if (response.status === 410 || text.includes("BadDeviceToken") || text.includes("Unregistered")) return "invalid_token";
-  console.error("APNs error", response.status, text.slice(0, 300));
+  console.error("APNs error", response.status);
   return "failed";
 }
 

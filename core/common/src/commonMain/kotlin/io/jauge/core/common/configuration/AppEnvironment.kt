@@ -8,7 +8,8 @@ import io.jauge.core.common.platform.Platform
  * @property platform the operating system the app runs on.
  * @property isDebugBuild true for debug builds (enables developer tools such as the hidden offline switch).
  * @property apiBaseUrl base URL of the Jauge API.
- * @property isOfflineModeByDefault true when the app starts without calling the API (sample data).
+ * @property isOfflineModeByDefault true when the app starts without calling the API (sample data). Always false in
+ * release builds: the offline mode is a development tool only.
  * @property supabaseUrl Supabase project URL, empty when notifications are not configured.
  * @property supabasePublishableKey Supabase publishable key, empty when not configured.
  * @property revenueCatApiKey RevenueCat public SDK key used by this build, empty when purchases are disabled. Debug
@@ -27,6 +28,10 @@ data class AppEnvironment(
     val isSupabaseConfigured: Boolean
         get() = supabaseUrl.isNotBlank() && supabasePublishableKey.isNotBlank()
 
+    /** True when the simulated services (offline data, simulated sign in) may be used: debug builds only. */
+    val canUseSimulatedServices: Boolean
+        get() = isDebugBuild
+
     /** True when in app purchases can be used. */
     val isBillingConfigured: Boolean
         get() = revenueCatApiKey.isNotBlank()
@@ -42,9 +47,9 @@ data class AppEnvironment(
         fun fromBuildConfiguration(platform: Platform, isDebugBuild: Boolean): AppEnvironment = AppEnvironment(
             platform = platform,
             isDebugBuild = isDebugBuild,
-            apiBaseUrl = BuildConfiguration.API_BASE_URL,
-            isOfflineModeByDefault = BuildConfiguration.OFFLINE_MODE,
-            supabaseUrl = BuildConfiguration.SUPABASE_URL,
+            apiBaseUrl = secureUrlOrEmpty(BuildConfiguration.API_BASE_URL, isDebugBuild).ifEmpty { DEFAULT_API_BASE_URL },
+            isOfflineModeByDefault = BuildConfiguration.OFFLINE_MODE && isDebugBuild,
+            supabaseUrl = secureUrlOrEmpty(BuildConfiguration.SUPABASE_URL, isDebugBuild),
             supabasePublishableKey = BuildConfiguration.SUPABASE_PUBLISHABLE_KEY,
             revenueCatApiKey = selectRevenueCatApiKey(
                 platform = platform,
@@ -54,6 +59,28 @@ data class AppEnvironment(
                 testStoreApiKey = BuildConfiguration.REVENUECAT_TEST_STORE_API_KEY,
             ),
         )
+
+        /** API used when the configured base URL is refused. */
+        const val DEFAULT_API_BASE_URL: String = "https://api.jauge.io/"
+
+        /**
+         * Returns [url] when it may be used by this build: `https` always, `http` only in debug builds and only for
+         * the local development hosts (`localhost`, `127.0.0.1`, `10.0.2.2` of the Android emulator). Any other
+         * value gives an empty string, which disables the service instead of sending data in clear text.
+         *
+         * @param url the configured URL.
+         * @param isDebugBuild true for debug builds.
+         */
+        fun secureUrlOrEmpty(url: String, isDebugBuild: Boolean): String {
+            val trimmed = url.trim()
+            return when {
+                trimmed.startsWith("https://", ignoreCase = true) -> trimmed
+                isDebugBuild && localDevelopmentUrl.matches(trimmed) -> trimmed
+                else -> ""
+            }
+        }
+
+        private val localDevelopmentUrl = Regex("^http://(localhost|127\\.0\\.0\\.1|10\\.0\\.2\\.2)(:[0-9]{1,5})?(/.*)?$", RegexOption.IGNORE_CASE)
 
         /**
          * Picks the RevenueCat key: the Test Store key in debug builds when it is set, otherwise the store key of

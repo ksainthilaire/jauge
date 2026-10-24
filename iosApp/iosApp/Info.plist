@@ -24,6 +24,11 @@
 	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Jauge enregistre ta carte de partage dans tes photos quand tu touches Enregistrer.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+	</dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>

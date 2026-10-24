@@ -22,8 +22,19 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8: shrinks, optimizes and obfuscates the release build. The libraries ship their own rules
+            // (Retrofit, OkHttp, kotlinx.serialization, RevenueCat, Firebase, Lottie); proguard-rules.pro adds the rest.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // No signing configuration in the repository: the upload key stays with the owner (docs/audit/securite.md).
         }
+    }
+
+    packaging {
+        // Debugger support of kotlinx.coroutines: useless in the app.
+        resources.excludes += "DebugProbesKt.bin"
     }
 
     compileOptions {

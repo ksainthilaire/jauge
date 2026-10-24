@@ -79,23 +79,23 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
         }
     }.decode()
 
-    override suspend fun getAnalysis(analysisId: String): AnalysisPayload = call { client.get("v1/analyses/$analysisId") }.decode()
+    override suspend fun getAnalysis(analysisId: String): AnalysisPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}") }.decode()
 
     override suspend fun deleteAnalysis(analysisId: String) {
-        call { client.delete("v1/analyses/$analysisId") }
+        call { client.delete("v1/analyses/${pathSegment(analysisId)}") }
     }
 
-    override suspend fun getSalary(analysisId: String): SalaryInsightPayload = call { client.get("v1/analyses/$analysisId/salary") }.decode()
+    override suspend fun getSalary(analysisId: String): SalaryInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/salary") }.decode()
 
-    override suspend fun getSkills(analysisId: String): SkillsInsightPayload = call { client.get("v1/analyses/$analysisId/skills") }.decode()
+    override suspend fun getSkills(analysisId: String): SkillsInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/skills") }.decode()
 
-    override suspend fun getTrend(analysisId: String): TrendInsightPayload = call { client.get("v1/analyses/$analysisId/trend") }.decode()
+    override suspend fun getTrend(analysisId: String): TrendInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/trend") }.decode()
 
     override suspend fun getTwins(analysisId: String, sort: String): TwinOffersPayload =
-        call { client.get("v1/analyses/$analysisId/twins") { parameter("sort", sort) } }.decode()
+        call { client.get("v1/analyses/${pathSegment(analysisId)}/twins") { parameter("sort", sort) } }.decode()
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) {
-        call { client.post("v1/analyses/$analysisId/feedback") { json(request) } }
+        call { client.post("v1/analyses/${pathSegment(analysisId)}/feedback") { json(request) } }
     }
 
     override suspend fun getMethodology(analysisId: String): MethodologyPayload =
@@ -106,7 +106,7 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
     override suspend fun createAlert(request: CreateAlertRequestPayload): AlertPayload = call { client.post("v1/alerts") { json(request) } }.decode()
 
     override suspend fun deleteAlert(alertId: String) {
-        call { client.delete("v1/alerts/$alertId") }
+        call { client.delete("v1/alerts/${pathSegment(alertId)}") }
     }
 
     override suspend fun getShares(): ShareListPayload = call { client.get("v1/shares") }.decode()
@@ -114,7 +114,7 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
     override suspend fun createShare(request: CreateShareRequestPayload): SharePayload = call { client.post("v1/shares") { json(request) } }.decode()
 
     override suspend fun deleteShare(shareId: String) {
-        call { client.delete("v1/shares/$shareId") }
+        call { client.delete("v1/shares/${pathSegment(shareId)}") }
     }
 
     override suspend fun getAccount(): AccountPayload = call { client.get("v1/account") }.decode()

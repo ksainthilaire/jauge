@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.jauge.core.common.link.WebLinks
 import io.jauge.core.designsystem.component.JaugeButton
 import io.jauge.core.designsystem.component.JaugeButtonStyle
 import io.jauge.core.designsystem.component.JaugeCard
@@ -68,7 +69,7 @@ fun DeleteAccountScreen(onBack: () -> Unit, onDeleted: () -> Unit) {
     LaunchedEffect(state.managementUrl) {
         state.managementUrl?.let {
             viewModel.onUrlOpened()
-            runCatching { uriHandler.openUri(it) }
+            WebLinks.safeWebLinkOrNull(it)?.let { url -> runCatching { uriHandler.openUri(url) } }
         }
     }
     DeleteAccountContent(

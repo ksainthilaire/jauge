@@ -43,5 +43,8 @@ class AuthenticationCallbackTest {
     fun onlyTheCallbackIsASignInLink() {
         assertTrue(AuthenticationLinks.isSignInLink("io.jauge.app://login-callback?code=1"))
         assertFalse(AuthenticationLinks.isSignInLink("https://jauge.io/a/42"))
+        assertFalse(AuthenticationLinks.isSignInLink("io.jauge.app://login-callback.evil.example?code=1"))
+        assertFalse(AuthenticationLinks.isSignInLink("io.jauge.app://login-callback@evil.example?code=1"))
+        assertTrue(AuthenticationLinks.isSignInLink("io.jauge.app://login-callback#access_token=1"))
     }
 }

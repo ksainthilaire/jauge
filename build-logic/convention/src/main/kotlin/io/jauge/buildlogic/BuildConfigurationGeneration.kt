@@ -17,6 +17,10 @@ fun Project.generateBuildConfiguration(packageName: String) {
 
     val task = tasks.register<GenerateBuildConfigurationTask>("generateBuildConfiguration") {
         this.packageName.set(packageName)
+        // Xcode exports CONFIGURATION: an iOS Release build never embeds the Test Store key nor the offline mode.
+        releaseBuild.set(
+            providers.environmentVariable("CONFIGURATION").map { it.equals("Release", ignoreCase = true) }.orElse(false),
+        )
         outputDirectory.set(layout.buildDirectory.dir("generated/buildConfiguration/commonMain/kotlin"))
         GenerateBuildConfigurationTask.ALL_KEYS.forEach { key ->
             val fromLocalProperties = localPropertiesText.map { text ->

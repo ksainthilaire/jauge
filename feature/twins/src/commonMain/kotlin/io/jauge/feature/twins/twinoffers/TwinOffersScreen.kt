@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.jauge.core.common.link.WebLinks
 import io.jauge.core.designsystem.component.EmptyState
 import io.jauge.core.designsystem.component.GaugeLevel
 import io.jauge.core.designsystem.component.GaugeSize
@@ -182,7 +183,7 @@ fun TwinOffersLayout(
                         items(twins.offers, key = { it.id }) { offer ->
                             TwinOfferCard(
                                 offer = offer,
-                                onClick = offer.url?.let { url -> { runCatching { uriHandler.openUri(url) } } },
+                                onClick = WebLinks.safeWebLinkOrNull(offer.url)?.let { url -> { runCatching { uriHandler.openUri(url) } } },
                                 modifier = Modifier.padding(horizontal = JaugeTheme.spacing.screenGutter),
                             )
                         }
