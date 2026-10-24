@@ -37,5 +37,20 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.core)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit)
+            implementation(libs.robolectric)
+            implementation(libs.roborazzi)
+            implementation(libs.roborazzi.compose)
+            implementation(libs.compose.ui.test.junit4)
+        }
     }
+}
+
+// Screenshot tests (Roborazzi): `./gradlew :composeApp:testAndroidHostTest -Djauge.screenshots=record`.
+tasks.withType<Test>().configureEach {
+    systemProperty("roborazzi.test.record", System.getProperty("jauge.screenshots") == "record")
 }
