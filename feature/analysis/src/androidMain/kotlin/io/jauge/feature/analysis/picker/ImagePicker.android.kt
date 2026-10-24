@@ -87,7 +87,9 @@ actual fun rememberImagePicker(onResult: (PickedImage?) -> Unit, onCancel: () ->
 private fun readImage(context: Context, uri: Uri, origin: ImageOrigin): PickedImage? {
     val resolver = context.contentResolver
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) } ?: return null
+    // With inJustDecodeBounds, decodeStream always returns null: only the stream itself tells whether the file opened.
+    val stream = resolver.openInputStream(uri) ?: return null
+    stream.use { BitmapFactory.decodeStream(it, null, bounds) }
     if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
     var sampleSize = 1
     while (maxOf(bounds.outWidth, bounds.outHeight) / (sampleSize * 2) >= MAXIMUM_IMAGE_SIDE) sampleSize *= 2

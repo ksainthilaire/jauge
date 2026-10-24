@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -113,7 +114,8 @@ fun JaugeScreenScaffold(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize().background(JaugeTheme.colors.background)) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        // imePadding keeps the bottom bar (main button) above the keyboard; the navigation bar padding below then adds nothing.
+        Column(modifier = Modifier.fillMaxSize().imePadding()) {
             if (showTopBar) {
                 JaugeTopBar(title = title, navigationIcon = navigationIcon, action = action)
             }

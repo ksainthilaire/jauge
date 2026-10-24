@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.jauge.app.JaugeApp
+import io.jauge.app.debug.OfflineScenarioSwitch
 import io.jauge.app.link.IncomingLinks
 import io.jauge.app.session.SessionSynchronizer
 import org.koin.android.ext.android.get
@@ -24,12 +25,27 @@ class MainActivity : ComponentActivity() {
         window.decorView.filterTouchesWhenObscured = true
         setContent { JaugeApp() }
         if (savedInstanceState == null) openLink(intent)
+        selectOfflineScenario(intent)
     }
 
     /** Receives the links opened while the app is already running (`singleTask`). */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         openLink(intent)
+        selectOfflineScenario(intent)
+    }
+
+    /**
+     * Debug builds only: `adb shell am start -n io.jauge.app/io.jauge.android.MainActivity -e offline_scenario
+     * UNREADABLE_OFFER` simulates a situation of the offline mode, to test every screen state on a device.
+     */
+    private fun selectOfflineScenario(intent: Intent?) {
+        if (!BuildConfig.DEBUG) return
+        intent?.getStringExtra(OFFLINE_SCENARIO_EXTRA)?.let(OfflineScenarioSwitch::select)
+    }
+
+    private companion object {
+        const val OFFLINE_SCENARIO_EXTRA = "offline_scenario"
     }
 
     /**

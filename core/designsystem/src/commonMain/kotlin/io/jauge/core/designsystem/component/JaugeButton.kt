@@ -4,8 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -17,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.jauge.core.designsystem.theme.JaugeTheme
 
@@ -79,7 +79,8 @@ fun JaugeButton(
     Button(
         onClick = onClick,
         enabled = enabled && !isLoading,
-        modifier = modifier.defaultMinSize(minHeight = height).height(height),
+        // Minimum height only: with large text sizes (accessibility settings) the label wraps instead of being cut.
+        modifier = modifier.heightIn(min = height),
         shape = JaugeTheme.radii.buttonShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = container,
@@ -88,7 +89,7 @@ fun JaugeButton(
             disabledContentColor = content.copy(alpha = 0.7f),
         ),
         border = if (style == JaugeButtonStyle.OUTLINED) BorderStroke(1.5.dp, colors.outline) else null,
-        contentPadding = PaddingValues(horizontal = 20.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
         elevation = null,
     ) {
         if (isLoading) {
@@ -96,7 +97,7 @@ fun JaugeButton(
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 leadingIcon?.let { Icon(it, contentDescription = null, modifier = Modifier.size(20.dp)) }
-                Text(text = text, style = JaugeTheme.typography.button)
+                Text(text = text, style = JaugeTheme.typography.button, textAlign = TextAlign.Center)
                 trailingIcon?.let { Icon(it, contentDescription = null, modifier = Modifier.size(20.dp)) }
             }
         }
