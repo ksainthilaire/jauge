@@ -27,6 +27,7 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -51,6 +52,12 @@ internal interface RetrofitJaugeService {
 
     @DELETE("v1/analyses/{id}")
     suspend fun deleteAnalysis(@Path("id") analysisId: String): Response<Unit>
+
+    @PUT("v1/analyses/{id}/favorite")
+    suspend fun addFavorite(@Path("id") analysisId: String): Response<Unit>
+
+    @DELETE("v1/analyses/{id}/favorite")
+    suspend fun removeFavorite(@Path("id") analysisId: String): Response<Unit>
 
     @GET("v1/analyses/{id}/salary")
     suspend fun getSalary(@Path("id") analysisId: String): SalaryInsightPayload

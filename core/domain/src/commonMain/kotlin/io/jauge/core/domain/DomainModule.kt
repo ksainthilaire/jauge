@@ -19,6 +19,7 @@ import io.jauge.core.domain.usecase.CreateCalmAlertUseCase
 import io.jauge.core.domain.usecase.CreateShareUseCase
 import io.jauge.core.domain.usecase.DeleteAccountUseCase
 import io.jauge.core.domain.usecase.DeleteAnalysisUseCase
+import io.jauge.core.domain.usecase.FavoriteAnalysisUseCase
 import io.jauge.core.domain.usecase.DeleteCalmAlertUseCase
 import io.jauge.core.domain.usecase.DeleteShareUseCase
 import io.jauge.core.domain.usecase.GetAccountUseCase
@@ -48,6 +49,7 @@ val domainModule = module {
     factoryOf(::GetAnalysisHistoryUseCase)
     factoryOf(::GetAnalysisUseCase)
     factoryOf(::DeleteAnalysisUseCase)
+    factoryOf(::FavoriteAnalysisUseCase)
     factoryOf(::GetSalaryInsightUseCase)
     factoryOf(::GetSkillsInsightUseCase)
     factoryOf(::GetTrendInsightUseCase)

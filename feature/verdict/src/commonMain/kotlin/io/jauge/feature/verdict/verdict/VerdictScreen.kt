@@ -18,7 +18,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -31,6 +34,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.jauge.core.designsystem.component.FavoriteStarButton
 import io.jauge.core.designsystem.component.GaugeLevel
 import io.jauge.core.designsystem.component.GaugeSize
 import io.jauge.core.designsystem.component.JaugeButton
@@ -63,6 +67,10 @@ import io.jauge.feature.verdict.resources.months_short
 import io.jauge.feature.verdict.resources.verdict_applicants_label
 import io.jauge.feature.verdict.resources.verdict_applicants_range
 import io.jauge.feature.verdict.resources.verdict_details
+import io.jauge.feature.verdict.resources.verdict_favorite_add
+import io.jauge.feature.verdict.resources.verdict_favorite_add_failed
+import io.jauge.feature.verdict.resources.verdict_favorite_remove
+import io.jauge.feature.verdict.resources.verdict_favorite_remove_failed
 import io.jauge.feature.verdict.resources.verdict_estimate_line
 import io.jauge.feature.verdict.resources.verdict_how
 import io.jauge.feature.verdict.resources.verdict_less_than_offers
@@ -85,6 +93,7 @@ import io.jauge.feature.verdict.resources.weekdays
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringArrayResource
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -112,8 +121,20 @@ fun VerdictScreen(
 ) {
     val viewModel: VerdictViewModel = koinViewModel(key = "verdict-$analysisId") { parametersOf(analysisId) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) {
+        viewModel.favoriteFailures.collect { failure ->
+            snackbarHostState.showSnackbar(
+                getString(if (failure.wasAdding) Res.string.verdict_favorite_add_failed else Res.string.verdict_favorite_remove_failed),
+            )
+        }
+    }
     VerdictLayout(
         state = state,
+        isFavorite = isFavorite,
+        onToggleFavorite = viewModel::toggleFavorite,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onRefresh = viewModel::refresh,
         onShare = { onShare(analysisId) },
@@ -136,6 +157,9 @@ fun VerdictScreen(
  * @param onOpenTwins opens the twin offers.
  * @param onOpenTrend opens the details on the trend.
  * @param animateGauge false to draw the gauge at its final position (screenshots).
+ * @param isFavorite true when the analysis is a favorite (filled star).
+ * @param onToggleFavorite star tapped, with its new value.
+ * @param snackbarHostState host of the short messages (star refused by the server).
  */
 @Composable
 fun VerdictLayout(
@@ -148,9 +172,13 @@ fun VerdictLayout(
     onOpenTwins: () -> Unit,
     onOpenTrend: () -> Unit,
     animateGauge: Boolean = true,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (Boolean) -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val analysis = state.content
     JaugeScreenScaffold(
+        snackbarHostState = snackbarHostState,
         title = analysis?.let { titleOf(it) } ?: stringResource(Res.string.verdict_title),
         navigationIcon = { RoundIconButton(JaugeIcons.Back, stringResource(Res.string.action_back), onBack) },
         action = if (analysis != null) {
@@ -200,6 +228,8 @@ fun VerdictLayout(
                         onOpenTwins = onOpenTwins,
                         onOpenTrend = onOpenTrend,
                         animateGauge = animateGauge,
+                        isFavorite = isFavorite,
+                        onToggleFavorite = onToggleFavorite,
                     )
                     state.showsFullScreenError -> FriendlyErrorView(error = state.error!!, onAction = { onRefresh() })
                     else -> VerdictSkeleton()
@@ -224,20 +254,31 @@ private fun VerdictContent(
     onOpenTwins: () -> Unit,
     onOpenTrend: () -> Unit,
     animateGauge: Boolean,
+    isFavorite: Boolean,
+    onToggleFavorite: (Boolean) -> Unit,
 ) {
     val colors = JaugeTheme.colors
     val offer = analysis.offer
-    Text(
-        text = joinWithDots(offer.company, offer.city, offer.contractType.labelOrNull()),
-        style = JaugeTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-        color = colors.textSecondary,
-    )
-    Text(
-        text = offer.jobTitle,
-        style = JaugeTheme.typography.title,
-        color = colors.textPrimary,
-        modifier = Modifier.padding(top = 4.dp),
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = joinWithDots(offer.company, offer.city, offer.contractType.labelOrNull()),
+                style = JaugeTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                color = colors.textSecondary,
+            )
+            Text(
+                text = offer.jobTitle,
+                style = JaugeTheme.typography.title,
+                color = colors.textPrimary,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+        FavoriteStarButton(
+            isFavorite = isFavorite,
+            onToggle = onToggleFavorite,
+            contentDescription = stringResource(if (isFavorite) Res.string.verdict_favorite_remove else Res.string.verdict_favorite_add),
+        )
+    }
     VerdictGaugeCard(analysis = analysis, onOpenMethodology = onOpenMethodology, animateGauge = animateGauge)
     MetricGrid(analysis = analysis, onOpenTwins = onOpenTwins, onOpenTrend = onOpenTrend)
     analysis.timingAdvice?.let { TimingAdviceCard(it) }

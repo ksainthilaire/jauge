@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.jauge.core.designsystem.component.FavoriteStarButton
 import io.jauge.core.designsystem.component.GaugeLevel
 import io.jauge.core.designsystem.component.GaugeSize
 import io.jauge.core.designsystem.component.JaugeCard
@@ -30,6 +31,8 @@ import io.jauge.feature.analysis.resources.age_weeks
 import io.jauge.feature.analysis.resources.age_yesterday
 import io.jauge.feature.analysis.resources.analysis_row_place
 import io.jauge.feature.analysis.resources.analysis_row_place_with_age
+import io.jauge.feature.analysis.resources.favorite_add
+import io.jauge.feature.analysis.resources.favorite_remove
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toLocalDateTime
@@ -45,6 +48,7 @@ import kotlin.time.Instant
  * @param onOpenAnalysis called with the identifier of the tapped analysis.
  * @param modifier modifier of the card.
  * @param animateGauges false to draw the gauges at once (screenshots).
+ * @param onToggleFavorite called with the identifier and the new value when a star is tapped; null hides the stars.
  */
 @Composable
 fun AnalysisListCard(
@@ -52,10 +56,16 @@ fun AnalysisListCard(
     onOpenAnalysis: (String) -> Unit,
     modifier: Modifier = Modifier,
     animateGauges: Boolean = true,
+    onToggleFavorite: ((String, Boolean) -> Unit)? = null,
 ) {
     JaugeCard(modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(0.dp)) {
         analyses.forEachIndexed { index, analysis ->
-            AnalysisRow(analysis = analysis, onClick = { onOpenAnalysis(analysis.id) }, animateGauge = animateGauges)
+            AnalysisRow(
+                analysis = analysis,
+                onClick = { onOpenAnalysis(analysis.id) },
+                animateGauge = animateGauges,
+                onToggleFavorite = onToggleFavorite?.let { toggle -> { isFavorite -> toggle(analysis.id, isFavorite) } },
+            )
             if (index < analyses.lastIndex) {
                 HorizontalDivider(color = JaugeTheme.colors.outline, thickness = 1.dp)
             }
@@ -64,18 +74,26 @@ fun AnalysisListCard(
 }
 
 /**
- * One analysis: mini gauge, job title, company, place and age, level pill.
+ * One analysis: mini gauge, job title, company, place and age, level pill and favorite star.
  *
  * @param analysis the analysis.
  * @param onClick called on tap.
  * @param modifier modifier of the row.
  * @param animateGauge false to draw the gauge at once.
+ * @param onToggleFavorite called with the new value when the star is tapped; null hides the star.
  */
 @Composable
-fun AnalysisRow(analysis: AnalysisSummary, onClick: () -> Unit, modifier: Modifier = Modifier, animateGauge: Boolean = true) {
+fun AnalysisRow(
+    analysis: AnalysisSummary,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    animateGauge: Boolean = true,
+    onToggleFavorite: ((Boolean) -> Unit)? = null,
+) {
     val level = GaugeLevel.valueOf(analysis.level.name)
+    val endPadding = if (onToggleFavorite != null) 4.dp else 16.dp
     Row(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 14.dp),
+        modifier = modifier.fillMaxWidth().clickable(onClick = onClick).padding(start = 16.dp, end = endPadding, top = 14.dp, bottom = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -98,6 +116,16 @@ fun AnalysisRow(analysis: AnalysisSummary, onClick: () -> Unit, modifier: Modifi
             )
         }
         LevelPill(level = level)
+        if (onToggleFavorite != null) {
+            FavoriteStarButton(
+                isFavorite = analysis.isFavorite,
+                onToggle = onToggleFavorite,
+                contentDescription = stringResource(
+                    if (analysis.isFavorite) Res.string.favorite_remove else Res.string.favorite_add,
+                    analysis.jobTitle,
+                ),
+            )
+        }
     }
 }
 

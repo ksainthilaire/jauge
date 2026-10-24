@@ -8,7 +8,9 @@ import io.jauge.core.domain.model.OfferSource
 import io.jauge.core.domain.model.Outcome
 import io.jauge.core.domain.repository.AnalysisRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 /**
  * Analyzes an offer (mockups 02 and 03). Checks the input first: a pasted text that is not a web link, or an empty
@@ -112,4 +114,48 @@ class DeleteAnalysisUseCase(private val repository: AnalysisRepository) {
      * @param analysisId identifier of the analysis.
      */
     suspend operator fun invoke(analysisId: String): Outcome<Unit> = repository.deleteAnalysis(analysisId)
+}
+
+/**
+ * Favorite analyses (star on the verdict 04 and on the lists of 02 and "Tout voir").
+ *
+ * @param repository analyses repository.
+ */
+class FavoriteAnalysisUseCase(private val repository: AnalysisRepository) {
+    /**
+     * Whether one analysis is a favorite, updated at once after every change.
+     *
+     * @param analysisId identifier of the analysis.
+     */
+    fun observe(analysisId: String): Flow<Boolean> =
+        repository.observeFavoriteIds().map { analysisId in it }.distinctUntilChanged()
+
+    /**
+     * Adds or removes the star. Optimistic: the star changes at once and comes back when the server refuses.
+     *
+     * @param analysisId identifier of the analysis.
+     * @param isFavorite true to add the star, false to remove it.
+     */
+    suspend operator fun invoke(analysisId: String, isFavorite: Boolean): Outcome<Unit> =
+        if (analysisId.isBlank()) Outcome.Failure(JaugeError.NotFound) else repository.setFavorite(analysisId, isFavorite)
+}
+
+/** Filter of the list of analyses ("Tout voir"). */
+enum class AnalysisFilter {
+    /** Every analysis. */
+    ALL,
+
+    /** Only the favorites. */
+    FAVORITES,
+    ;
+
+    /**
+     * Applies the filter.
+     *
+     * @param analyses analyses to filter, order kept.
+     */
+    fun apply(analyses: List<AnalysisSummary>): List<AnalysisSummary> = when (this) {
+        ALL -> analyses
+        FAVORITES -> analyses.filter { it.isFavorite }
+    }
 }

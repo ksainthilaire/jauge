@@ -145,6 +145,7 @@ data class AnalysisResultPayload(
  * @property offer the offer, once read.
  * @property result the result, when completed.
  * @property failure the failure, when failed.
+ * @property isFavorite true when the user marked the analysis as a favorite.
  */
 @Serializable
 data class AnalysisPayload(
@@ -158,6 +159,7 @@ data class AnalysisPayload(
     val offer: OfferPayload? = null,
     val result: AnalysisResultPayload? = null,
     val failure: AnalysisFailurePayload? = null,
+    val isFavorite: Boolean = false,
 ) {
     /** Values of [status]. */
     companion object {
@@ -181,6 +183,7 @@ data class AnalysisPayload(
  * @property company company name.
  * @property place city or district.
  * @property score competition score.
+ * @property isFavorite true when the user marked the analysis as a favorite.
  */
 @Serializable
 data class AnalysisSummaryPayload(
@@ -190,6 +193,7 @@ data class AnalysisSummaryPayload(
     val company: String? = null,
     val place: String,
     val score: Int,
+    val isFavorite: Boolean = false,
 )
 
 /**

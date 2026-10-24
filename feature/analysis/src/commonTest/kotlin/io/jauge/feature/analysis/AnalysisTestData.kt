@@ -15,6 +15,7 @@ import io.jauge.core.domain.repository.AuthenticationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Clock
 
@@ -44,7 +45,30 @@ class FakeAnalysisRepository : AnalysisRepository {
         return flowOf(*progress.toTypedArray())
     }
 
-    override fun observeHistory(): Flow<List<AnalysisSummary>> = history
+    /** Favorite identifiers. */
+    val favoriteIds = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Error returned by the next star change (after undoing it), null for a success. */
+    var favoriteError: JaugeError? = null
+
+    /** Star values seen while the server was answering, to check the optimistic update. */
+    val favoritesDuringCall = mutableListOf<Set<String>>()
+
+    override fun observeHistory(): Flow<List<AnalysisSummary>> =
+        combine(history, favoriteIds) { list, favorites -> list.map { it.copy(isFavorite = it.id in favorites) } }
+
+    override fun observeFavoriteIds(): Flow<Set<String>> = favoriteIds
+
+    override suspend fun setFavorite(analysisId: String, isFavorite: Boolean): Outcome<Unit> {
+        val before = favoriteIds.value
+        favoriteIds.value = if (isFavorite) before + analysisId else before - analysisId
+        favoritesDuringCall += favoriteIds.value
+        favoriteError?.let {
+            favoriteIds.value = before
+            return Outcome.Failure(it)
+        }
+        return Outcome.Success(Unit)
+    }
 
     override suspend fun refreshHistory(): Outcome<Unit> {
         refreshError?.let { return Outcome.Failure(it) }

@@ -31,6 +31,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -83,6 +84,14 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
 
     override suspend fun deleteAnalysis(analysisId: String) {
         call { client.delete("v1/analyses/${pathSegment(analysisId)}") }
+    }
+
+    override suspend fun addFavorite(analysisId: String) {
+        call { client.put("v1/analyses/${pathSegment(analysisId)}/favorite") }
+    }
+
+    override suspend fun removeFavorite(analysisId: String) {
+        call { client.delete("v1/analyses/${pathSegment(analysisId)}/favorite") }
     }
 
     override suspend fun getSalary(analysisId: String): SalaryInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/salary") }.decode()

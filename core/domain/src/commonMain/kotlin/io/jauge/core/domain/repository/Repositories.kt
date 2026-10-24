@@ -20,6 +20,7 @@ import io.jauge.core.domain.model.TrendInsight
 import io.jauge.core.domain.model.TwinOffers
 import io.jauge.core.domain.model.TwinSort
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /** Analyses of offers. Implementations never throw: failures come back as [Outcome.Failure]. */
 interface AnalysisRepository {
@@ -49,6 +50,22 @@ interface AnalysisRepository {
      * @param analysisId identifier of the analysis.
      */
     suspend fun deleteAnalysis(analysisId: String): Outcome<Unit>
+
+    /**
+     * Identifiers of the favorite analyses, kept on the device and updated at once after every change (before the
+     * server answers).
+     */
+    fun observeFavoriteIds(): Flow<Set<String>> = flowOf(emptySet())
+
+    /**
+     * Marks an analysis as a favorite or removes it from the favorites. The change is optimistic: it is visible at
+     * once in [observeFavoriteIds] and [observeHistory], and undone when the server refuses it.
+     *
+     * @param analysisId identifier of the analysis.
+     * @param isFavorite true to add the star, false to remove it.
+     * @return success, or the failure after the change was undone.
+     */
+    suspend fun setFavorite(analysisId: String, isFavorite: Boolean): Outcome<Unit> = Outcome.Failure(JaugeError.Unknown)
 }
 
 /** Details of an analysis: salaries, skills, trend and methodology. */

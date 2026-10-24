@@ -4,9 +4,12 @@ import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.AnalysisProgress
 import io.jauge.core.domain.model.ImageOrigin
 import io.jauge.core.domain.model.OfferSource
+import io.jauge.core.domain.usecase.AnalysisFilter
 import io.jauge.core.domain.usecase.AnalyzeOfferUseCase
+import io.jauge.core.domain.usecase.FavoriteAnalysisUseCase
 import io.jauge.core.domain.usecase.GetAnalysisHistoryUseCase
 import io.jauge.core.domain.usecase.ObserveAuthenticationStateUseCase
+import io.jauge.feature.analysis.favorites.FavoriteFailure
 import io.jauge.feature.analysis.history.HistoryViewModel
 import io.jauge.feature.analysis.home.HomeViewModel
 import io.jauge.feature.analysis.manualentry.ManualEntryViewModel
@@ -16,13 +19,17 @@ import io.jauge.feature.analysis.reading.ReadingViewModel
 import io.jauge.feature.analysis.unreadableoffer.UnreadableOfferViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -40,7 +47,7 @@ class AnalysisViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun homeViewModel() =
-        HomeViewModel(ObserveAuthenticationStateUseCase(SignedInAuthenticationRepository()), GetAnalysisHistoryUseCase(repository), store)
+        HomeViewModel(ObserveAuthenticationStateUseCase(SignedInAuthenticationRepository()), GetAnalysisHistoryUseCase(repository), store, FavoriteAnalysisUseCase(repository))
 
     @Test
     fun homeGreetsTheUserAndLoadsTheHistory() {
@@ -153,11 +160,51 @@ class AnalysisViewModelTest {
 
     @Test
     fun historyLoadsAndRefreshes() {
-        val viewModel = HistoryViewModel(GetAnalysisHistoryUseCase(repository))
-        assertEquals(sampleAnalyses, viewModel.uiState.value.content)
+        val viewModel = HistoryViewModel(GetAnalysisHistoryUseCase(repository), FavoriteAnalysisUseCase(repository))
+        assertEquals(sampleAnalyses, viewModel.uiState.value.analyses.content)
         repository.refreshError = JaugeError.Timeout
         viewModel.refresh()
-        assertEquals(JaugeError.Timeout, viewModel.uiState.value.error)
-        assertEquals(sampleAnalyses, viewModel.uiState.value.content)
+        assertEquals(JaugeError.Timeout, viewModel.uiState.value.analyses.error)
+        assertEquals(sampleAnalyses, viewModel.uiState.value.analyses.content)
+    }
+
+    @Test
+    fun historyFilterShowsOnlyFavorites() {
+        val viewModel = HistoryViewModel(GetAnalysisHistoryUseCase(repository), FavoriteAnalysisUseCase(repository))
+        viewModel.toggleFavorite("analysis-pellat", true)
+        viewModel.selectFilter(AnalysisFilter.FAVORITES)
+        assertEquals(listOf("analysis-pellat"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+        viewModel.selectFilter(AnalysisFilter.ALL)
+        assertEquals(3, viewModel.uiState.value.visibleAnalyses?.size)
+    }
+
+    @Test
+    fun historyFavoritesFilterIsEmptyWithoutStars() {
+        val viewModel = HistoryViewModel(GetAnalysisHistoryUseCase(repository), FavoriteAnalysisUseCase(repository))
+        viewModel.selectFilter(AnalysisFilter.FAVORITES)
+        assertEquals(emptyList(), viewModel.uiState.value.visibleAnalyses)
+        assertEquals(3, viewModel.uiState.value.analyses.content?.size)
+    }
+
+    @Test
+    fun starIsOptimisticAndComesBackWhenTheServerRefuses() = runTest {
+        val viewModel = HistoryViewModel(GetAnalysisHistoryUseCase(repository), FavoriteAnalysisUseCase(repository))
+        val failures = mutableListOf<FavoriteFailure>()
+        val collection = launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.favoriteFailures.toList(failures) }
+        repository.favoriteError = JaugeError.NoConnection
+        viewModel.toggleFavorite("analysis-sorel", true)
+        assertEquals(listOf(setOf("analysis-sorel")), repository.favoritesDuringCall)
+        assertFalse(viewModel.uiState.value.analyses.content!!.first { it.id == "analysis-sorel" }.isFavorite)
+        assertEquals(listOf(FavoriteFailure(wasAdding = true, error = JaugeError.NoConnection)), failures)
+        collection.cancel()
+    }
+
+    @Test
+    fun homeStarsAnAnalysisOfTheList() {
+        val viewModel = homeViewModel()
+        viewModel.toggleFavorite("analysis-ardent", true)
+        assertTrue(viewModel.uiState.value.history.content!!.first { it.id == "analysis-ardent" }.isFavorite)
+        viewModel.toggleFavorite("analysis-ardent", false)
+        assertFalse(viewModel.uiState.value.history.content!!.first { it.id == "analysis-ardent" }.isFavorite)
     }
 }

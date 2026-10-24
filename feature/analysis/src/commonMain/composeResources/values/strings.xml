@@ -81,4 +81,12 @@
     <string name="manual_entry_analyze">Jauger cette offre</string>
     <string name="history_title">Mes offres jaugées</string>
     <string name="history_back">Retour</string>
+    <string name="favorite_add">Ajouter %1$s aux favoris</string>
+    <string name="favorite_remove">Retirer %1$s des favoris</string>
+    <string name="favorite_add_failed">L'étoile n'a pas pu être enregistrée. Réessaie dans un instant.</string>
+    <string name="favorite_remove_failed">L'étoile n'a pas pu être retirée. Réessaie dans un instant.</string>
+    <string name="history_filter_all">Toutes</string>
+    <string name="history_filter_favorites">Favoris</string>
+    <string name="history_favorites_empty_title">Aucun favori pour l'instant</string>
+    <string name="history_favorites_empty_message">Touche l'étoile d'une offre jaugée pour la retrouver ici.</string>
 </resources>

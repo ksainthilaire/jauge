@@ -22,6 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import io.jauge.feature.analysis.favorites.FavoriteFailureMessages
+import androidx.compose.runtime.remember
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,17 +100,23 @@ fun HomeScreen(
             onStartReading(requestId)
         }
     }
-    HomeContent(
-        state = state,
-        onLinkChange = viewModel::onLinkChange,
-        onAnalyzeLink = viewModel::analyzeLink,
-        onPickScreenshot = picker::pickScreenshot,
-        onTakePhoto = picker::takePhoto,
-        onOpenAnalysis = onOpenAnalysis,
-        onOpenHistory = onOpenHistory,
-        onRefresh = viewModel::refresh,
-        onErrorAction = { action -> if (action == FriendlyAction.OPEN_PAYWALL) onOpenPaywall() else viewModel.refresh() },
-    )
+    val snackbarHostState = remember { SnackbarHostState() }
+    FavoriteFailureMessages(failures = viewModel.favoriteFailures, snackbarHostState = snackbarHostState)
+    Box(modifier = Modifier.fillMaxSize()) {
+        HomeContent(
+            state = state,
+            onLinkChange = viewModel::onLinkChange,
+            onAnalyzeLink = viewModel::analyzeLink,
+            onPickScreenshot = picker::pickScreenshot,
+            onTakePhoto = picker::takePhoto,
+            onOpenAnalysis = onOpenAnalysis,
+            onOpenHistory = onOpenHistory,
+            onRefresh = viewModel::refresh,
+            onErrorAction = { action -> if (action == FriendlyAction.OPEN_PAYWALL) onOpenPaywall() else viewModel.refresh() },
+            onToggleFavorite = viewModel::toggleFavorite,
+        )
+        SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp))
+    }
 }
 
 /**
@@ -123,6 +133,7 @@ fun HomeScreen(
  * @param onErrorAction action of a friendly error.
  * @param modifier modifier of the screen.
  * @param animateGauges false to draw the gauges at once.
+ * @param onToggleFavorite star of an analysis tapped, with its new value.
  */
 @Composable
 fun HomeContent(
@@ -137,6 +148,7 @@ fun HomeContent(
     onErrorAction: (FriendlyAction) -> Unit,
     modifier: Modifier = Modifier,
     animateGauges: Boolean = true,
+    onToggleFavorite: (String, Boolean) -> Unit = { _, _ -> },
 ) {
     val colors = JaugeTheme.colors
     val typography = JaugeTheme.typography
@@ -214,7 +226,14 @@ fun HomeContent(
                     modifier = Modifier.padding(top = 10.dp, start = 4.dp),
                 )
             }
-            HistorySection(state = state, onOpenAnalysis = onOpenAnalysis, onOpenHistory = onOpenHistory, onErrorAction = onErrorAction, animateGauges = animateGauges)
+            HistorySection(
+                state = state,
+                onOpenAnalysis = onOpenAnalysis,
+                onOpenHistory = onOpenHistory,
+                onErrorAction = onErrorAction,
+                animateGauges = animateGauges,
+                onToggleFavorite = onToggleFavorite,
+            )
         }
     }
 }
@@ -226,6 +245,7 @@ private fun HistorySection(
     onOpenHistory: () -> Unit,
     onErrorAction: (FriendlyAction) -> Unit,
     animateGauges: Boolean,
+    onToggleFavorite: (String, Boolean) -> Unit,
 ) {
     val colors = JaugeTheme.colors
     val history = state.history
@@ -259,6 +279,7 @@ private fun HistorySection(
             onOpenAnalysis = onOpenAnalysis,
             animateGauges = animateGauges,
             modifier = Modifier.padding(top = 12.dp),
+            onToggleFavorite = onToggleFavorite,
         )
     }
 }

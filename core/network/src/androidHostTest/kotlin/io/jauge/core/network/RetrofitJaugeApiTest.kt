@@ -81,4 +81,18 @@ class RetrofitJaugeApiTest {
         server.enqueue(MockResponse.Builder().code(200).body("{}").headersDelay(3, TimeUnit.SECONDS).build())
         assertFailsWith<NetworkFailure.Timeout> { api.getSubscription() }
     }
+
+    @Test
+    fun favoritesUsePutAndDelete() = runTest {
+        server.enqueue(MockResponse.Builder().code(204).build())
+        server.enqueue(MockResponse.Builder().code(204).build())
+        api.addFavorite("a1")
+        api.removeFavorite("a1")
+        val added = server.takeRequest()
+        assertEquals("PUT", added.method)
+        assertEquals("/v1/analyses/a1/favorite", added.url.encodedPath)
+        val removed = server.takeRequest()
+        assertEquals("DELETE", removed.method)
+        assertEquals("/v1/analyses/a1/favorite", removed.url.encodedPath)
+    }
 }

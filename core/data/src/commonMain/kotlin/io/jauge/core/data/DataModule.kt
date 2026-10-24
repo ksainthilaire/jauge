@@ -4,6 +4,7 @@ import io.jauge.core.data.api.SwitchingJaugeApi
 import io.jauge.core.data.offline.OfflineDataset
 import io.jauge.core.data.offline.OfflineJaugeApi
 import io.jauge.core.data.offline.OfflineScenarioController
+import io.jauge.core.data.preferences.FavoriteStore
 import io.jauge.core.data.preferences.PreferencesRepositoryImplementation
 import io.jauge.core.data.preferences.platformDataModule
 import io.jauge.core.data.repository.AccountRepositoryImplementation
@@ -34,15 +35,18 @@ const val OFFLINE_API = "offlineJaugeApi"
 val dataModule = module {
     single { OfflineScenarioController() }
     single { OfflineDataset() }
-    single<JaugeApi>(named(OFFLINE_API)) { OfflineJaugeApi(dataset = get(), scenarios = get()) }
+    single<JaugeApi>(named(OFFLINE_API)) { OfflineJaugeApi(dataset = get(), scenarios = get(), favoriteStore = FavoriteStore(get(), FavoriteStore.OFFLINE_KEY)) }
     single<JaugeApi> {
         SwitchingJaugeApi(remote = get(named(REMOTE_API)), offline = get(named(OFFLINE_API)), apiModeController = get())
     }
-    single<AnalysisRepository> { AnalysisRepositoryImplementation(get()) }
+    single { AnalysisRepositoryImplementation(api = get(), favoriteStore = FavoriteStore(get())) }
+    single<AnalysisRepository> { get<AnalysisRepositoryImplementation>() }
     single<InsightRepository> { InsightRepositoryImplementation(get()) }
     single<TwinRepository> { TwinRepositoryImplementation(get()) }
     single<ShareRepository> { ShareRepositoryImplementation(get()) }
-    single<AccountRepository> { AccountRepositoryImplementation(get()) }
+    single<AccountRepository> {
+        AccountRepositoryImplementation(api = get(), onAccountDeleted = { get<AnalysisRepositoryImplementation>().clearLocalFavorites() })
+    }
     single<SubscriptionRepository> { SubscriptionRepositoryImplementation(get(), get()) }
     single<PreferencesRepository> { PreferencesRepositoryImplementation(get()) }
     includes(platformDataModule)

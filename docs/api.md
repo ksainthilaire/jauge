@@ -26,6 +26,8 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 | `GET /v1/analyses?cursor=&limit=` | Analyses of the user, newest first, paginated with `nextCursor`. | 02 |
 | `GET /v1/analyses/{id}` | One analysis. Polled about every second while `status` is `processing`. | 03, 04 |
 | `DELETE /v1/analyses/{id}` | Delete an analysis. | 02 |
+| `PUT /v1/analyses/{id}/favorite` | Star an analysis (favorite). Idempotent, answers `204`. | 02, 04 |
+| `DELETE /v1/analyses/{id}/favorite` | Remove the star. Idempotent, answers `204`. | 02, 04 |
 | `GET /v1/analyses/{id}/salary` | Salary scale of the area, median, middle half, estimated range of the offer, negotiation target. | 05 |
 | `GET /v1/analyses/{id}/skills` | Skills asked for by twin offers, with the share of offers and whether the user has them. | 05 |
 | `GET /v1/analyses/{id}/trend` | Applicants per offer over 12 months and the change over 3 months. | 05 |
@@ -52,6 +54,14 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 3. `status: "completed"` brings `offer` and `result`. `status: "failed"` brings `failure.code`:
    `unreadable_offer` (with `recognizedCompany` when the company could still be read) or `unsupported_link`.
 4. An unreadable image does not use the free analysis of the week.
+
+### Favorites
+
+Analyses (`GET /v1/analyses` items and `GET /v1/analyses/{id}`) carry `isFavorite` (false when absent). The app keeps
+the stars on the device too, so they show at once and survive a restart. A star change is optimistic: the star changes
+on screen at once, then the app calls `PUT` or `DELETE /v1/analyses/{id}/favorite`; on failure the star comes back
+and a friendly message says it could not be saved. The server is the reference for the analyses it returns: their
+`isFavorite` replaces the local value at every refresh. The filter "Favoris" of the list is applied by the app.
 
 ### Share links
 
@@ -97,7 +107,8 @@ unreadable bodies are mapped too. The mapping lives in `core/data/.../error/Erro
 
 `OfflineJaugeApi` implements the same interface with realistic data from the mockups (Atelier Sorel, score 78,
 about 210 applicants, 36 to 41 k€, twins around Lyon), a simulated latency (350 to 900 ms) and an analysis that
-progresses 20, 40, 62, 85 % then completes. New analyses, alerts and shares are kept in memory.
+progresses 20, 40, 62, 85 % then completes. New analyses, alerts and shares are kept in memory; favorites are kept on the device (key
+`offline.analyses.favorites`), like a server would.
 
 It is on when `jauge.api.offlineMode` is not `false` (the default while the API does not exist). In debug builds a
 long press on the "Profil" tab switches between offline and real API at runtime. `OfflineScenarioController`

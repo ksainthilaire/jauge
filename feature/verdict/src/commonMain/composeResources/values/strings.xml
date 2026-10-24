@@ -123,4 +123,8 @@
     <string name="methodology_feedback_send">Envoyer</string>
     <string name="methodology_feedback_cancel">Annuler</string>
     <string name="methodology_feedback_thanks">Merci ! Ton chiffre nous aide à mieux estimer.</string>
+    <string name="verdict_favorite_add">Ajouter aux favoris</string>
+    <string name="verdict_favorite_remove">Retirer des favoris</string>
+    <string name="verdict_favorite_add_failed">L'étoile n'a pas pu être enregistrée. Réessaie dans un instant.</string>
+    <string name="verdict_favorite_remove_failed">L'étoile n'a pas pu être retirée. Réessaie dans un instant.</string>
 </resources>

@@ -66,6 +66,20 @@ interface JaugeApi {
     suspend fun deleteAnalysis(analysisId: String)
 
     /**
+     * `PUT /v1/analyses/{id}/favorite`: marks the analysis as a favorite. Idempotent.
+     *
+     * @param analysisId identifier.
+     */
+    suspend fun addFavorite(analysisId: String)
+
+    /**
+     * `DELETE /v1/analyses/{id}/favorite`: removes the analysis from the favorites. Idempotent.
+     *
+     * @param analysisId identifier.
+     */
+    suspend fun removeFavorite(analysisId: String)
+
+    /**
      * `GET /v1/analyses/{id}/salary`.
      *
      * @param analysisId identifier.

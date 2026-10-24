@@ -36,6 +36,10 @@ class SwitchingJaugeApi(
 
     override suspend fun deleteAnalysis(analysisId: String) = current.deleteAnalysis(analysisId)
 
+    override suspend fun addFavorite(analysisId: String) = current.addFavorite(analysisId)
+
+    override suspend fun removeFavorite(analysisId: String) = current.removeFavorite(analysisId)
+
     override suspend fun getSalary(analysisId: String) = current.getSalary(analysisId)
 
     override suspend fun getSkills(analysisId: String) = current.getSkills(analysisId)

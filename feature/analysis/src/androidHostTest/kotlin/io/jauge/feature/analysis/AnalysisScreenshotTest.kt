@@ -10,6 +10,9 @@ import io.jauge.core.domain.model.ReadingStep
 import io.jauge.core.domain.model.ReadingStepKind
 import io.jauge.core.domain.model.ReadingStepStatus
 import io.jauge.core.ui.state.ContentState
+import io.jauge.core.domain.usecase.AnalysisFilter
+import io.jauge.feature.analysis.history.HistoryContent
+import io.jauge.feature.analysis.history.HistoryUiState
 import io.jauge.feature.analysis.home.HomeContent
 import io.jauge.feature.analysis.home.HomeUiState
 import io.jauge.feature.analysis.reading.ReadingContent
@@ -37,6 +40,7 @@ class AnalysisScreenshotTest {
         AnalysisSummary("2", now - 3.days, "Traffic manager", "Groupe Pellat", "Villeurbanne", 44),
         AnalysisSummary("3", now - 5.days, "Responsable CRM", "Vélo Ardent", "Vaise", 19),
     )
+    private val favoriteAnalyses = analyses.mapIndexed { index, analysis -> analysis.copy(isFavorite = index == 0) }
 
     /** Mockup 02. */
     @Test
@@ -50,6 +54,62 @@ class AnalysisScreenshotTest {
             ),
             onLinkChange = {}, onAnalyzeLink = {}, onPickScreenshot = {}, onTakePhoto = {}, onOpenAnalysis = {},
             onOpenHistory = {}, onRefresh = {}, onErrorAction = {}, animateGauges = false,
+        )
+    }
+
+    /** Mockup 02 with a favorite (star filled), light and dark themes. */
+    @Test
+    fun homeWithFavorite() {
+        listOf(false, true).forEach { dark ->
+            capture(if (dark) "02-favori-sombre" else "02-favori", darkTheme = dark) {
+                HomeContent(
+                    state = HomeUiState(
+                        firstName = "Inès",
+                        initials = "IB",
+                        history = ContentState(content = favoriteAnalyses, isLoading = false),
+                    ),
+                    onLinkChange = {}, onAnalyzeLink = {}, onPickScreenshot = {}, onTakePhoto = {}, onOpenAnalysis = {},
+                    onOpenHistory = {}, onRefresh = {}, onErrorAction = {}, animateGauges = false,
+                )
+            }
+        }
+    }
+
+    /** "Tout voir" with the filter "Favoris", light and dark themes. */
+    @Test
+    fun historyFavorites() {
+        listOf(false, true).forEach { dark ->
+            capture(if (dark) "02-tout-voir-favoris-sombre" else "02-tout-voir-favoris", darkTheme = dark) {
+                HistoryContent(
+                    state = HistoryUiState(ContentState(content = favoriteAnalyses, isLoading = false), AnalysisFilter.FAVORITES),
+                    onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
+                    onToggleFavorite = { _, _ -> }, animateGauges = false,
+                )
+            }
+        }
+    }
+
+    /** "Tout voir" with every analysis, light and dark themes. */
+    @Test
+    fun historyAll() {
+        listOf(false, true).forEach { dark ->
+            capture(if (dark) "02-tout-voir-sombre" else "02-tout-voir", darkTheme = dark) {
+                HistoryContent(
+                    state = HistoryUiState(ContentState(content = favoriteAnalyses, isLoading = false), AnalysisFilter.ALL),
+                    onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
+                    onToggleFavorite = { _, _ -> }, animateGauges = false,
+                )
+            }
+        }
+    }
+
+    /** "Tout voir" with the filter "Favoris" and no star yet. */
+    @Test
+    fun historyNoFavorite() = capture("02-tout-voir-aucun-favori") {
+        HistoryContent(
+            state = HistoryUiState(ContentState(content = analyses, isLoading = false), AnalysisFilter.FAVORITES),
+            onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
+            onToggleFavorite = { _, _ -> },
         )
     }
 
@@ -86,10 +146,10 @@ class AnalysisScreenshotTest {
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private fun capture(name: String, content: @Composable () -> Unit) {
+    private fun capture(name: String, darkTheme: Boolean = false, content: @Composable () -> Unit) {
         captureRoboImage(filePath = "build/screenshots/$name.png") {
             PreviewContextConfigurationEffect()
-            JaugeTheme(darkTheme = false) { content() }
+            JaugeTheme(darkTheme = darkTheme) { content() }
         }
     }
 }

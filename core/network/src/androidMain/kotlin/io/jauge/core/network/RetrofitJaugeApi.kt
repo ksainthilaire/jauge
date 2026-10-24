@@ -56,6 +56,10 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
 
     override suspend fun deleteAnalysis(analysisId: String) = callWithoutBody { service.deleteAnalysis(analysisId) }
 
+    override suspend fun addFavorite(analysisId: String) = callWithoutBody { service.addFavorite(analysisId) }
+
+    override suspend fun removeFavorite(analysisId: String) = callWithoutBody { service.removeFavorite(analysisId) }
+
     override suspend fun getSalary(analysisId: String): SalaryInsightPayload = call { service.getSalary(analysisId) }
 
     override suspend fun getSkills(analysisId: String): SkillsInsightPayload = call { service.getSkills(analysisId) }
