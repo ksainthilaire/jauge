@@ -1,0 +1,23 @@
+Jauge: third party notices
+
+This file ships with the app to meet the notice requirements of the licenses below. It is not shown on screen.
+
+Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+- Kotlin, kotlinx.coroutines, kotlinx.serialization, kotlinx-datetime (JetBrains s.r.o. and contributors)
+- Compose Multiplatform, Jetpack Compose, AndroidX, Material 3 (JetBrains s.r.o., The Android Open Source Project)
+- Koin (Kotzilla and contributors)
+- Ktor (JetBrains s.r.o. and contributors)
+- Retrofit, OkHttp (Square, Inc.)
+- Multiplatform Settings (Russell Wolf)
+- Lottie for Android (Airbnb, Inc.)
+- Firebase Android SDK (Google LLC)
+
+MIT License (https://opensource.org/license/mit)
+- RevenueCat purchases-kmp (RevenueCat, Inc.)
+- Compottie (Alexander Zhirkevich)
+- supabase-kt (Jan Tennert)
+
+SIL Open Font License 1.1 (https://openfontlicense.org)
+- Bricolage Grotesque, Instrument Sans, JetBrains Mono
+
+The full texts of the licenses are available at the addresses above. Every library is used without modification.

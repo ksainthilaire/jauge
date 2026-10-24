@@ -116,6 +116,12 @@ class AccountScreenshotTest {
         JaugeTheme(darkTheme = false) { AboutScreen({}, {}, {}, {}) }
     }
 
+    /** About, dark theme. */
+    @Test
+    fun aboutDark() = capture("a-propos-sombre") {
+        JaugeTheme(darkTheme = true) { AboutScreen({}, {}, {}, {}) }
+    }
+
     @OptIn(ExperimentalResourceApi::class)
     internal fun capture(name: String, content: @Composable () -> Unit) {
         captureRoboImage(filePath = "build/screenshots/$name.png") {
