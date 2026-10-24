@@ -56,7 +56,14 @@ class AccountScreenshotTest {
 
     /** Mockup 13. */
     @Test
-    fun profile() = capture("13-profil-et-abonnement") {
+    fun profile() = capture("13-profil-et-abonnement") { ProfileSample(isRestoring = false) }
+
+    /** Mockup 13 while "Restaurer les achats" waits for the store. */
+    @Test
+    fun profileRestoring() = capture("13-profil-restauration-en-cours") { ProfileSample(isRestoring = true) }
+
+    @Composable
+    private fun ProfileSample(isRestoring: Boolean) {
         JaugeTheme(darkTheme = false) {
             ProfileContent(
                 state = ProfileUiState(
@@ -71,6 +78,7 @@ class AccountScreenshotTest {
                     ),
                     user = AuthenticatedUser("1", null, "Inès Bertrand", SignInMethod.APPLE),
                     preferences = UserPreferences(calmAlertsEnabled = true, searchArea = SearchArea("Lyon", 30)),
+                    isRestoring = isRestoring,
                 ),
                 navigation = ProfileNavigation({}, {}, {}, {}, {}, {}, {}, {}, {}),
                 onRefresh = {}, onManageSubscription = {}, onRestore = {}, onExport = {}, onSignOut = {},

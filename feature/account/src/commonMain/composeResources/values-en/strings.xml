@@ -73,6 +73,7 @@
     <string name="profile_methodology">How we estimate</string>
     <string name="profile_restore">Restore purchases</string>
     <string name="profile_restored">Your purchases are restored.</string>
+    <string name="profile_restoring">Restoring…</string>
     <string name="profile_group_data">Account and data</string>
     <string name="profile_privacy">Privacy and data</string>
     <string name="profile_export">Export my analyses</string>

@@ -22,6 +22,7 @@ import io.jauge.feature.account.profile.ProfileMessage
 import io.jauge.feature.account.profile.ProfileViewModel
 import io.jauge.feature.account.profile.analysesToCsv
 import io.jauge.feature.account.settings.SettingsViewModel
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -95,6 +96,41 @@ class ProfileViewModelTest {
         subscriptions.restoreError = JaugeError.NothingToRestore
         viewModel.restore()
         assertEquals(JaugeError.NothingToRestore, viewModel.uiState.value.actionError)
+    }
+
+    @Test
+    fun restoreWithoutActivePlusSaysNothingToRestore() {
+        val viewModel = profileViewModel()
+        viewModel.restore()
+        val state = viewModel.uiState.value
+        assertNull(state.message)
+        assertEquals(JaugeError.NothingToRestore, state.actionError)
+        assertFalse(state.isRestoring)
+        assertEquals(SubscriptionStatus.FREE, state.content.content?.subscription?.status)
+    }
+
+    @Test
+    fun restoreNetworkFailureShowsTheFriendlyErrorAndNoSuccess() {
+        val viewModel = profileViewModel()
+        subscriptions.restoreError = JaugeError.NoConnection
+        viewModel.restore()
+        val state = viewModel.uiState.value
+        assertNull(state.message)
+        assertEquals(JaugeError.NoConnection, state.actionError)
+        assertFalse(state.isRestoring)
+    }
+
+    @Test
+    fun restoreIsLoadingWhileTheStoreAnswers() {
+        val gate = CompletableDeferred<Unit>()
+        subscriptions.restoreGate = gate
+        subscriptions.subscription = Subscription(SubscriptionStatus.ACTIVE, null, LocalDate(2026, 11, 26), 0)
+        val viewModel = profileViewModel()
+        viewModel.restore()
+        assertTrue(viewModel.uiState.value.isRestoring)
+        gate.complete(Unit)
+        assertFalse(viewModel.uiState.value.isRestoring)
+        assertEquals(ProfileMessage.PURCHASES_RESTORED, viewModel.uiState.value.message)
     }
 
     @Test

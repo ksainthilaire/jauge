@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.CompletableDeferred
 
 /** Preferences kept in memory. */
 class FakePreferencesRepository : PreferencesRepository {
@@ -129,8 +130,13 @@ class FakeSubscriptionRepository : SubscriptionRepository {
 
     override suspend fun purchase(offer: SubscriptionOffer): Outcome<Subscription> = Outcome.Success(subscription)
 
-    override suspend fun restorePurchases(): Outcome<Subscription> =
-        restoreError?.let { Outcome.Failure(it) } ?: Outcome.Success(subscription)
+    /** When set, restore waits for it, to observe the loading state. */
+    var restoreGate: CompletableDeferred<Unit>? = null
+
+    override suspend fun restorePurchases(): Outcome<Subscription> {
+        restoreGate?.await()
+        return restoreError?.let { Outcome.Failure(it) } ?: Outcome.Success(subscription)
+    }
 
     override suspend fun getManagementUrl(): Outcome<String> = Outcome.Success(MANAGEMENT_URL)
 

@@ -73,6 +73,7 @@
     <string name="profile_methodology">Comment on estime</string>
     <string name="profile_restore">Restaurer les achats</string>
     <string name="profile_restored">Tes achats sont restaurés.</string>
+    <string name="profile_restoring">Restauration…</string>
     <string name="profile_group_data">Compte et données</string>
     <string name="profile_privacy">Confidentialité et données</string>
     <string name="profile_export">Exporter mes analyses</string>
