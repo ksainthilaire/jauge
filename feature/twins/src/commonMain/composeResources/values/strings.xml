@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="twin_offers_title">Offres jumelles</string>
-    <string name="alerts_permission_title">Autoriser les alertes</string>
 
     <!-- 06 Twin offers -->
     <string name="action_back">Retour</string>

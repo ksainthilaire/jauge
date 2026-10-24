@@ -29,10 +29,10 @@ Every version lives in `gradle/libs.versions.toml`. Never write a version in a m
 androidApp            Android application (MainActivity, JaugeApplication, launcher icon)
 iosApp                Xcode project, calls MainViewController() of the ComposeApp framework
 composeApp            Shared app: root composable, navigation graph, tab bar, Koin start, iOS entry point
-feature/onboarding    01 welcome
+feature/onboarding    01 welcome, 12 alerts permission
 feature/analysis      02 paste an offer (home), 03 reading, 10 unreadable offer, manual entry, history
 feature/verdict       04 verdict, 05 details (salaries, skills, trend), 09 methodology
-feature/twins         06 twin offers and calm alert (tab "Veille"), 12 alerts permission
+feature/twins         06 twin offers and calm alert (tab "Veille")
 feature/share         07 share card and link, list of shares (tab "Partages")
 feature/paywall       08 Jauge Plus (single monthly offer, 3 day trial)
 feature/account       11 account and consents, 13 profile and subscription (tab "Profil"), settings, legal
@@ -278,7 +278,6 @@ passes.
 
 ## Next phases (not done yet)
 
-- Screens: replace each `PlaceholderScreen` by the real screen, following the steps above.
 - Persistence of preferences (onboarding seen, offline switch) if needed.
 
 ## Supabase, push and purchases

@@ -3,7 +3,6 @@ package io.jauge.feature.twins.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import io.jauge.feature.twins.alertspermission.AlertsPermissionScreen
 import io.jauge.feature.twins.twinoffers.TwinOffersScreen
 import kotlinx.serialization.Serializable
 
@@ -15,12 +14,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TwinOffersRoute(val analysisId: String? = null)
 
-/** Route of [io.jauge.feature.twins.alertspermission.AlertsPermissionScreen]. */
-@Serializable
-data object AlertsPermissionRoute
-
 /**
- * Adds the screens of the twins feature (twin offers with less competition and calm alerts (mockups 06 and 12)) to the navigation graph.
+ * Adds the screens of the twins feature (twin offers with less competition and the calm alert, mockup 06; the alerts permission, mockup 12, is in feature:onboarding) to the navigation graph.
  *
  * Navigation to other features goes through callbacks wired in `composeApp`: add a parameter here when a screen
  * needs to open another feature.
@@ -36,8 +31,5 @@ fun NavGraphBuilder.twinsGraph(onBack: () -> Unit, onAnalyzeOffer: () -> Unit) {
             onBack = if (route.analysisId != null) onBack else null,
             onAnalyzeOffer = onAnalyzeOffer,
         )
-    }
-    composable<AlertsPermissionRoute> {
-        AlertsPermissionScreen(onBack = onBack)
     }
 }
