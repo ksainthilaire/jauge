@@ -30,6 +30,13 @@
                 <data android:host="www.jauge.io" />
                 <data android:pathPrefix="/a/" />
             </intent-filter>
+            <!-- Sign in callback of Supabase Auth (Apple, Google, email link). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="io.jauge.app" android:host="login-callback" />
+            </intent-filter>
         </activity>
     </application>
 </manifest>

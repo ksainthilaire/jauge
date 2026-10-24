@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel_calm_alerts">"Calm" alerts</string>
+    <string name="notification_channel_calm_alerts_description">When a twin offer becomes calm. 3 messages a week at most.</string>
+</resources>

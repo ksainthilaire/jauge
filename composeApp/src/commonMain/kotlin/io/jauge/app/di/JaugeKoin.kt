@@ -1,6 +1,8 @@
 package io.jauge.app.di
 
 import io.jauge.app.AppViewModel
+import io.jauge.app.notifications.CalmAlertBannerViewModel
+import io.jauge.app.session.SessionSynchronizer
 import io.jauge.core.authentication.authenticationModule
 import io.jauge.core.billing.billingModule
 import io.jauge.core.common.commonModule
@@ -25,6 +27,8 @@ import org.koin.dsl.module
 /** Koin module of the app shell. */
 val appModule = module {
     viewModelOf(::AppViewModel)
+    viewModelOf(::CalmAlertBannerViewModel)
+    single { SessionSynchronizer(get(), get(), get(), get()) }
 }
 
 /** Every feature module. Add new features here. */
@@ -59,5 +63,5 @@ fun startJaugeKoin(environment: AppEnvironment, platformDeclaration: KoinAppDecl
             appModule,
         )
         modules(featureModules)
-    }
+    }.koin.get<SessionSynchronizer>().start()
 }

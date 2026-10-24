@@ -7,4 +7,5 @@
     <string name="offline_mode_indicator">Mode sans API : données d'exemple</string>
     <string name="offline_mode_enabled">Mode sans API activé</string>
     <string name="offline_mode_disabled">API réelle activée</string>
+    <string name="calm_alert_close">Fermer l'alerte</string>
 </resources>
