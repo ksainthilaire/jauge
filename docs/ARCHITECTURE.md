@@ -19,7 +19,7 @@ texts, `BRANDING.md` for the brand).
 | Coroutines / Serialization / Datetime | 1.11.0 / 1.12.0 / 0.8.0 |
 | Retrofit / OkHttp (Android) | 3.0.0 / 5.5.1 |
 | Ktor (iOS) | 3.6.0 |
-| RevenueCat purchases-kmp, Supabase, Lottie, Compottie | declared in the catalog, wired in later phases |
+| RevenueCat purchases-kmp / Supabase / Lottie / Compottie | 3.15.0 / 3.8.0 / 6.7.1 / 2.3.3 |
 
 Every version lives in `gradle/libs.versions.toml`. Never write a version in a module build file.
 
@@ -42,7 +42,7 @@ core/ui               JaugeError to friendly message mapping, ContentState for s
 core/domain           Models, repository interfaces, use cases, JaugeError, Outcome (pure Kotlin)
 core/data             Repository implementations, payload mapping, error mapping, offline mode
 core/network          JaugeApi interface and payloads, Retrofit/OkHttp (Android), Ktor (iOS)
-core/billing          Store purchases (BillingClient); RevenueCat comes later
+core/billing          Store purchases (BillingClient): RevenueCat purchases-kmp, see docs/revenuecat.md
 core/notifications    NotificationRepository: push tokens (FCM, APNs), notifications table, Realtime calm alerts
 core/authentication   AuthenticationRepository: Supabase Auth (Apple, Google, email link), simulated without Supabase
 core/common           Build configuration, AppEnvironment, ApiModeController, dispatchers, platform
@@ -231,7 +231,8 @@ offline mode and purchases disabled (`UnavailableBillingClient`), without crash.
 - Error simulation: `OfflineScenarioController.select(OfflineScenario.UNREADABLE_OFFER)` (also `NO_CONNECTION`,
   `TIMEOUT`, `SERVER_UNAVAILABLE`, `SESSION_EXPIRED`, `QUOTA_REACHED`, `INVALID_RESPONSE`, `EMPTY`). It is a Koin
   singleton: a debug menu can inject it.
-- Purchases in offline mode use `SimulatedBillingClient` when a RevenueCat key is configured.
+- Purchases use RevenueCat as soon as a key is configured, also in offline mode: debug builds use the RevenueCat
+  Test Store key, so nothing is charged. Without any key purchases are disabled (`UnavailableBillingClient`).
 
 ## Building and testing
 
@@ -258,8 +259,6 @@ passes.
 ## Next phases (not done yet)
 
 - Screens: replace each `PlaceholderScreen` by the real screen, following the steps above.
-- `core:billing`: RevenueCat implementation of `BillingClient` (purchases-kmp, entitlement `plus`, product
-  `jauge_plus_monthly`, 6,99 € per month, 3 day trial), replacing the `store` client of `SwitchingBillingClient`.
 - `core:notifications`: device tokens (FCM, APNs) in Supabase, Realtime for calm alerts, Edge Function, SQL
   migrations with RLS (`supabase/`).
 - Authentication (Supabase session) behind `AccessTokenProvider`.

@@ -73,7 +73,12 @@ fun JaugeNavigationHost(
             onAnalyzeOffer = { navigationController.navigateToTopLevelDestination(TopLevelDestination.ANALYZE) },
         )
         shareGraph(onBack = onBack)
-        paywallGraph(onBack = onBack)
+        paywallGraph(
+            onBack = onBack,
+            onOpenTerms = { navigationController.navigate(TermsOfUseRoute) },
+            onOpenPrivacy = { navigationController.navigate(PrivacyPolicyRoute) },
+            onSignIn = { navigationController.navigate(AccountRoute(fromOnboarding = false)) },
+        )
         accountGraph(
             onBack = onBack,
             onOpenEmailSignIn = { route -> navigationController.navigate(route) },

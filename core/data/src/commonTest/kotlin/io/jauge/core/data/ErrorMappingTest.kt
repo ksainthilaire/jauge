@@ -49,6 +49,10 @@ class ErrorMappingTest {
     fun storeStorageAndUnknownFailures() {
         assertEquals(JaugeError.PurchaseCancelled, BillingFailure.Cancelled().toJaugeError())
         assertEquals(JaugeError.PurchaseUnavailable, BillingFailure.Unavailable().toJaugeError())
+        assertEquals(JaugeError.PurchaseAlreadyOwned, BillingFailure.AlreadyOwned().toJaugeError())
+        assertEquals(JaugeError.PurchaseOwnedByAnotherAccount, BillingFailure.OwnedByAnotherAccount().toJaugeError())
+        assertEquals(JaugeError.PurchaseNotAllowed, BillingFailure.NotAllowed().toJaugeError())
+        assertEquals(JaugeError.PurchaseFailed, BillingFailure.Store().toJaugeError())
         assertEquals(JaugeError.PurchasePending, BillingFailure.Pending().toJaugeError())
         assertEquals(JaugeError.StorageFull, StorageFullException().toJaugeError())
         assertEquals(JaugeError.InvalidData, IllegalArgumentException("bad").toJaugeError())

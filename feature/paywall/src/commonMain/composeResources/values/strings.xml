@@ -1,4 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="paywall_title">Jauge Plus</string>
+    <string name="paywall_close">Fermer</string>
+    <string name="paywall_restore">Restaurer les achats</string>
+    <string name="paywall_quota_used">Ton analyse gratuite de la semaine est utilisée</string>
+    <string name="paywall_headline_first_line">Jauge chaque offre</string>
+    <string name="paywall_headline_second_line">avant d'y passer</string>
+    <string name="paywall_headline_third_line">ta soirée.</string>
+    <string name="paywall_benefit_unlimited_strong">Analyses illimitées</string>
+    <string name="paywall_benefit_unlimited_rest">par lien, capture ou photo</string>
+    <string name="paywall_benefit_salary_strong">Salaire estimé</string>
+    <string name="paywall_benefit_salary_rest">même quand l'offre le cache</string>
+    <string name="paywall_benefit_alerts_strong">Alertes « calme »</string>
+    <string name="paywall_benefit_alerts_rest">sur les offres jumelles</string>
+    <string name="paywall_benefit_cards_strong">Cartes de partage</string>
+    <string name="paywall_benefit_cards_rest">sans filigrane</string>
+    <string name="paywall_plan_monthly">Mensuel</string>
+    <string name="paywall_plan_trial_details">%1$d jours gratuits, puis %2$s/mois</string>
+    <string name="paywall_plan_no_trial_details">Sans engagement, résiliable à tout moment</string>
+    <string name="paywall_plan_per_month">par mois</string>
+    <string name="paywall_offer_loading">On prépare ton offre…</string>
+    <string name="paywall_timeline_today">Aujourd'hui</string>
+    <string name="paywall_timeline_today_details">Tout est débloqué</string>
+    <string name="paywall_timeline_reminder_details">On te rappelle</string>
+    <string name="paywall_timeline_payment_details">%1$s si tu restes</string>
+    <string name="paywall_short_date">%1$d %2$s</string>
+    <string-array name="paywall_short_months">
+        <item>janv.</item>
+        <item>févr.</item>
+        <item>mars</item>
+        <item>avr.</item>
+        <item>mai</item>
+        <item>juin</item>
+        <item>juil.</item>
+        <item>août</item>
+        <item>sept.</item>
+        <item>oct.</item>
+        <item>nov.</item>
+        <item>déc.</item>
+    </string-array>
+    <string name="paywall_start_trial">Essayer %1$d jours gratuits</string>
+    <string name="paywall_subscribe">S'abonner pour %1$s/mois</string>
+    <string name="paywall_legal_trial">Gratuit %1$d jours, puis %2$s par mois, prélevés sur ton compte %3$s à la fin de l'essai. Renouvellement automatique chaque mois sauf annulation au moins 24 h avant la fin de la période (%4$s). Rappel la veille de la fin de l'essai.</string>
+    <string name="paywall_legal_no_trial">%1$s par mois, prélevés sur ton compte %2$s à la confirmation de l'achat. Renouvellement automatique chaque mois sauf annulation au moins 24 h avant la fin de la période (%3$s).</string>
+    <string name="paywall_store_apple">Apple</string>
+    <string name="paywall_store_google">Google Play</string>
+    <string name="paywall_store_settings_apple">Réglages › Apple ID › Abonnements</string>
+    <string name="paywall_store_settings_google">Google Play › Paiements et abonnements</string>
+    <string name="paywall_terms">Conditions d'utilisation</string>
+    <string name="paywall_privacy">Confidentialité</string>
+    <string name="paywall_success_title">Bienvenue dans Jauge Plus</string>
+    <string name="paywall_success_trial_message">Tes %1$d jours gratuits commencent maintenant. On te rappelle la veille de la fin.</string>
+    <string name="paywall_success_message">Toutes tes offres peuvent être jaugées, sans limite.</string>
+    <string name="paywall_restored_title">Achats restaurés</string>
+    <string name="paywall_restored_message">Jauge Plus est de nouveau actif sur ce téléphone.</string>
+    <string name="paywall_continue">Continuer</string>
+    <string name="paywall_already_plus_title">Tu as Jauge Plus</string>
+    <string name="paywall_already_plus_trial">Ton essai gratuit se termine le %1$s.</string>
+    <string name="paywall_already_plus_renews">Prochain renouvellement le %1$s.</string>
+    <string name="paywall_already_plus_ends">Jauge Plus se termine le %1$s.</string>
+    <string name="paywall_already_plus_active">Toutes tes offres peuvent être jaugées, sans limite.</string>
+    <string name="paywall_manage_subscription">Gérer mon abonnement</string>
+    <string name="paywall_error_dismiss">J'ai compris</string>
 </resources>

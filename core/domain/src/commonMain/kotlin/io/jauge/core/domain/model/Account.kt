@@ -73,12 +73,15 @@ enum class SubscriptionStatus {
  * @property trialEndsOn last day of the trial, when in trial.
  * @property renewsOn next renewal date, when active.
  * @property freeAnalysesLeftThisWeek free analyses left this week on the free plan.
+ * @property willRenew false when the user cancelled in the store: Jauge Plus stops at the end of the period
+ * ([renewsOn] is then the last day) and the profile says "Se termine le ...".
  */
 data class Subscription(
     val status: SubscriptionStatus,
     val trialEndsOn: LocalDate?,
     val renewsOn: LocalDate?,
     val freeAnalysesLeftThisWeek: Int,
+    val willRenew: Boolean = true,
 ) {
     /** True when Jauge Plus is unlocked (trial or paid). */
     val isPlus: Boolean
