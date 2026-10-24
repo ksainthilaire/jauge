@@ -2,4 +2,75 @@
 <resources>
     <string name="share_title">Share the analysis</string>
     <string name="shares_title">Shares</string>
+
+    <!-- Shared -->
+    <string name="action_close">Close</string>
+    <string name="separator_dot"> · </string>
+    <string name="salary_range_thousands">€%1$d-%2$dk</string>
+    <string name="contract_permanent">Permanent</string>
+    <string name="contract_fixed_term">Fixed term</string>
+    <string name="contract_apprenticeship">Work and study</string>
+    <string name="contract_internship">Internship</string>
+    <string name="contract_freelance">Freelance</string>
+    <string name="contract_temporary">Temporary</string>
+    <string-array name="months_short">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+
+    <!-- 07 Share card -->
+    <string name="share_card_brand">Jauge</string>
+    <string name="share_card_date">%1$s.%2$s.%3$s</string>
+    <string name="share_card_score_suffix"> /100 · </string>
+    <string name="share_card_applicants_value">≈%1$s</string>
+    <string name="share_card_applicants_caption">applicants</string>
+    <string name="share_card_salary_value">€%1$d-%2$dk</string>
+    <string name="share_card_salary_caption">gross/year</string>
+    <string name="share_card_trend_value">%1$s%</string>
+    <string name="share_card_trend_caption">in 3 months</string>
+    <string name="share_card_twin_title">Calm twin %1$d km away</string>
+    <string name="share_card_twin_detail">≈ %1$d applicants</string>
+    <string name="share_card_footer">jauge.io · an estimate, not a promise</string>
+    <string name="share_card_link_caption">Public link of the analysis</string>
+    <string name="share_card_link_hint">Whoever opens this link sees the verdict, without your name or account.</string>
+    <string name="share_card_description">Share card: %1$s, %2$d out of 100</string>
+    <string name="share_format_story">Story</string>
+    <string name="share_format_square">Square</string>
+    <string name="share_format_link">Link</string>
+    <string name="share_option_hide_company">Hide the company name</string>
+    <string name="share_option_show_calm_twin">Show the calm twin</string>
+    <string name="share_destination_messages">Messages</string>
+    <string name="share_destination_copy">Copy</string>
+    <string name="share_destination_save">Save</string>
+    <string name="share_destination_others">More</string>
+    <string name="share_message">I gauged the offer “%1$s”: %2$d/100, %3$s. %4$s</string>
+    <string name="share_message_link_copied">Link copied</string>
+    <string name="share_message_image_saved">Card saved to your photos</string>
+    <string name="share_message_save_unavailable">Saving is not possible here: choose “Save image” in the share sheet.</string>
+    <string name="share_message_unavailable">No app can share this. Copy the link instead.</string>
+
+    <!-- Tab "Partages" -->
+    <string name="shares_overline">Shares</string>
+    <string name="shares_headline">Your shared\nanalyses.</string>
+    <string name="shares_format_date">%1$s · %3$s %2$d</string>
+    <string name="shares_unknown_title">Shared analysis</string>
+    <string name="shares_copy_link">Copy the link</string>
+    <string name="shares_delete">Delete the share</string>
+    <string name="shares_delete_title">Delete this share?</string>
+    <string name="shares_delete_message">The public link will stop working. Your analysis stays in your history.</string>
+    <string name="shares_delete_confirm">Delete</string>
+    <string name="shares_delete_cancel">Cancel</string>
+    <string name="shares_deleted">Share deleted, the link no longer works.</string>
+    <string name="shares_empty_title">Nothing shared yet</string>
+    <string name="shares_empty_message">From a verdict, tap Share: your card and your link will show up here.</string>
 </resources>

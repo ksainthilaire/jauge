@@ -2,4 +2,75 @@
 <resources>
     <string name="share_title">Partager l'analyse</string>
     <string name="shares_title">Partages</string>
+
+    <!-- Shared -->
+    <string name="action_close">Fermer</string>
+    <string name="separator_dot"> · </string>
+    <string name="salary_range_thousands">%1$d-%2$d k€</string>
+    <string name="contract_permanent">CDI</string>
+    <string name="contract_fixed_term">CDD</string>
+    <string name="contract_apprenticeship">Alternance</string>
+    <string name="contract_internship">Stage</string>
+    <string name="contract_freelance">Freelance</string>
+    <string name="contract_temporary">Intérim</string>
+    <string-array name="months_short">
+        <item>janv.</item>
+        <item>févr.</item>
+        <item>mars</item>
+        <item>avr.</item>
+        <item>mai</item>
+        <item>juin</item>
+        <item>juil.</item>
+        <item>août</item>
+        <item>sept.</item>
+        <item>oct.</item>
+        <item>nov.</item>
+        <item>déc.</item>
+    </string-array>
+
+    <!-- 07 Share card -->
+    <string name="share_card_brand">Jauge</string>
+    <string name="share_card_date">%1$s.%2$s.%3$s</string>
+    <string name="share_card_score_suffix"> /100 · </string>
+    <string name="share_card_applicants_value">≈%1$s</string>
+    <string name="share_card_applicants_caption">candidats</string>
+    <string name="share_card_salary_value">%1$d-%2$dk</string>
+    <string name="share_card_salary_caption">€ brut/an</string>
+    <string name="share_card_trend_value">%1$s%</string>
+    <string name="share_card_trend_caption">en 3 mois</string>
+    <string name="share_card_twin_title">Jumelle calme à %1$d km</string>
+    <string name="share_card_twin_detail">≈ %1$d candidats</string>
+    <string name="share_card_footer">jauge.io · estimation, pas une promesse</string>
+    <string name="share_card_link_caption">Lien public de l'analyse</string>
+    <string name="share_card_link_hint">Qui ouvre ce lien voit le verdict, sans ton nom ni ton compte.</string>
+    <string name="share_card_description">Carte de partage : %1$s, %2$d sur 100</string>
+    <string name="share_format_story">Story</string>
+    <string name="share_format_square">Carré</string>
+    <string name="share_format_link">Lien</string>
+    <string name="share_option_hide_company">Masquer le nom de l'entreprise</string>
+    <string name="share_option_show_calm_twin">Montrer la jumelle calme</string>
+    <string name="share_destination_messages">Messages</string>
+    <string name="share_destination_copy">Copier</string>
+    <string name="share_destination_save">Enregistrer</string>
+    <string name="share_destination_others">Autres</string>
+    <string name="share_message">J'ai jaugé l'offre « %1$s » : %2$d/100, %3$s. %4$s</string>
+    <string name="share_message_link_copied">Lien copié</string>
+    <string name="share_message_image_saved">Carte enregistrée dans tes photos</string>
+    <string name="share_message_save_unavailable">Enregistrement impossible ici : choisis « Enregistrer l'image » dans le partage.</string>
+    <string name="share_message_unavailable">Aucune application ne peut partager ça. Copie le lien à la place.</string>
+
+    <!-- Tab "Partages" -->
+    <string name="shares_overline">Partages</string>
+    <string name="shares_headline">Tes analyses\npartagées.</string>
+    <string name="shares_format_date">%1$s · %2$d %3$s</string>
+    <string name="shares_unknown_title">Analyse partagée</string>
+    <string name="shares_copy_link">Copier le lien</string>
+    <string name="shares_delete">Supprimer le partage</string>
+    <string name="shares_delete_title">Supprimer ce partage ?</string>
+    <string name="shares_delete_message">Le lien public ne marchera plus. Ton analyse reste dans ton historique.</string>
+    <string name="shares_delete_confirm">Supprimer</string>
+    <string name="shares_delete_cancel">Annuler</string>
+    <string name="shares_deleted">Partage supprimé, le lien ne marche plus.</string>
+    <string name="shares_empty_title">Rien de partagé pour l'instant</string>
+    <string name="shares_empty_message">Depuis un verdict, touche Partager : ta carte et ton lien apparaîtront ici.</string>
 </resources>
