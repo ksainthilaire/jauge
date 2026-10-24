@@ -68,7 +68,10 @@ fun JaugeNavigationHost(
             onShare = { analysisId -> navigationController.navigate(ShareRoute(analysisId)) },
             onOpenTwins = { analysisId -> navigationController.navigate(TwinOffersRoute(analysisId)) },
         )
-        twinsGraph(onBack = onBack)
+        twinsGraph(
+            onBack = onBack,
+            onAnalyzeOffer = { navigationController.navigateToTopLevelDestination(TopLevelDestination.ANALYZE) },
+        )
         shareGraph(onBack = onBack)
         paywallGraph(onBack = onBack)
         accountGraph(
