@@ -1,18 +1,14 @@
 package io.jauge.core.designsystem.component
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import io.jauge.core.designsystem.icon.JaugeIcons
 import io.jauge.core.designsystem.resources.Res
 import io.jauge.core.designsystem.resources.action_back
+import io.jauge.core.designsystem.theme.JaugeTheme
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -32,16 +28,21 @@ fun PlaceholderScreen(
     primaryActionLabel: String? = null,
     onPrimaryAction: () -> Unit = {},
 ) {
-    Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+    JaugeScreenScaffold(
+        modifier = modifier,
+        showTopBar = onBack != null,
+        navigationIcon = onBack?.let { back ->
+            { RoundIconButton(icon = JaugeIcons.Back, contentDescription = stringResource(Res.string.action_back), onClick = back) }
+        },
+        bottomBar = primaryActionLabel?.let { label ->
+            { JaugeButton(text = label, onClick = onPrimaryAction, modifier = Modifier.fillMaxWidth()) }
+        },
     ) {
-        if (onBack != null) {
-            TextButton(onClick = onBack) { Text(stringResource(Res.string.action_back)) }
-        }
-        Text(text = title, style = MaterialTheme.typography.headlineMedium)
-        if (primaryActionLabel != null) {
-            Button(onClick = onPrimaryAction) { Text(primaryActionLabel) }
-        }
+        Text(
+            text = title,
+            style = JaugeTheme.typography.headline,
+            color = JaugeTheme.colors.textPrimary,
+            modifier = Modifier.padding(horizontal = JaugeTheme.spacing.screenGutter, vertical = JaugeTheme.spacing.section),
+        )
     }
 }
