@@ -128,7 +128,7 @@ réponse « Partage : Non » reste juste, mais il doit être nommé dans la poli
 | Suppression du compte dans l'app | OK | Profil, Supprimer mon compte : liste de ce qui est effacé, case de confirmation, `DELETE /v1/account`, retour à l'accueil. Vérifié sur l'émulateur. |
 | Lien web de suppression (obligatoire dans la Play Console) | **Corrigé** | Nouvelle page `docs/web/supprimer-mon-compte/index.html` (à publier sur `https://jauge.io/supprimer-mon-compte/`) : étapes dans l'app, demande par e-mail sans l'app, données effacées et conservées, délai de 30 jours, rappel sur l'abonnement. Lien ajouté dans la politique de confidentialité et les conditions. |
 | Politique de confidentialité en ligne (URL obligatoire) | **Corrigé** | Pages web générées depuis les textes de l'app : `docs/web/confidentialite/`, `docs/web/conditions/`, `docs/web/mentions-legales/` (`python3 tools/legal-pages/generate.py`). |
-| Identité de l'éditeur | À toi | Un seul fichier à remplir : `feature/account/src/commonMain/composeResources/values/legal_identity.xml` (nom, forme, capital, RCS, adresse, TVA, directeur de publication, médiateur). L'adresse de l'hébergeur Supabase est déjà remplie. Relancer ensuite le générateur des pages web. |
+| Identité de l'éditeur | **Corrigé** (sauf médiateur) | `feature/account/src/commonMain/composeResources/values/legal_identity.xml` rempli le 24/10/2026 : Keny SAINT HILAIRE, EI micro-entreprise, SIREN 893 324 848, 149, avenue du Maine, 75014 Paris, directeur de la publication Keny SAINT HILAIRE, hébergeur Supabase Pte. Ltd. Reste à toi : le médiateur de la consommation (obligatoire avant de vendre à des particuliers) et la réponse sur la franchise en base de TVA. Relancer ensuite le générateur des pages web. |
 | Côté serveur | À toi (API) | `DELETE /v1/account` doit aussi supprimer l'utilisateur Supabase, les appareils, le client RevenueCat et révoquer le jeton Apple (écrit dans `docs/api.md`). |
 
 ## 7. Contenu, public et fiche
@@ -136,7 +136,7 @@ réponse « Partage : Non » reste juste, mais il doit être nommé dans la poli
 | Sujet | État | Détail |
 | --- | --- | --- |
 | Questionnaire de classification (IARC) | À toi | Réponses : pas de violence, sexe, drogue, jeux d'argent, langage grossier ; **partage de contenu entre utilisateurs : oui** (liens publics de partage), pas de discussion entre utilisateurs, pas de localisation partagée. Classement attendu : PEGI 3 / Tout public. |
-| Public cible | À toi | Choisir **16-17 ans et 18 ans et plus** (les conditions disent 15 ans minimum) : pas de public de moins de 13 ans, donc pas de règles « Families ». |
+| Public cible | À toi | Choisir **18 ans et plus** seulement (les conditions et la politique disent 18 ans minimum) : pas de public de moins de 13 ans, donc pas de règles « Families ». |
 | Contenu généré par l'utilisateur | OK | Les partages sont publics mais choisis par l'utilisateur, supprimables à tout moment ; signalement par contact@jauge.io (mentions légales, section « Signaler un contenu »). |
 | Accès à l'app pour l'examen | OK | Tout fonctionne sans compte : rien à fournir. Dire dans « App access » que la connexion est facultative. |
 | Publicités | OK | « Non, l'app ne contient pas de publicités ». |

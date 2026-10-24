@@ -3,11 +3,11 @@
     <string name="legal_updated">Last updated: October 24, 2026</string>
 
     <string name="notice_1_title">Publisher</string>
-    <string name="notice_1_body">The Jauge app is published by %1$s, %2$s with a share capital of %3$s, registered with the trade and companies register under number %4$s, with its registered office at %5$s. EU VAT number: %6$s.\n\nContact: contact@jauge.io</string>
+    <string name="notice_1_body">The Jauge app is published by %1$s, %2$s, SIREN %3$s, business address: %4$s.\n\nContact: contact@jauge.io\nPersonal data: privacy@jauge.io\nWebsite: https://jauge.io</string>
     <string name="notice_2_title">Publication director</string>
-    <string name="notice_2_body">The publication director is %1$s, as legal representative of the publisher.</string>
+    <string name="notice_2_body">The publication director is %1$s, publisher of the app.</string>
     <string name="notice_3_title">Hosting</string>
-    <string name="notice_3_body">The data of the app is hosted in the European Union by Supabase Inc. (supabase.com), on servers located in Europe. Postal address of the host: %1$s. In app purchases are handled by Apple (App Store), Google (Google Play) and RevenueCat Inc. (revenuecat.com).</string>
+    <string name="notice_3_body">The data of the app is hosted in the European Union by Supabase Pte. Ltd. (supabase.com), on servers located in Europe. Postal address of the host: %1$s. In app purchases are handled by Apple (App Store), Google (Google Play) and RevenueCat Inc. (revenuecat.com).</string>
     <string name="notice_4_title">Intellectual property</string>
     <string name="notice_4_body">The Jauge brand, its logo, texts, illustrations and the code of the app are protected by intellectual property law. Any copy or adaptation without the written permission of the publisher is forbidden. The fonts used are distributed under the SIL Open Font License 1.1.</string>
     <string name="notice_5_title">Report content</string>
@@ -33,7 +33,7 @@
     <string name="privacy_9_title">9. Security</string>
     <string name="privacy_9_body">Exchanges are encrypted (HTTPS), access to data is limited by per user security rules, passwords are never used (sign in with Apple, Google or an email link) and team access is logged.</string>
     <string name="privacy_10_title">10. Minors</string>
-    <string name="privacy_10_body">Jauge is meant for people aged 15 or more. If you are under 15, a parent must agree before you create an account.</string>
+    <string name="privacy_10_body">Jauge is for adults only: you must be at least 18 to use the app and create an account. We do not knowingly collect data about minors: if you learn that a minor has sent us data, write to privacy@jauge.io and we delete it.</string>
     <string name="privacy_11_title">11. Trackers</string>
     <string name="privacy_11_body">The app uses no advertising tracker and no third party audience measurement tool. It only keeps on your phone the settings it needs to work (session, preferences).</string>
     <string name="privacy_12_title">12. Changes</string>
@@ -45,7 +45,7 @@
     <string name="terms_2_title">2. Estimates, not guarantees</string>
     <string name="terms_2_body">The figures shown are statistical estimates based on public data and comparable offers. Their reliability is shown on each analysis. They may be wrong and guarantee neither the real number of applicants, nor the salary, nor the result of an application. Keep your own judgment.</string>
     <string name="terms_3_title">3. Account</string>
-    <string name="terms_3_body">You can use Jauge without an account, or create one with Apple, Google or your email address to find your analyses on all your devices. You must be at least 15, or have a parent's agreement. You are responsible for the access to your account. You can delete it at any time from Profile, Delete my account, or from the page jauge.io/supprimer-mon-compte.</string>
+    <string name="terms_3_body">You can use Jauge without an account, or create one with Apple, Google or your email address to find your analyses on all your devices. You must be at least 18. You are responsible for the access to your account. You can delete it at any time from Profile, Delete my account, or from the page jauge.io/supprimer-mon-compte.</string>
     <string name="terms_4_title">4. Free plan</string>
     <string name="terms_4_body">Without a subscription, you get one complete analysis per week. An attempt that could not be read (unreadable screenshot) does not count.</string>
     <string name="terms_5_title">5. Jauge Plus</string>

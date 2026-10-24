@@ -119,5 +119,5 @@ navigation ou de recherche, données d'usage pour analyse, diagnostics côté ap
 | 2.5.2 Pas de code téléchargé qui change l'app | OK | Rien de tel. |
 | 4.2 Fonctionnalité minimale | OK | Vraie app native (Compose), pas un site emballé. |
 | 1.2 Contenu des utilisateurs | OK | Partages publics choisis par l'utilisateur, supprimables ; signalement par e-mail (mentions légales). |
-| Âge | À toi | Questionnaire d'âge : réponses « Aucun » partout, sauf « contenu généré par les utilisateurs : partages publics », classement attendu 4+ ou 9+. Les conditions demandent 15 ans : ça ne contredit pas l'âge App Store. |
+| Âge | À toi | Questionnaire d'âge : réponses « Aucun » partout, sauf « contenu généré par les utilisateurs : partages publics », le contenu seul donnerait 4+ ou 9+. Les conditions et la politique réservent Jauge aux **18 ans et plus** : dans le questionnaire, choisis de relever le classement à **18+** (option de classement plus élevé) pour que la fiche dise la même chose que les conditions. |
 | Notes pour l'examinateur | À toi | « Aucun compte nécessaire ; l'abonnement se teste avec un compte Sandbox ; les chiffres sont des estimations. » |

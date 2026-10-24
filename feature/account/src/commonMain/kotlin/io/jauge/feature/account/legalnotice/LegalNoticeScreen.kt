@@ -10,9 +10,7 @@ import io.jauge.feature.account.resources.legal_publication_director
 import io.jauge.feature.account.resources.legal_publisher_address
 import io.jauge.feature.account.resources.legal_publisher_legal_form
 import io.jauge.feature.account.resources.legal_publisher_name
-import io.jauge.feature.account.resources.legal_publisher_registration
-import io.jauge.feature.account.resources.legal_publisher_share_capital
-import io.jauge.feature.account.resources.legal_publisher_vat_number
+import io.jauge.feature.account.resources.legal_publisher_siren
 import io.jauge.feature.account.resources.notice_1_body
 import io.jauge.feature.account.resources.notice_1_title
 import io.jauge.feature.account.resources.notice_2_body
@@ -42,10 +40,8 @@ fun LegalNoticeScreen(onBack: () -> Unit) {
                     Res.string.notice_1_body,
                     stringResource(Res.string.legal_publisher_name),
                     stringResource(Res.string.legal_publisher_legal_form),
-                    stringResource(Res.string.legal_publisher_share_capital),
-                    stringResource(Res.string.legal_publisher_registration),
+                    stringResource(Res.string.legal_publisher_siren),
                     stringResource(Res.string.legal_publisher_address),
-                    stringResource(Res.string.legal_publisher_vat_number),
                 ),
             ),
             LegalSection(stringResource(Res.string.notice_2_title), stringResource(Res.string.notice_2_body, stringResource(Res.string.legal_publication_director))),

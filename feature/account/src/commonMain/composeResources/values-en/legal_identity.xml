@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English translation of the legal form of the publisher. The other identity values are the same in every language. -->
+<resources>
+    <string name="legal_publisher_legal_form">sole proprietor (entrepreneur individuel, EI), micro enterprise</string>
+</resources>

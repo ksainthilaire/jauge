@@ -49,11 +49,17 @@ corrigés. Voici ce qui reste, dans l'ordre.
 1. **Mettre l'API Jauge en ligne** (`https://api.jauge.io`). La version publiée n'utilise jamais les données
    d'exemple : sans API, les testeurs de Google et d'Apple ne verraient que « Pas de connexion » et refuseraient
    l'app.
-2. **Remplir l'identité de ta société** dans un seul fichier :
-   `feature/account/src/commonMain/composeResources/values/legal_identity.xml` (nom, forme juridique, capital,
-   numéro RCS, adresse, TVA, directeur de la publication, médiateur de la consommation). Chaque
-   « [à compléter avant publication] » doit disparaître. Ensuite lance `python3 tools/legal-pages/generate.py` pour
-   mettre à jour les pages web.
+2. **Identité de l'éditeur** : remplie le 24/10/2026 avec tes réponses (Keny SAINT HILAIRE, EI micro-entreprise,
+   SIREN 893 324 848, 149, avenue du Maine, 75014 Paris, hébergeur Supabase Pte. Ltd., âge minimum 18 ans) dans
+   `feature/account/src/commonMain/composeResources/values/legal_identity.xml`. Il reste deux réponses :
+   - **Médiateur de la consommation** : encore « [à compléter avant publication] ». C'est **obligatoire avant de
+     vendre à des particuliers** (abonnement Jauge Plus) : adhère à un médiateur agréé (liste sur
+     www.economie.gouv.fr/mediation-conso) et donne-moi son nom et son site.
+   - **Franchise en base de TVA (article 293 B du CGI) : oui ou non ?** Si oui, je peux ajouter la mention « TVA non
+     applicable, art. 293 B du CGI » ; si non, donne-moi ton numéro de TVA intracommunautaire. Pour l'instant, aucune
+     ligne TVA n'est affichée.
+   Après chaque changement de ce fichier, lance `python3 tools/legal-pages/generate.py` pour mettre à jour les pages
+   web.
 3. **Me dire qui lit les captures** : si les images partent chez un fournisseur d'IA (OpenAI, Anthropic, Google...),
    Apple exige de le nommer et de demander l'accord de l'utilisateur avant le premier envoi. Donne-moi le nom :
    j'ajoute l'écran d'accord et je complète la politique de confidentialité.
@@ -90,7 +96,7 @@ corrigés. Voici ce qui reste, dans l'ordre.
 ### Les fiches des stores
 
 12. **Google Play** : remplis le formulaire « Sécurité des données » avec le tableau de `google-play.md` (section 4),
-    le questionnaire de classification (section 7), public cible « 16-17 ans » et « 18 ans et plus », « pas de
+    le questionnaire de classification (section 7), public cible « 18 ans et plus » seulement, « pas de
     publicité », « accès à l'app : aucun compte nécessaire », l'URL de suppression et l'URL de la politique.
 13. **App Store** : remplis « Confidentialité de l'app » avec le tableau de `app-store.md` (section 6), réponds
     « Non » au suivi, mets l'URL de la politique et un lien vers les conditions dans la description, ajoute les notes
