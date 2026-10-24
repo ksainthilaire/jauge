@@ -2,6 +2,9 @@ package io.jauge.feature.verdict
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.core.ui.state.ContentState
@@ -44,6 +47,33 @@ class VerdictScreenshotTest {
                     isFavorite = true,
                 )
             }
+        }
+    }
+
+    /** Score 19 (the case seen on a phone) with a large system text size, dark theme: the digits stay below the pivot. */
+    @Test
+    fun scoreNineteenLargeTextDark() = scoreCase(score = 19, fontScale = 1.3f, darkTheme = true, name = "04-verdict-score-19-texte-grand-sombre")
+
+    /** Score 19 with a large system text size, light theme. */
+    @Test
+    fun scoreNineteenLargeTextLight() = scoreCase(score = 19, fontScale = 1.3f, darkTheme = false, name = "04-verdict-score-19-texte-grand-clair")
+
+    /** Score 100 (three digits) with the largest system text size, dark theme. */
+    @Test
+    fun scoreHundredLargestTextDark() = scoreCase(score = 100, fontScale = 2f, darkTheme = true, name = "04-verdict-score-100-texte-200-sombre")
+
+    /** Score 0 (needle flat on the left) at the default text size, light theme. */
+    @Test
+    fun scoreZeroLight() = scoreCase(score = 0, fontScale = 1f, darkTheme = false, name = "04-verdict-score-0-clair")
+
+    private fun scoreCase(score: Int, fontScale: Float, darkTheme: Boolean, name: String) = capture(name, darkTheme) {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
+            VerdictLayout(
+                state = ContentState(content = SampleData.analysis.copy(score = score, percentileInRegion = score), isLoading = false),
+                onBack = {}, onRefresh = {}, onShare = {}, onOpenDetails = {}, onOpenMethodology = {}, onOpenTwins = {}, onOpenTrend = {},
+                animateGauge = false,
+            )
         }
     }
 

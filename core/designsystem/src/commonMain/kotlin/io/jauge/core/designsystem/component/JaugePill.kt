@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -42,14 +43,15 @@ fun JaugePill(
 ) {
     Row(
         modifier = modifier
-            .height(26.dp)
+            // Minimum height only: with large system text sizes the label wraps instead of being cut.
+            .heightIn(min = 26.dp)
             .background(containerColor, JaugeTheme.radii.pillShape)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 10.dp, vertical = 3.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         dotColor?.let { Box(Modifier.size(8.dp).background(it, CircleShape)) }
-        Text(text = text, style = JaugeTheme.typography.pill, color = contentColor, maxLines = 1)
+        Text(text = text, style = JaugeTheme.typography.pill, color = contentColor)
     }
 }
 

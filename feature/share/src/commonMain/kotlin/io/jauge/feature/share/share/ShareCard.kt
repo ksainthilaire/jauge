@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.jauge.core.designsystem.component.GaugeLevel
@@ -196,10 +197,11 @@ private fun ColumnScope.GaugeCardBody(analysis: Analysis, calmTwin: TwinOffer?, 
         )
         Text(
             text = score,
-            style = JaugeTheme.typography.body,
+            // Natural line height: the large digits stay below the needle pivot at any text size.
+            style = JaugeTheme.typography.body.copy(lineHeight = TextUnit.Unspecified),
             color = colors.textPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         )
     } else {
         Row(modifier = Modifier.padding(top = 10.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {

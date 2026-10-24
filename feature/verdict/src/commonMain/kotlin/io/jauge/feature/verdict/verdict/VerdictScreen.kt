@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -312,8 +313,11 @@ private fun VerdictGaugeCard(analysis: Analysis, onOpenMethodology: () -> Unit, 
                         append(stringResource(Res.string.verdict_score_out_of))
                     }
                 },
-                style = JaugeTheme.typography.numberLarge,
+                // Natural line height: the line box holds the whole glyphs, so the digits never rise into the gauge
+                // and its needle pivot, whatever the score (0 to 100) and the text size of the system.
+                style = JaugeTheme.typography.numberLarge.copy(lineHeight = TextUnit.Unspecified),
                 color = colors.onInverseSurface,
+                modifier = Modifier.padding(top = SCORE_GAP_BELOW_GAUGE),
             )
             val comparison = if (analysis.percentileInRegion >= 50) {
                 stringResource(Res.string.verdict_more_than_offers, analysis.percentileInRegion, analysis.regionName)
@@ -441,3 +445,5 @@ private fun VerdictSkeleton() {
     }
 }
 
+/** Space between the bottom of the gauge (needle pivot) and the score. */
+private val SCORE_GAP_BELOW_GAUGE = 4.dp
