@@ -40,7 +40,7 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 | `DELETE /v1/shares/{id}` | Delete a share: the public link stops working. | tab "Partages" |
 | `GET /v1/account` | The account (name, sign in method, number of analyses, consents). | 11, 13 |
 | `PATCH /v1/account/consents` | `{marketingEmails}`. | 11 |
-| `DELETE /v1/account` | Delete the account and its data (required by the stores). Answers `202`. | 13 |
+| `DELETE /v1/account` | Delete the account and its data (required by the stores). Answers `202`. The server also deletes the Supabase auth user, the devices and notifications rows, revokes the Sign in with Apple token (`POST https://appleid.apple.com/auth/revoke`, App Store guideline 5.1.1(v)) and deletes the RevenueCat customer (`DELETE /v1/subscribers/{app_user_id}`). Same flow for the requests received at privacy@jauge.io from the page jauge.io/supprimer-mon-compte. | 13 |
 | `GET /v1/subscription` | Jauge Plus status known by the server (from RevenueCat webhooks) and free analyses left this week. | 08, 13 |
 
 ### Analysis lifecycle
