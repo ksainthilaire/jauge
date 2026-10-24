@@ -1,0 +1,3 @@
+/* Usage descriptions shown by iOS when Jauge asks for a permission (English). */
+"NSCameraUsageDescription" = "Jauge uses the camera to take a photo of a job offer and read it.";
+"NSPhotoLibraryAddUsageDescription" = "Jauge saves your share card to your photos when you tap Save.";

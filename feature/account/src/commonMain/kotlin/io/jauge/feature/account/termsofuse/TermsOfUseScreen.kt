@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import io.jauge.feature.account.legal.LegalDocument
 import io.jauge.feature.account.legal.LegalSection
 import io.jauge.feature.account.resources.Res
-import io.jauge.feature.account.resources.legal_to_complete
+import io.jauge.feature.account.resources.legal_consumer_mediator
 import io.jauge.feature.account.resources.terms_10_body
 import io.jauge.feature.account.resources.terms_10_title
 import io.jauge.feature.account.resources.terms_11_body
@@ -42,7 +42,6 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 fun TermsOfUseScreen(onBack: () -> Unit) {
-    val toComplete = stringResource(Res.string.legal_to_complete)
     LegalDocument(
         title = stringResource(Res.string.terms_of_use_title),
         introduction = stringResource(Res.string.terms_intro),
@@ -59,7 +58,7 @@ fun TermsOfUseScreen(onBack: () -> Unit) {
             LegalSection(stringResource(Res.string.terms_10_title), stringResource(Res.string.terms_10_body)),
             LegalSection(stringResource(Res.string.terms_11_title), stringResource(Res.string.terms_11_body)),
             LegalSection(stringResource(Res.string.terms_12_title), stringResource(Res.string.terms_12_body)),
-            LegalSection(stringResource(Res.string.terms_13_title), stringResource(Res.string.terms_13_body, toComplete)),
+            LegalSection(stringResource(Res.string.terms_13_title), stringResource(Res.string.terms_13_body, stringResource(Res.string.legal_consumer_mediator))),
         ),
         onBack = onBack,
     )

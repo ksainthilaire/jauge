@@ -1,0 +1,3 @@
+/* Usage descriptions shown by iOS when Jauge asks for a permission (French). */
+"NSCameraUsageDescription" = "Jauge utilise l'appareil photo pour photographier une offre d'emploi et la lire.";
+"NSPhotoLibraryAddUsageDescription" = "Jauge enregistre ta carte de partage dans tes photos quand tu touches Enregistrer.";
