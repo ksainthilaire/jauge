@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account_title">Compte et accords</string>
+    <string name="profile_title">Profil</string>
+    <string name="settings_title">Réglages</string>
+    <string name="legal_notice_title">Mentions légales</string>
+    <string name="privacy_policy_title">Politique de confidentialité</string>
+    <string name="terms_of_use_title">Conditions d'utilisation</string>
+    <string name="delete_account_title">Supprimer mon compte</string>
+    <string name="about_title">À propos</string>
+</resources>

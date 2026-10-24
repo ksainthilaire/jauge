@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Paste an offer</string>
+    <string name="reading_title">Reading the offer</string>
+    <string name="unreadable_offer_title">Unreadable offer</string>
+    <string name="manual_entry_title">Enter the job manually</string>
+    <string name="history_title">My gauged offers</string>
+</resources>

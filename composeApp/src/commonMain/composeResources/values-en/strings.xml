@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_analyze">Analyze</string>
+    <string name="tab_watch">Watch</string>
+    <string name="tab_shares">Shares</string>
+    <string name="tab_profile">Profile</string>
+    <string name="offline_mode_indicator">Offline mode: sample data</string>
+    <string name="offline_mode_enabled">Offline mode on</string>
+    <string name="offline_mode_disabled">Real API on</string>
+</resources>

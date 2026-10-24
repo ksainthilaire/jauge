@@ -1,0 +1,19 @@
+// Copy to Config.xcconfig (ignored by git). Public keys only, NEVER a secret key.
+// These build settings are exported as environment variables to the Gradle build run by Xcode, and override
+// local.properties. Leave a value empty to start in offline mode / without purchases or notifications.
+// In xcconfig files "//" starts a comment: write URLs as https:/$()/example.com
+
+// Your Apple developer team.
+TEAM_ID=
+
+// Jauge API ("false" calls the real API).
+JAUGE_API_BASE_URL=https:/$()/api.jauge.io/
+JAUGE_API_OFFLINE_MODE=true
+
+// Supabase: project URL and publishable key (sb_publishable_...).
+JAUGE_SUPABASE_URL=
+JAUGE_SUPABASE_PUBLISHABLE_KEY=
+
+// RevenueCat public SDK keys: Test Store key (test_..., debug builds) and App Store key (appl_..., release builds).
+JAUGE_REVENUECAT_TEST_STORE_API_KEY=
+JAUGE_REVENUECAT_APPLE_API_KEY=
