@@ -21,9 +21,8 @@
     <string name="paywall_plan_per_month">par mois</string>
     <string name="paywall_offer_loading">On prépare ton offre…</string>
     <string name="paywall_timeline_today">Aujourd'hui</string>
-    <string name="paywall_timeline_today_details">Tout est débloqué</string>
-    <string name="paywall_timeline_reminder_details">On te rappelle</string>
-    <string name="paywall_timeline_payment_details">%1$s si tu restes</string>
+    <string name="paywall_timeline_today_details">0 €, tout est débloqué</string>
+    <string name="paywall_timeline_payment_details">Puis %1$s/mois</string>
     <string name="paywall_short_date">%1$d %2$s</string>
     <string-array name="paywall_short_months">
         <item>janv.</item>
@@ -41,7 +40,7 @@
     </string-array>
     <string name="paywall_start_trial">Essayer %1$d jours gratuits</string>
     <string name="paywall_subscribe">S'abonner pour %1$s/mois</string>
-    <string name="paywall_legal_trial">Gratuit %1$d jours, puis %2$s par mois, prélevés sur ton compte %3$s à la fin de l'essai. Renouvellement automatique chaque mois sauf annulation au moins 24 h avant la fin de la période (%4$s). Rappel la veille de la fin de l'essai.</string>
+    <string name="paywall_legal_trial">Gratuit %1$d jours, puis %2$s par mois, prélevés sur ton compte %3$s à la fin de l'essai. Renouvellement automatique chaque mois sauf annulation au moins 24 h avant la fin de la période (%4$s).</string>
     <string name="paywall_legal_no_trial">%1$s par mois, prélevés sur ton compte %2$s à la confirmation de l'achat. Renouvellement automatique chaque mois sauf annulation au moins 24 h avant la fin de la période (%3$s).</string>
     <string name="paywall_store_apple">Apple</string>
     <string name="paywall_store_google">Google Play</string>
@@ -50,7 +49,7 @@
     <string name="paywall_terms">Conditions d'utilisation</string>
     <string name="paywall_privacy">Confidentialité</string>
     <string name="paywall_success_title">Bienvenue dans Jauge Plus</string>
-    <string name="paywall_success_trial_message">Tes %1$d jours gratuits commencent maintenant. On te rappelle la veille de la fin.</string>
+    <string name="paywall_success_trial_message">Tes %1$d jours gratuits commencent maintenant. Tu peux annuler à tout moment dans les réglages du store, au moins 24 h avant la fin de l'essai.</string>
     <string name="paywall_success_message">Toutes tes offres peuvent être jaugées, sans limite.</string>
     <string name="paywall_restored_title">Achats restaurés</string>
     <string name="paywall_restored_message">Jauge Plus est de nouveau actif sur ce téléphone.</string>

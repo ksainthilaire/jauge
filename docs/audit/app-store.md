@@ -22,7 +22,7 @@ Légende : **OK**, **Corrigé** (corrigé pendant l'audit), **À toi** (voir [a-
 | Liens obligatoires dans l'app : conditions (EULA) et confidentialité | OK | Sous le bouton du paywall et dans le profil. |
 | Gérer / annuler | OK | « Gérer ou annuler l'abonnement » ouvre la page Abonnements de l'App Store (`managementURL`). |
 | Liens obligatoires dans la fiche App Store | À toi | Mettre l'URL de la politique (`https://jauge.io/confidentialite/`) dans App Store Connect et un lien vers les conditions (`https://jauge.io/conditions/`) à la fin de la description (ou le champ « Licence d'utilisation »). |
-| Rappel avant la fin de l'essai | À toi (serveur) | Promis dans le texte légal du paywall : à faire vraiment (webhook RevenueCat + notification la veille) ou retirer la phrase. |
+| Rappel avant la fin de l'essai | **Retiré** | Pas exigé par Apple : décision du 24/10/2026, l'app ne promet plus de rappel (paywall, profil, conditions). Restent le prix, la durée de l'essai, le renouvellement automatique et l'annulation 24 h avant. |
 | Produit dans App Store Connect | À toi | Abonnement `jauge_plus_monthly`, groupe « Jauge Plus », 1 mois, 6,99 €, offre de lancement « essai gratuit 3 jours » ; capture du paywall pour l'examen de l'achat ; accord « Paid Apps » signé. |
 
 ## 2. Données et vie privée (5.1.1, 5.1.2)

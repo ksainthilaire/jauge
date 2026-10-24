@@ -111,14 +111,12 @@ data class SubscriptionOffer(
 }
 
 /**
- * Timeline of the free trial shown on the paywall: today, the reminder, the first payment.
+ * Timeline of the free trial shown on the paywall: today for free, then the first payment at the end of the trial.
  *
  * @property startsOn first day of the trial.
- * @property reminderOn day of the reminder (the day before the end).
  * @property firstPaymentOn day of the first payment if the user keeps Jauge Plus.
  */
 data class TrialTimeline(
     val startsOn: LocalDate,
-    val reminderOn: LocalDate,
     val firstPaymentOn: LocalDate,
 )

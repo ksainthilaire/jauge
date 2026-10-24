@@ -104,7 +104,6 @@ import io.jauge.feature.paywall.resources.paywall_success_title
 import io.jauge.feature.paywall.resources.paywall_success_trial_message
 import io.jauge.feature.paywall.resources.paywall_terms
 import io.jauge.feature.paywall.resources.paywall_timeline_payment_details
-import io.jauge.feature.paywall.resources.paywall_timeline_reminder_details
 import io.jauge.feature.paywall.resources.paywall_timeline_today
 import io.jauge.feature.paywall.resources.paywall_timeline_today_details
 import kotlinx.datetime.LocalDate
@@ -401,7 +400,6 @@ private fun TrialTimelineRow(timeline: TrialTimeline, formattedPrice: String) {
     val colors = JaugeTheme.colors
     val steps = listOf(
         Triple(colors.calm.accent, stringResource(Res.string.paywall_timeline_today), stringResource(Res.string.paywall_timeline_today_details)),
-        Triple(colors.disputed.accent, shortDate(timeline.reminderOn), stringResource(Res.string.paywall_timeline_reminder_details)),
         Triple(colors.textPrimary, shortDate(timeline.firstPaymentOn), stringResource(Res.string.paywall_timeline_payment_details, formattedPrice)),
     )
     Row(Modifier.fillMaxWidth()) {
@@ -567,7 +565,7 @@ private fun BottomArea(state: PaywallUiState, actions: PaywallActions, onPurchas
 
 /**
  * Auto renewal terms required by the App Store and Google Play: price, trial length, when the payment is taken, how
- * to cancel, and the reminder.
+ * to cancel. No reminder is promised before the end of the trial.
  */
 @Composable
 private fun LegalText(offer: SubscriptionOffer, platform: Platform) {

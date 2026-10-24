@@ -112,13 +112,13 @@ réponse « Partage : Non » reste juste, mais il doit être nommé dans la poli
 | Règle Google Play | État | Détail |
 | --- | --- | --- |
 | Achat par Google Play Billing | OK | `purchases-kmp` 3.15 (Billing Library récente incluse). Aucun autre moyen de paiement. |
-| Prix, période et essai affichés avant l'achat | OK | Prix lu dans le store (`product.price.formatted`), « 3 jours gratuits, puis 6,99 €/mois », frise « Aujourd'hui / rappel la veille / premier prélèvement ». |
+| Prix, période et essai affichés avant l'achat | OK | Prix lu dans le store (`product.price.formatted`), « 3 jours gratuits, puis 6,99 €/mois », frise « Aujourd'hui, 0 € / date de fin d'essai, puis 6,99 €/mois ». |
 | Renouvellement automatique et annulation expliqués | OK | Texte légal sous le bouton : renouvellement mensuel, annulation 24 h avant, chemin « Google Play › Paiements et abonnements ». |
 | Gérer / annuler depuis l'app | OK | « Gérer ou annuler l'abonnement » (profil) et « Gérer mon abonnement » (paywall, suppression du compte) ouvrent la page d'abonnement Google Play. |
 | Restaurer les achats | OK | Paywall et profil ; message clair si rien à restaurer (vérifié). |
 | Achat annulé | OK | Silencieux (aucun message d'erreur), géré par `BillingFailure.Cancelled` et testé dans `core:billing`. Pas testable sur l'émulateur faute de produit dans RevenueCat. |
 | Achats indisponibles (pas de clé, pas de produit) | OK | Encadré « Achats indisponibles », bouton désactivé, aucune erreur technique. |
-| Rappel avant la fin de l'essai | À toi (serveur) | Le paywall promet « Rappel la veille de la fin de l'essai » : il faut le faire vraiment (webhook RevenueCat `INITIAL_PURCHASE` en essai, puis notification la veille par l'Edge Function `send-notification`), ou retirer la phrase. Une promesse non tenue est un motif de refus. |
+| Rappel avant la fin de l'essai | **Retiré** | Pas exigé par Google : décision du 24/10/2026, l'app ne promet plus de rappel (paywall, profil, conditions). Restent le prix, la durée de l'essai, le renouvellement automatique et l'annulation 24 h avant. |
 | Produit et offre configurés | À toi | Créer l'abonnement `jauge_plus_monthly` (6,99 €, mensuel, essai 3 jours pour les nouveaux abonnés) dans la Play Console et dans RevenueCat (aujourd'hui le Test Store RevenueCat n'a aucun produit : l'émulateur affiche « Achats indisponibles »). |
 
 ## 6. Compte et suppression

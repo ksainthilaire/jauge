@@ -106,8 +106,8 @@ class GetSubscriptionManagementUrlUseCase(private val repository: SubscriptionRe
 }
 
 /**
- * Computes the trial timeline of the paywall from today's date: reminder the day before the end, first payment at
- * the end of the trial (mockup 08: today 23 Oct, reminder 25 Oct, payment 26 Oct).
+ * Computes the trial timeline of the paywall from today's date: free today, first payment at the end of the trial
+ * (today 23 Oct, payment 26 Oct for a 3 day trial).
  *
  * @param clock source of the current time.
  * @param timeZone time zone of the user.
@@ -134,8 +134,7 @@ class ComputeTrialTimelineUseCase(
         fun timelineFrom(startsOn: LocalDate, trialDays: Int): TrialTimeline {
             val days = trialDays.coerceAtLeast(1)
             val firstPayment = startsOn.plus(DatePeriod(days = days))
-            val reminder = if (days > 1) startsOn.plus(DatePeriod(days = days - 1)) else startsOn
-            return TrialTimeline(startsOn = startsOn, reminderOn = reminder, firstPaymentOn = firstPayment)
+            return TrialTimeline(startsOn = startsOn, firstPaymentOn = firstPayment)
         }
     }
 }

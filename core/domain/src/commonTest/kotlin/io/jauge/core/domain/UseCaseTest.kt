@@ -79,7 +79,6 @@ class UseCaseTest {
     @Test
     fun trialTimelineMatchesThePaywall() {
         val timeline = ComputeTrialTimelineUseCase.timelineFrom(LocalDate(2026, 10, 23), trialDays = 3)
-        assertEquals(LocalDate(2026, 10, 25), timeline.reminderOn)
         assertEquals(LocalDate(2026, 10, 26), timeline.firstPaymentOn)
     }
 
