@@ -1,10 +1,12 @@
 package io.jauge.android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.jauge.app.JaugeApp
+import io.jauge.app.link.IncomingLinks
 
 /** Single activity of the app: hosts the shared Compose user interface. */
 class MainActivity : ComponentActivity() {
@@ -14,5 +16,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent { JaugeApp() }
+        if (savedInstanceState == null) openLink(intent)
+    }
+
+    /** Receives the links opened while the app is already running (`singleTask`). */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openLink(intent)
+    }
+
+    /** Hands an App Link (`https://jauge.io/a/{analysisId}`) to the shared navigation. */
+    private fun openLink(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW) IncomingLinks.open(intent.dataString)
     }
 }

@@ -2,6 +2,7 @@ package io.jauge.app
 
 import androidx.compose.ui.window.ComposeUIViewController
 import io.jauge.app.di.startJaugeKoin
+import io.jauge.app.link.IncomingLinks
 import io.jauge.core.common.configuration.AppEnvironment
 import io.jauge.core.common.platform.Platform
 import platform.UIKit.UIViewController
@@ -24,4 +25,13 @@ fun MainViewController(): UIViewController {
         isKoinStarted = true
     }
     return ComposeUIViewController { JaugeApp() }
+}
+
+/**
+ * Called by the Swift code of `iosApp` when a Universal Link (`https://jauge.io/a/{analysisId}`) opens the app.
+ *
+ * @param url the opened link.
+ */
+fun openIncomingLink(url: String) {
+    IncomingLinks.open(url)
 }

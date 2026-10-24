@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import io.jauge.app.link.IncomingLinks
 import io.jauge.app.navigation.JaugeNavigationHost
 import io.jauge.app.navigation.TopLevelDestination
 import io.jauge.app.navigation.navigateToTopLevelDestination
@@ -25,6 +27,8 @@ import io.jauge.core.designsystem.component.JaugePill
 import io.jauge.core.designsystem.component.JaugeTabBar
 import io.jauge.core.designsystem.component.JaugeTabItem
 import io.jauge.core.designsystem.theme.JaugeTheme
+import io.jauge.feature.share.link.AnalysisLink
+import io.jauge.feature.verdict.navigation.VerdictRoute
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -41,6 +45,12 @@ fun JaugeApp() {
         val uiState by appViewModel.uiState.collectAsStateWithLifecycle()
         val onboardingStep by appViewModel.onboardingStep.collectAsStateWithLifecycle()
         val navigationController = rememberNavController()
+        val incomingLink by IncomingLinks.pending.collectAsStateWithLifecycle()
+        LaunchedEffect(incomingLink) {
+            val analysisId = AnalysisLink.analysisIdOrNull(incomingLink) ?: return@LaunchedEffect IncomingLinks.consume()
+            navigationController.navigate(VerdictRoute(analysisId)) { launchSingleTop = true }
+            IncomingLinks.consume()
+        }
         val backStackEntry by navigationController.currentBackStackEntryAsState()
         val currentDestination = backStackEntry?.destination
         val selectedTab = TopLevelDestination.entries.firstOrNull { tab ->
