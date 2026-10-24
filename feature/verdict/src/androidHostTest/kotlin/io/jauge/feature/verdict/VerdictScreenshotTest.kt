@@ -27,10 +27,27 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [35], qualifiers = "fr-w393dp-h852dp-xhdpi")
 class VerdictScreenshotTest {
 
-    private fun capture(name: String, content: @Composable () -> Unit) {
+    private fun capture(name: String, darkTheme: Boolean = false, content: @Composable () -> Unit) {
         val directory = System.getProperty("jauge.screenshots.directory") ?: "build/screenshots"
-        captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = false) { content() } }
+        captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = darkTheme) { content() } }
     }
+
+    /** Pull to refresh running: the indicator is whole, below the top bar (light theme). */
+    @Test
+    fun verdictRefreshingLight() = verdictRefreshing(darkTheme = false)
+
+    /** Pull to refresh running: the indicator is whole, below the top bar (dark theme). */
+    @Test
+    fun verdictRefreshingDark() = verdictRefreshing(darkTheme = true)
+
+    private fun verdictRefreshing(darkTheme: Boolean) =
+        capture(if (darkTheme) "04-verdict-rafraichir-sombre" else "04-verdict-rafraichir-clair", darkTheme) {
+            VerdictLayout(
+                state = ContentState(content = SampleData.analysis, isLoading = false, isRefreshing = true),
+                onBack = {}, onRefresh = {}, onShare = {}, onOpenDetails = {}, onOpenMethodology = {}, onOpenTwins = {}, onOpenTrend = {},
+                animateGauge = false,
+            )
+        }
 
     @Test
     fun verdict() = capture("04-verdict") {
