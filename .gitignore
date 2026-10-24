@@ -1,0 +1,48 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.kotlin/
+*.hprof
+
+# Local configuration (never commit keys)
+local.properties
+Config.xcconfig
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+
+# IDE
+.idea/
+*.iml
+.fleet/
+.vscode/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Kotlin Native and CocoaPods
+.konan/
+Pods/
+
+# Xcode and iOS
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+iosApp/build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store
