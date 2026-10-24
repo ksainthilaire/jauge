@@ -133,8 +133,6 @@
     <string name="about_text">Jauge estime la concurrence sur une offre d'emploi, le salaire qu'elle paie vraiment et les offres jumelles plus calmes autour de toi. Les chiffres sont des estimations, jamais des garanties.</string>
     <string name="about_contact">Nous écrire</string>
     <string name="about_website">Site web</string>
-    <string name="about_licenses_title">Logiciels libres</string>
-    <string name="about_licenses_text">Jauge utilise Kotlin, Compose Multiplatform, Koin, Ktor, Retrofit, OkHttp, kotlinx (licence Apache 2.0) et les polices Bricolage Grotesque, Instrument Sans et JetBrains Mono (SIL Open Font License 1.1). Merci à leurs auteurs.</string>
     <string name="about_contact_address">contact@jauge.io</string>
     <string name="about_website_address">https://jauge.io</string>
 </resources>

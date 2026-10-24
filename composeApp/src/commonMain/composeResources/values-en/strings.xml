@@ -4,7 +4,7 @@
     <string name="tab_watch">Watch</string>
     <string name="tab_shares">Shares</string>
     <string name="tab_profile">Profile</string>
-    <string name="offline_mode_indicator">Offline mode: sample data</string>
+    <string name="offline_mode_indicator">Sample data</string>
     <string name="offline_mode_enabled">Offline mode on</string>
     <string name="offline_mode_disabled">Real API on</string>
     <string name="calm_alert_close">Close the alert</string>

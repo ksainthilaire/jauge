@@ -224,7 +224,7 @@ offline mode and purchases disabled (`UnavailableBillingClient`), without crash.
 
 `ApiModeController` (core:common) holds the mode. `SwitchingJaugeApi` sends every call to the real client or to
 `OfflineJaugeApi` (core:data), which serves data from the mockups with a simulated latency. An indicator
-("Mode sans API : données d'exemple") is shown at the top of the app while it is on.
+("Données d'exemple", debug builds only) is shown at the top of the app while it is on.
 
 - Build setting: `jauge.api.offlineMode` (on by default while the API does not exist). **Debug builds only**: release
   builds always call the real API, never sign in with `SimulatedAuthenticationRepository` (they use
@@ -272,6 +272,12 @@ The share card (`feature:share`) is rendered by the app from the card drawn on s
 PNG and sent with `NativeSharer`: Android intents with a `FileProvider` declared in the manifest of `feature:share`,
 MediaStore to save it; iOS `UIActivityViewController`, `MFMessageComposeViewController` and the photo album
 (`NSPhotoLibraryAddUsageDescription` in `Info.plist`).
+
+## No technical information on screen
+
+The user never sees technical details: no library names, no build numbers, no internal identifiers. The About screen
+shows only the public version ("Version 1.0", `displayVersion`). The notices required by the licenses of the
+libraries ship with the app in `composeApp/src/commonMain/composeResources/files/third_party_notices.txt`, not shown.
 
 ## Git flow
 
