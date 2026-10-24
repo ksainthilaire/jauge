@@ -1,34 +1,26 @@
 package io.jauge.core.billing
 
-import io.jauge.core.common.configuration.ApiModeController
 import io.jauge.core.common.configuration.AppEnvironment
 import org.koin.dsl.module
-import kotlin.time.Clock
 
 /**
  * Chooses the store client for each call:
  * - no RevenueCat key: [UnavailableBillingClient] (purchases disabled cleanly);
- * - key present and offline mode on: [SimulatedBillingClient];
- * - key present and real API: the RevenueCat client, wired in a later phase ([UnavailableBillingClient] until then).
+ * - key present: [store], the RevenueCat client. Debug builds use the RevenueCat Test Store key, so purchases made
+ *   while the offline mode is on are test purchases that never charge anyone.
  *
  * @param environment app environment.
- * @param apiModeController current API mode.
- * @param simulated client of the offline mode.
  * @param store real store client.
  */
 class SwitchingBillingClient(
     private val environment: AppEnvironment,
-    private val apiModeController: ApiModeController,
-    private val simulated: BillingClient,
     private val store: BillingClient,
 ) : BillingClient {
 
+    private val unavailable = UnavailableBillingClient()
+
     private val current: BillingClient
-        get() = when {
-            !environment.isBillingConfigured -> UnavailableBillingClient()
-            apiModeController.isOfflineMode.value -> simulated
-            else -> store
-        }
+        get() = if (environment.isBillingConfigured) store else unavailable
 
     override val isAvailable: Boolean get() = current.isAvailable
 
@@ -39,16 +31,23 @@ class SwitchingBillingClient(
     override suspend fun restore(): BillingCustomerInfo = current.restore()
 
     override suspend fun customerInfo(): BillingCustomerInfo = current.customerInfo()
+
+    override suspend fun identify(appUserId: String?) = current.identify(appUserId)
+
+    override suspend fun managementUrl(): String = current.managementUrl()
 }
 
 /** Koin module of `core:billing`. */
 val billingModule = module {
     single<BillingClient> {
+        val environment: AppEnvironment = get()
         SwitchingBillingClient(
-            environment = get(),
-            apiModeController = get(),
-            simulated = SimulatedBillingClient { Clock.System.now().toEpochMilliseconds() },
-            store = UnavailableBillingClient(),
+            environment = environment,
+            store = RevenueCatBillingClient(
+                apiKey = environment.revenueCatApiKey,
+                platform = environment.platform,
+                isDebugBuild = environment.isDebugBuild,
+            ),
         )
     }
 }

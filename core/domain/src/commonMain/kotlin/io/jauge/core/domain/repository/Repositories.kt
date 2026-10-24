@@ -1,5 +1,6 @@
 package io.jauge.core.domain.repository
 
+import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Account
 import io.jauge.core.domain.model.Analysis
 import io.jauge.core.domain.model.AnalysisProgress
@@ -175,4 +176,10 @@ interface SubscriptionRepository {
 
     /** Restores previous purchases. */
     suspend fun restorePurchases(): Outcome<Subscription>
+
+    /**
+     * Store page where the user manages or cancels Jauge Plus ("Gérer l'abonnement", mockup 13): the page given by
+     * the store for this subscription, or the subscriptions page of the store of the phone.
+     */
+    suspend fun getManagementUrl(): Outcome<String> = Outcome.Failure(JaugeError.PurchaseUnavailable)
 }

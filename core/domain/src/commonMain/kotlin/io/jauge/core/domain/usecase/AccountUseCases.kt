@@ -96,6 +96,16 @@ class RestorePurchasesUseCase(private val repository: SubscriptionRepository) {
 }
 
 /**
+ * Store page to manage or cancel Jauge Plus ("Gérer l'abonnement").
+ *
+ * @param repository subscription repository.
+ */
+class GetSubscriptionManagementUrlUseCase(private val repository: SubscriptionRepository) {
+    /** Loads the address of the page. */
+    suspend operator fun invoke(): Outcome<String> = repository.getManagementUrl()
+}
+
+/**
  * Computes the trial timeline of the paywall from today's date: reminder the day before the end, first payment at
  * the end of the trial (mockup 08: today 23 Oct, reminder 25 Oct, payment 26 Oct).
  *

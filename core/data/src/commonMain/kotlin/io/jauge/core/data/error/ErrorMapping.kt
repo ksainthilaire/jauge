@@ -75,7 +75,10 @@ fun Throwable.toJaugeError(): JaugeError = when (this) {
     is BillingFailure.Unavailable -> JaugeError.PurchaseUnavailable
     is BillingFailure.Pending -> JaugeError.PurchasePending
     is BillingFailure.Network -> JaugeError.NoConnection
-    is BillingFailure.Store -> JaugeError.PurchaseUnavailable
+    is BillingFailure.AlreadyOwned -> JaugeError.PurchaseAlreadyOwned
+    is BillingFailure.OwnedByAnotherAccount -> JaugeError.PurchaseOwnedByAnotherAccount
+    is BillingFailure.NotAllowed -> JaugeError.PurchaseNotAllowed
+    is BillingFailure.Store -> JaugeError.PurchaseFailed
     is StorageFullException -> JaugeError.StorageFull
     is SerializationException -> JaugeError.InvalidData
     is IllegalArgumentException -> JaugeError.InvalidData

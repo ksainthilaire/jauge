@@ -1,9 +1,10 @@
 package io.jauge.core.billing
 
+import io.jauge.core.common.platform.Platform
 import kotlinx.coroutines.delay
 
 /**
- * In memory store used by the offline mode: the trial starts at once, nothing is charged.
+ * In memory store for tests and previews: the trial starts at once, nothing is charged.
  *
  * @param latencyMilliseconds simulated store delay.
  * @param nowEpochMilliseconds source of the current time.
@@ -45,6 +46,8 @@ class SimulatedBillingClient(
     }
 
     override suspend fun customerInfo(): BillingCustomerInfo = customer
+
+    override suspend fun managementUrl(): String = storeSubscriptionsUrl(Platform.ANDROID, MONTHLY_PRODUCT_ID)
 
     private companion object {
         const val MONTHLY_PRODUCT_ID = "jauge_plus_monthly"

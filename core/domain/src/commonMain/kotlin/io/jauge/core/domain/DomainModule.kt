@@ -30,6 +30,7 @@ import io.jauge.core.domain.usecase.GetSalaryInsightUseCase
 import io.jauge.core.domain.usecase.GetSharesUseCase
 import io.jauge.core.domain.usecase.GetSkillsInsightUseCase
 import io.jauge.core.domain.usecase.GetSubscriptionOfferUseCase
+import io.jauge.core.domain.usecase.GetSubscriptionManagementUrlUseCase
 import io.jauge.core.domain.usecase.GetSubscriptionUseCase
 import io.jauge.core.domain.usecase.GetTrendInsightUseCase
 import io.jauge.core.domain.usecase.GetTwinOffersUseCase
@@ -66,6 +67,7 @@ val domainModule = module {
     factoryOf(::GetSubscriptionOfferUseCase)
     factoryOf(::PurchaseSubscriptionUseCase)
     factoryOf(::RestorePurchasesUseCase)
+    factoryOf(::GetSubscriptionManagementUrlUseCase)
     factory { ComputeTrialTimelineUseCase() }
     factoryOf(::ObserveAuthenticationStateUseCase)
     factoryOf(::SignInWithProviderUseCase)

@@ -49,13 +49,15 @@ class SubscriptionRepositoryImplementation(
         merge(Subscription(SubscriptionStatus.FREE, null, null, 0), customer)
     }
 
+    override suspend fun getManagementUrl(): Outcome<String> = outcomeOf { billing.managementUrl() }
+
     private fun merge(server: Subscription, customer: BillingCustomerInfo?): Subscription {
         if (customer == null || !customer.isPlusActive) return server
         val end = customer.expiresAtEpochMilliseconds?.let { Instant.fromEpochMilliseconds(it).toLocalDateTime(timeZone).date }
         return if (customer.isInTrial) {
-            server.copy(status = SubscriptionStatus.TRIAL, trialEndsOn = end, renewsOn = end)
+            server.copy(status = SubscriptionStatus.TRIAL, trialEndsOn = end, renewsOn = end, willRenew = customer.willRenew)
         } else {
-            server.copy(status = SubscriptionStatus.ACTIVE, trialEndsOn = null, renewsOn = end)
+            server.copy(status = SubscriptionStatus.ACTIVE, trialEndsOn = null, renewsOn = end, willRenew = customer.willRenew)
         }
     }
 }
