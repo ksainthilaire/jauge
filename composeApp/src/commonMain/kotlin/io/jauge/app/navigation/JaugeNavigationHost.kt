@@ -22,6 +22,7 @@ import io.jauge.feature.share.navigation.ShareRoute
 import io.jauge.feature.share.navigation.shareGraph
 import io.jauge.feature.twins.navigation.TwinOffersRoute
 import io.jauge.feature.twins.navigation.twinsGraph
+import io.jauge.feature.verdict.navigation.MethodologyRoute
 import io.jauge.feature.verdict.navigation.VerdictRoute
 import io.jauge.feature.verdict.navigation.verdictGraph
 
@@ -115,6 +116,14 @@ fun JaugeNavigationHost(
             },
             onOpenTerms = { navigationController.navigate(TermsOfUseRoute) },
             onOpenPrivacyPolicy = { navigationController.navigate(PrivacyPolicyRoute) },
+            onNavigate = { route -> navigationController.navigate(route) },
+            onOpenPaywall = { navigationController.navigate(PaywallRoute) },
+            onOpenMethodology = { analysisId -> navigationController.navigate(MethodologyRoute(analysisId)) },
+            onAccountDeleted = {
+                navigationController.navigate(WelcomeRoute) {
+                    popUpTo(navigationController.graph.id) { inclusive = true }
+                }
+            },
         )
     }
 }

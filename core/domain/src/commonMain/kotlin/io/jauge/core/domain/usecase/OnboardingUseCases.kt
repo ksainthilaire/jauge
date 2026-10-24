@@ -65,4 +65,7 @@ class UpdateSettingsUseCase(private val repository: PreferencesRepository) {
         val trimmed = city.trim()
         it.copy(searchArea = if (trimmed.isEmpty()) null else SearchArea(trimmed, radiusKilometers.coerceIn(1, 200)))
     }
+
+    /** Forgets every preference after the account is deleted: the app starts again from the welcome screen. */
+    suspend fun resetAll() = repository.update { UserPreferences() }
 }

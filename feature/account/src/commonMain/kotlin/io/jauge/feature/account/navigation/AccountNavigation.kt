@@ -9,6 +9,7 @@ import io.jauge.feature.account.deleteaccount.DeleteAccountScreen
 import io.jauge.feature.account.email.EmailSignInScreen
 import io.jauge.feature.account.legalnotice.LegalNoticeScreen
 import io.jauge.feature.account.privacypolicy.PrivacyPolicyScreen
+import io.jauge.feature.account.profile.ProfileNavigation
 import io.jauge.feature.account.profile.ProfileScreen
 import io.jauge.feature.account.settings.SettingsScreen
 import io.jauge.feature.account.termsofuse.TermsOfUseScreen
@@ -60,16 +61,18 @@ data object DeleteAccountRoute
 data object AboutRoute
 
 /**
- * Adds the screens of the account feature (account, profile, settings and legal pages (mockups 11 and 13)) to the navigation graph.
- *
- * Navigation to other features goes through callbacks wired in `composeApp`: add a parameter here when a screen
- * needs to open another feature.
+ * Adds the screens of the account feature (account, email sign in, profile, settings, legal pages, deletion and
+ * about (mockups 11 and 13)) to the navigation graph.
  *
  * @param onBack pops the current screen.
  * @param onOpenEmailSignIn opens the email sign in.
  * @param onAccountDone called once signed in or after "Continuer sans compte", with `fromOnboarding` of the route.
  * @param onOpenTerms opens the terms of use.
  * @param onOpenPrivacyPolicy opens the privacy policy.
+ * @param onNavigate opens another screen of this feature.
+ * @param onOpenPaywall opens Jauge Plus.
+ * @param onOpenMethodology opens "Comment on estime" for an analysis.
+ * @param onAccountDeleted the account was deleted: the app starts again from the welcome screen.
  */
 fun NavGraphBuilder.accountGraph(
     onBack: () -> Unit,
@@ -77,6 +80,10 @@ fun NavGraphBuilder.accountGraph(
     onAccountDone: (fromOnboarding: Boolean) -> Unit,
     onOpenTerms: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
+    onNavigate: (Any) -> Unit,
+    onOpenPaywall: () -> Unit,
+    onOpenMethodology: (analysisId: String) -> Unit,
+    onAccountDeleted: () -> Unit,
 ) {
     composable<AccountRoute> { entry ->
         val route = entry.toRoute<AccountRoute>()
@@ -97,7 +104,19 @@ fun NavGraphBuilder.accountGraph(
         )
     }
     composable<ProfileRoute> {
-        ProfileScreen()
+        ProfileScreen(
+            ProfileNavigation(
+                onOpenAccount = { onNavigate(AccountRoute(fromOnboarding = false)) },
+                onOpenPaywall = onOpenPaywall,
+                onOpenSettings = { onNavigate(SettingsRoute) },
+                onOpenMethodology = onOpenMethodology,
+                onOpenPrivacyPolicy = onOpenPrivacyPolicy,
+                onOpenTerms = onOpenTerms,
+                onOpenLegalNotice = { onNavigate(LegalNoticeRoute) },
+                onOpenAbout = { onNavigate(AboutRoute) },
+                onOpenDeleteAccount = { onNavigate(DeleteAccountRoute) },
+            ),
+        )
     }
     composable<SettingsRoute> {
         SettingsScreen(onBack = onBack)
@@ -112,9 +131,14 @@ fun NavGraphBuilder.accountGraph(
         TermsOfUseScreen(onBack = onBack)
     }
     composable<DeleteAccountRoute> {
-        DeleteAccountScreen(onBack = onBack)
+        DeleteAccountScreen(onBack = onBack, onDeleted = onAccountDeleted)
     }
     composable<AboutRoute> {
-        AboutScreen(onBack = onBack)
+        AboutScreen(
+            onBack = onBack,
+            onOpenLegalNotice = { onNavigate(LegalNoticeRoute) },
+            onOpenPrivacyPolicy = onOpenPrivacyPolicy,
+            onOpenTerms = onOpenTerms,
+        )
     }
 }
