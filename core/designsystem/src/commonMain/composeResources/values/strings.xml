@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_back">Retour</string>
+    <string name="action_close">Fermer</string>
+    <string name="action_retry">Réessayer</string>
+    <string name="loading">Chargement en cours</string>
+    <string name="level_calm">Calme</string>
+    <string name="level_disputed">Disputé</string>
+    <string name="level_crowded">Bondé</string>
+    <string name="gauge_description">Concurrence : %1$d sur 100, %2$s</string>
 </resources>

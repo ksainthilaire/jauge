@@ -1,25 +1,16 @@
 package io.jauge.app
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -30,6 +21,9 @@ import io.jauge.app.navigation.TopLevelDestination
 import io.jauge.app.navigation.navigateToTopLevelDestination
 import io.jauge.app.resources.Res
 import io.jauge.app.resources.offline_mode_indicator
+import io.jauge.core.designsystem.component.JaugePill
+import io.jauge.core.designsystem.component.JaugeTabBar
+import io.jauge.core.designsystem.component.JaugeTabItem
 import io.jauge.core.designsystem.theme.JaugeTheme
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -55,7 +49,7 @@ fun JaugeApp() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(JaugeTheme.colors.background)
                 .statusBarsPadding(),
         ) {
             if (uiState.isOfflineMode) {
@@ -66,11 +60,19 @@ fun JaugeApp() {
                 modifier = Modifier.weight(1f),
             )
             if (selectedTab != null) {
-                TemporaryTabBar(
-                    selectedTab = selectedTab,
-                    onSelect = navigationController::navigateToTopLevelDestination,
-                    onProfileLongPress = {
-                        if (uiState.canToggleOfflineMode) appViewModel.toggleOfflineMode()
+                JaugeTabBar(
+                    items = TopLevelDestination.entries.map { tab ->
+                        JaugeTabItem(
+                            label = stringResource(tab.label),
+                            icon = tab.icon,
+                            selected = tab == selectedTab,
+                            onClick = { navigationController.navigateToTopLevelDestination(tab) },
+                            onLongClick = if (tab == TopLevelDestination.PROFILE && uiState.canToggleOfflineMode) {
+                                appViewModel::toggleOfflineMode
+                            } else {
+                                null
+                            },
+                        )
                     },
                 )
             }
@@ -83,45 +85,14 @@ private fun OfflineModeIndicator() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.tertiaryContainer)
-            .padding(vertical = 4.dp),
+            .padding(vertical = JaugeTheme.spacing.extraSmall),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
+        JaugePill(
             text = stringResource(Res.string.offline_mode_indicator),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onTertiaryContainer,
+            containerColor = JaugeTheme.colors.disputed.container,
+            contentColor = JaugeTheme.colors.disputed.content,
+            dotColor = JaugeTheme.colors.disputed.accent,
         )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun TemporaryTabBar(
-    selectedTab: TopLevelDestination,
-    onSelect: (TopLevelDestination) -> Unit,
-    onProfileLongPress: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .navigationBarsPadding(),
-        horizontalArrangement = Arrangement.SpaceAround,
-    ) {
-        TopLevelDestination.entries.forEach { tab ->
-            Text(
-                text = stringResource(tab.label),
-                fontWeight = if (tab == selectedTab) FontWeight.Bold else FontWeight.Normal,
-                modifier = Modifier
-                    .weight(1f)
-                    .combinedClickable(
-                        onClick = { onSelect(tab) },
-                        onLongClick = if (tab == TopLevelDestination.PROFILE) onProfileLongPress else null,
-                    )
-                    .padding(vertical = 16.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            )
-        }
     }
 }
