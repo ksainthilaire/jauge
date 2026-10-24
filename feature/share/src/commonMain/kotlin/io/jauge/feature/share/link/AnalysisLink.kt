@@ -10,22 +10,23 @@ object AnalysisLink {
 
     /**
      * Identifier of the analysis of a public link, or null when the link is not an analysis link.
-     * Accepts `http` or `https`, `www.`, a trailing slash, a query or a fragment.
+     * Only `https` links of `jauge.io` or `www.jauge.io` are accepted, without user information or port; a trailing
+     * slash, a query or a fragment are allowed. The identifier must match `[A-Za-z0-9_-]{1,64}` (no encoded
+     * characters), so it can be used as a path segment of the API as is.
      *
      * @param url the opened link.
      */
     fun analysisIdOrNull(url: String?): String? {
         val trimmed = url?.trim().orEmpty()
-        val withoutScheme = when {
-            trimmed.startsWith("https://", ignoreCase = true) -> trimmed.substring(8)
-            trimmed.startsWith("http://", ignoreCase = true) -> trimmed.substring(7)
-            else -> return null
-        }
-        val withoutExtras = withoutScheme.substringBefore('#').substringBefore('?')
-        val host = withoutExtras.substringBefore('/').substringBefore(':').lowercase()
-        if (host !in hosts) return null
+        if (trimmed.length > MAXIMUM_LINK_LENGTH || !trimmed.startsWith(SCHEME, ignoreCase = true)) return null
+        val withoutExtras = trimmed.substring(SCHEME.length).substringBefore('#').substringBefore('?')
+        val authority = withoutExtras.substringBefore('/')
+        if (authority.lowercase() !in hosts) return null
         val segments = withoutExtras.substringAfter('/', missingDelimiterValue = "").split('/').filter { it.isNotEmpty() }
         if (segments.size != 2 || segments[0] != "a") return null
         return segments[1].takeIf { identifier.matches(it) }
     }
+
+    private const val SCHEME = "https://"
+    private const val MAXIMUM_LINK_LENGTH = 2048
 }

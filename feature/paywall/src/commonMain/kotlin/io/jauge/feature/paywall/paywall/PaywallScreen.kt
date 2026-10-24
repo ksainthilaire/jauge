@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.jauge.core.common.link.WebLinks
 import io.jauge.core.common.platform.Platform
 import io.jauge.core.designsystem.component.JaugeAnimation
 import io.jauge.core.designsystem.component.JaugeButton
@@ -142,7 +143,7 @@ fun PaywallScreen(showsQuotaReached: Boolean, actions: PaywallActions) {
     val uriHandler = LocalUriHandler.current
     LaunchedEffect(state.managementUrl) {
         state.managementUrl?.let { url ->
-            runCatching { uriHandler.openUri(url) }
+            WebLinks.safeWebLinkOrNull(url)?.let { runCatching { uriHandler.openUri(it) } }
             viewModel.onManagementUrlOpened()
         }
     }

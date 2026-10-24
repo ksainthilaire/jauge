@@ -24,6 +24,13 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
     @get:Input
     abstract val values: MapProperty<String, String>
 
+    /**
+     * True for a release build of the iOS framework (Xcode `CONFIGURATION=Release`): debug only values (Test Store
+     * key, offline mode) are left out of the binary. Android release builds drop them with R8 and `AppEnvironment`.
+     */
+    @get:Input
+    abstract val releaseBuild: Property<Boolean>
+
     /** Package of the generated object. */
     @get:Input
     abstract val packageName: Property<String>
@@ -38,12 +45,13 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
         val resolved = values.get()
         val apiBaseUrl = resolved[API_BASE_URL].orEmpty().ifBlank { DEFAULT_API_BASE_URL }
         val offlineModeValue = resolved[API_OFFLINE_MODE].orEmpty().trim().lowercase()
-        val offlineMode = offlineModeValue != "false"
+        val isRelease = releaseBuild.getOrElse(false)
+        val offlineMode = offlineModeValue != "false" && !isRelease
         val supabaseUrl = resolved[SUPABASE_URL].orEmpty().trim()
         val supabaseKey = resolved[SUPABASE_PUBLISHABLE_KEY].orEmpty().trim()
         val revenueCatGoogle = resolved[REVENUECAT_GOOGLE_API_KEY].orEmpty().trim()
         val revenueCatApple = resolved[REVENUECAT_APPLE_API_KEY].orEmpty().trim()
-        val revenueCatTestStore = resolved[REVENUECAT_TEST_STORE_API_KEY].orEmpty().trim()
+        val revenueCatTestStore = if (isRelease) "" else resolved[REVENUECAT_TEST_STORE_API_KEY].orEmpty().trim()
 
         refuseSecret(REVENUECAT_GOOGLE_API_KEY, revenueCatGoogle, revenueCatGoogle.startsWith("sk_"))
         refuseSecret(REVENUECAT_APPLE_API_KEY, revenueCatApple, revenueCatApple.startsWith("sk_"))
@@ -51,7 +59,7 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
         refuseSecret(
             SUPABASE_PUBLISHABLE_KEY,
             supabaseKey,
-            supabaseKey.startsWith("sb_secret_") || supabaseKey.contains("service_role"),
+            supabaseKey.startsWith("sb_secret_") || supabaseKey.contains("service_role") || isServiceRoleJwt(supabaseKey),
         )
 
         val directory = outputDirectory.get().asFile
@@ -100,6 +108,14 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
                     "local.properties or the environment.",
             )
         }
+    }
+
+    /** A legacy Supabase key is a JWT whose payload says `"role":"service_role"` (base64 encoded, so decoded here). */
+    private fun isServiceRoleJwt(key: String): Boolean {
+        val parts = key.split('.')
+        if (parts.size != 3) return false
+        val payload = runCatching { String(java.util.Base64.getUrlDecoder().decode(parts[1].trimEnd('='))) }.getOrNull()
+        return payload?.replace(" ", "")?.contains("\"role\":\"service_role\"") == true
     }
 
     private fun String.ensureTrailingSlash(): String = if (endsWith("/")) this else "$this/"

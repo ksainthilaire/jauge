@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 12 and later. Cloud backups are off (allowBackup="false"); a transfer to a new phone only copies the
+    harmless preferences of the app (onboarding steps, calm alerts switch, search area). The encrypted session
+    (jauge_secure_session.xml, unreadable without the Keystore key of this phone), the caches (photos of offers,
+    share cards) and the files of the SDKs are never copied.
+-->
+<data-extraction-rules>
+    <cloud-backup disableIfNoEncryptionCapabilities="true">
+        <include domain="sharedpref" path="jauge_preferences.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="sharedpref" path="jauge_preferences.xml" />
+    </device-transfer>
+</data-extraction-rules>

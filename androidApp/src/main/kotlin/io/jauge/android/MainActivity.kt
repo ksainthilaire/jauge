@@ -16,10 +16,12 @@ import org.koin.android.ext.android.get
  */
 class MainActivity : ComponentActivity() {
 
-    /** Draws edge to edge and sets the shared root composable. */
+    /** Draws edge to edge, protects the screen against overlays and sets the shared root composable. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // Tapjacking: touches are ignored while another app draws over the screen (purchase, account deletion, sign in).
+        window.decorView.filterTouchesWhenObscured = true
         setContent { JaugeApp() }
         if (savedInstanceState == null) openLink(intent)
     }

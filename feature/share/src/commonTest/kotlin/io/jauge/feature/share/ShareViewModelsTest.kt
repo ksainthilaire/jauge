@@ -146,7 +146,12 @@ class ShareViewModelsTest {
     fun analysisLinksAreRecognized() {
         assertEquals("analysis-marketing", AnalysisLink.analysisIdOrNull("https://jauge.io/a/analysis-marketing"))
         assertEquals("abc123", AnalysisLink.analysisIdOrNull("https://www.jauge.io/a/abc123/?utm_source=story#top"))
-        assertEquals("abc123", AnalysisLink.analysisIdOrNull("http://JAUGE.io/a/abc123"))
+        assertEquals("abc123", AnalysisLink.analysisIdOrNull("HTTPS://JAUGE.io/a/abc123"))
+        assertNull(AnalysisLink.analysisIdOrNull("http://jauge.io/a/abc123"))
+        assertNull(AnalysisLink.analysisIdOrNull("https://evil.example@jauge.io/a/abc123"))
+        assertNull(AnalysisLink.analysisIdOrNull("https://jauge.io:8443/a/abc123"))
+        assertNull(AnalysisLink.analysisIdOrNull("https://jauge.io\\@evil.example/a/abc123"))
+        assertNull(AnalysisLink.analysisIdOrNull("https://jauge.io/a/" + "x".repeat(65)))
         assertNull(AnalysisLink.analysisIdOrNull("https://jauge.io/b/abc123"))
         assertNull(AnalysisLink.analysisIdOrNull("https://jauge.io/a/"))
         assertNull(AnalysisLink.analysisIdOrNull("https://jauge.io/a/abc/def"))

@@ -16,9 +16,16 @@ object AuthenticationLinks {
     const val REDIRECT_URL = "$SCHEME://$HOST"
 
     /**
-     * True when [url] is the sign in callback of the app.
+     * True when [url] is exactly the sign in callback of the app: `io.jauge.app://login-callback`, optionally followed
+     * by a path, a query or a fragment. A longer host such as `io.jauge.app://login-callback.evil` is refused.
      *
      * @param url a deep link opened by the system.
      */
-    fun isSignInLink(url: String): Boolean = url.startsWith(REDIRECT_URL)
+    fun isSignInLink(url: String): Boolean {
+        if (url.length > MAXIMUM_LINK_LENGTH || !url.startsWith(REDIRECT_URL, ignoreCase = true)) return false
+        val rest = url.substring(REDIRECT_URL.length)
+        return rest.isEmpty() || rest[0] == '/' || rest[0] == '?' || rest[0] == '#'
+    }
+
+    private const val MAXIMUM_LINK_LENGTH = 4096
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.jauge.core.common.link.WebLinks
 import io.jauge.core.designsystem.component.JaugeButton
 import io.jauge.core.designsystem.component.JaugeButtonStyle
 import io.jauge.core.designsystem.component.JaugePill
@@ -154,7 +155,7 @@ fun ProfileScreen(navigation: ProfileNavigation) {
     LaunchedEffect(state.managementUrl) {
         state.managementUrl?.let { url ->
             viewModel.onUrlOpened()
-            runCatching { uriHandler.openUri(url) }
+            WebLinks.safeWebLinkOrNull(url)?.let { runCatching { uriHandler.openUri(it) } }
         }
     }
     LaunchedEffect(state.exportedAnalyses) {

@@ -25,8 +25,16 @@ internal actual fun platformNetworkModule(): Module = module {
             .writeTimeout(NetworkTimeouts.READ_WRITE_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(headersInterceptor(tokenProvider))
             .apply {
+                // Debug builds only: method, URL, status and duration. Headers and bodies are never logged, and the
+                // authorization header is redacted in case the level is raised while debugging.
                 if (environment.isDebugBuild) {
-                    addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+                    addInterceptor(
+                        HttpLoggingInterceptor().apply {
+                            level = HttpLoggingInterceptor.Level.BASIC
+                            redactHeader("Authorization")
+                            redactHeader("Cookie")
+                        },
+                    )
                 }
             }
             .build()
