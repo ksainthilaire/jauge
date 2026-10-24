@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.jauge.app.link.IncomingLinks
 import io.jauge.app.navigation.JaugeNavigationHost
+import io.jauge.app.notifications.CalmAlertBannerHost
 import io.jauge.app.navigation.TopLevelDestination
 import io.jauge.app.navigation.navigateToTopLevelDestination
 import io.jauge.app.resources.Res
@@ -29,6 +30,7 @@ import io.jauge.core.designsystem.component.JaugeTabItem
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.feature.share.link.AnalysisLink
 import io.jauge.feature.verdict.navigation.VerdictRoute
+import io.jauge.feature.twins.navigation.TwinOffersRoute
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -67,14 +69,18 @@ fun JaugeApp() {
                 OfflineModeIndicator()
             }
             val startStep = onboardingStep
-            if (startStep != null) {
-                JaugeNavigationHost(
-                    navigationController = navigationController,
-                    startStep = startStep,
-                    modifier = Modifier.weight(1f),
+            Box(Modifier.weight(1f)) {
+                if (startStep != null) {
+                    JaugeNavigationHost(
+                        navigationController = navigationController,
+                        startStep = startStep,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+                CalmAlertBannerHost(
+                    onOpen = { analysisId -> navigationController.navigate(TwinOffersRoute(analysisId)) },
+                    modifier = Modifier.align(Alignment.TopCenter),
                 )
-            } else {
-                Box(Modifier.weight(1f))
             }
             if (selectedTab != null) {
                 JaugeTabBar(

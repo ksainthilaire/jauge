@@ -39,3 +39,9 @@ dependencies {
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)
 }
+
+// Firebase Cloud Messaging: google-services.json (never committed, see docs/supabase.md) is read only when present,
+// so the app builds without it and simply has no push notifications.
+if (file("google-services.json").exists()) {
+    apply(plugin = libs.plugins.googleServices.get().pluginId)
+}

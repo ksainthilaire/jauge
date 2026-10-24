@@ -28,6 +28,8 @@ revenueCat = "3.15.0"
 supabase = "3.8.0"
 lottie = "6.7.1"
 compottie = "2.3.3"
+firebaseBom = "35.1.0"
+googleServices = "4.5.0"
 # Tests
 junit = "4.13.2"
 robolectric = "4.17"
@@ -81,6 +83,7 @@ okhttp-mockWebServer = { module = "com.squareup.okhttp3:mockwebserver3", version
 # Network, iOS
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
@@ -91,6 +94,8 @@ supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "s
 supabase-realtime = { module = "io.github.jan-tennert.supabase:realtime-kt" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 supabase-auth = { module = "io.github.jan-tennert.supabase:auth-kt" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 
@@ -102,6 +107,7 @@ roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose"
 compose-ui-test-junit4 = { module = "org.jetbrains.compose.ui:ui-test-junit4", version.ref = "composeMultiplatform" }
 
 [plugins]
+googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 androidApplication = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

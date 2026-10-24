@@ -1,0 +1,66 @@
+# Supabase project of Jauge (local development with the Supabase CLI and settings to copy to the hosted project).
+# No secret here: every secret is read from the environment (env(...)) or set with `supabase secrets set`.
+# See docs/supabase.md.
+
+project_id = "jauge"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# The app comes back through this deep link after Apple, Google or the email link (PKCE flow).
+site_url = "io.jauge.app://login-callback"
+additional_redirect_urls = ["io.jauge.app://login-callback", "https://jauge.io/auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.rate_limit]
+email_sent = 4
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+# Magic links stay valid one hour and work once (the app says so when a link has expired).
+otp_expiry = 3600
+
+[auth.external.apple]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+redirect_uri = ""
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+redirect_uri = ""
+skip_nonce_check = false
+
+[functions.send-notification]
+enabled = true
+# Called by the database (pg_net) with a shared secret header, not by users: no user JWT to verify.
+verify_jwt = false

@@ -46,3 +46,9 @@ iosApp/build/
 
 # macOS
 .DS_Store
+
+# Supabase: local secrets and CLI state, never committed
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
+.env

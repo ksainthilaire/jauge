@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel_calm_alerts">Alertes « calme »</string>
+    <string name="notification_channel_calm_alerts_description">Quand une offre jumelle devient calme. 3 messages par semaine au plus.</string>
+</resources>

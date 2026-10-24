@@ -279,10 +279,17 @@ passes.
 ## Next phases (not done yet)
 
 - Screens: replace each `PlaceholderScreen` by the real screen, following the steps above.
-- `core:notifications`: device tokens (FCM, APNs) in Supabase, Realtime for calm alerts, Edge Function, SQL
-  migrations with RLS (`supabase/`).
-- Authentication (Supabase session) behind `AccessTokenProvider`.
 - Persistence of preferences (onboarding seen, offline switch) if needed.
+
+## Supabase, push and purchases
+
+- `core:authentication` builds the Supabase client and implements `AuthenticationRepository` (Apple, Google, email
+  link, deep link `io.jauge.app://login-callback`) and `AccessTokenProvider`. `core:notifications` implements
+  `NotificationRepository` (tables `devices` and `notifications`, Realtime, FCM and APNs). Without Supabase values
+  both use simulated implementations. Setup steps: `docs/supabase.md`; SQL and Edge Function: `supabase/`.
+- `SessionSynchronizer` (composeApp) links RevenueCat to the signed in user, saves the push token and receives the
+  sign in deep links; `CalmAlertBannerHost` shows calm alerts received by Realtime above every screen.
+- Purchases: `docs/revenuecat.md`.
 
 ## Naming of network types
 

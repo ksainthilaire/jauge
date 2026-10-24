@@ -11,6 +11,17 @@
 		<string>fr</string>
 		<string>en</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>io.jauge.app.login</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>io.jauge.app</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Jauge enregistre ta carte de partage dans tes photos quand tu touches Enregistrer.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>

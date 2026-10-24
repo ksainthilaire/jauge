@@ -1,6 +1,7 @@
 package io.jauge.app
 
 import io.jauge.app.di.appModule
+import io.jauge.app.session.SessionSynchronizer
 import io.jauge.app.di.featureModules
 import io.jauge.core.authentication.authenticationModule
 import io.jauge.core.billing.BillingClient
@@ -55,6 +56,7 @@ class KoinGraphTest {
         koin.get<AuthenticationRepository>()
         koin.get<NotificationRepository>()
         koin.get<SignOutUseCase>()
+        koin.get<SessionSynchronizer>()
         assertFalse(koin.get<BillingClient>().isAvailable, "No RevenueCat key: purchases must be disabled")
         check(environment.platform == Platform.ANDROID || environment.platform == Platform.IOS)
     }
