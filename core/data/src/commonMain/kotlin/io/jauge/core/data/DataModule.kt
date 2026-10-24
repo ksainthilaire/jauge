@@ -4,6 +4,8 @@ import io.jauge.core.data.api.SwitchingJaugeApi
 import io.jauge.core.data.offline.OfflineDataset
 import io.jauge.core.data.offline.OfflineJaugeApi
 import io.jauge.core.data.offline.OfflineScenarioController
+import io.jauge.core.data.preferences.PreferencesRepositoryImplementation
+import io.jauge.core.data.preferences.platformDataModule
 import io.jauge.core.data.repository.AccountRepositoryImplementation
 import io.jauge.core.data.repository.AnalysisRepositoryImplementation
 import io.jauge.core.data.repository.InsightRepositoryImplementation
@@ -13,6 +15,7 @@ import io.jauge.core.data.repository.TwinRepositoryImplementation
 import io.jauge.core.domain.repository.AccountRepository
 import io.jauge.core.domain.repository.AnalysisRepository
 import io.jauge.core.domain.repository.InsightRepository
+import io.jauge.core.domain.repository.PreferencesRepository
 import io.jauge.core.domain.repository.ShareRepository
 import io.jauge.core.domain.repository.SubscriptionRepository
 import io.jauge.core.domain.repository.TwinRepository
@@ -41,4 +44,6 @@ val dataModule = module {
     single<ShareRepository> { ShareRepositoryImplementation(get()) }
     single<AccountRepository> { AccountRepositoryImplementation(get()) }
     single<SubscriptionRepository> { SubscriptionRepositoryImplementation(get(), get()) }
+    single<PreferencesRepository> { PreferencesRepositoryImplementation(get()) }
+    includes(platformDataModule)
 }

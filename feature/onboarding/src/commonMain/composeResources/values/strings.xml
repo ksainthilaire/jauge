@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="welcome_title">Bienvenue</string>
+    <string name="app_name">Jauge</string>
+    <string name="welcome_skip">Passer</string>
+    <string name="welcome_calm_badge">CALME · %1$d</string>
+    <string name="welcome_crowded_badge">BONDÉ · %1$d</string>
+    <string name="welcome_page_one_title_start">Avant de postuler,</string>
+    <string name="welcome_page_one_title_highlight">regarde la foule.</string>
+    <string name="welcome_page_one_text">Colle le lien ou la capture d'une offre. Jauge estime combien de personnes la visent, ce qu'elle paie vraiment et où tu as plus de chances.</string>
+    <string name="welcome_page_two_title_start">Le salaire caché,</string>
+    <string name="welcome_page_two_title_highlight">enfin estimé.</string>
+    <string name="welcome_page_two_text">Pas de salaire dans l'annonce ? Jauge l'estime d'après les offres comparables de ta région, avec sa fourchette et sa fiabilité.</string>
+    <string name="welcome_page_three_title_start">Vise les offres</string>
+    <string name="welcome_page_three_title_highlight">plus calmes.</string>
+    <string name="welcome_page_three_text">Jauge te montre les offres jumelles moins disputées autour de toi et te prévient quand une offre se calme.</string>
+    <string name="welcome_page_indicator">Page %1$d sur %2$d</string>
     <string name="welcome_start">Analyser ma première offre</string>
+    <string name="welcome_have_account">J'ai déjà un compte ·</string>
+    <string name="welcome_sign_in">Me connecter</string>
+    <string name="alerts_later">Plus tard</string>
+    <string name="alerts_example_time_recent">il y a 2 h</string>
+    <string name="alerts_example_time_now">maintenant</string>
+    <string name="alerts_example_moved_title">Ta jauge a bougé</string>
+    <string name="alerts_example_moved_text">Chargée de marketing digital passe en « bondé ». Postule avant jeudi.</string>
+    <string name="alerts_example_calm_title">Une jumelle calme vient d'apparaître</string>
+    <string name="alerts_example_calm_text">Responsable acquisition · Lyon 6e · ≈ 22 candidats estimés</string>
+    <string name="alerts_title">Sois prévenu·e\nquand ça se calme.</string>
+    <string name="alerts_text">On t'écrit seulement pour tes alertes « calme » et les offres que tu suis.</string>
+    <string name="alerts_promise_frequency">3 messages par semaine au plus</string>
+    <string name="alerts_promise_no_ads">Jamais de pub ni d'offres sponsorisées</string>
+    <string name="alerts_promise_settings">Réglable offre par offre, à tout moment</string>
+    <string name="alerts_continue">Continuer</string>
+    <string name="alerts_system_prompt_ios">iOS va te demander l'autorisation.\nTu pourras changer d'avis dans Réglages.</string>
+    <string name="alerts_system_prompt_android">Android va te demander l'autorisation.\nTu pourras changer d'avis dans les paramètres.</string>
 </resources>
