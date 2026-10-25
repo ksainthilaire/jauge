@@ -80,7 +80,7 @@ class FakeTwinRepository : TwinRepository {
 class FakeHistoryRepository(history: List<AnalysisSummary>) : AnalysisRepository {
     val history = MutableStateFlow(history)
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> = emptyFlow()
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> = emptyFlow()
 
     override fun observeHistory(): Flow<List<AnalysisSummary>> = history
 

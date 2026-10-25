@@ -67,6 +67,20 @@ data class TimingAdvice(
 )
 
 /**
+ * Advice of the verdict written by the AI of the server, in the language of the analysis (`result.advice`). Every
+ * number in it comes from the result, never from the AI.
+ *
+ * @property text two or three sentences: when and how to apply ("Postule avant jeudi...").
+ * @property negotiationArgument one sentence for the salary negotiation, null when none.
+ * @property missingSkills skills often asked by comparable offers and missing from this one (4 at most).
+ */
+data class AnalysisAdvice(
+    val text: String,
+    val negotiationArgument: String?,
+    val missingSkills: List<String>,
+)
+
+/**
  * Complete analysis of an offer: the verdict (mockup 04).
  *
  * @property id identifier, also used in the share link.
@@ -84,6 +98,9 @@ data class TimingAdvice(
  * @property comparableOfferCount number of comparable offers used ("1 284 offres du Rhône").
  * @property timingAdvice advice about when to apply, if any.
  * @property isFavorite true when the user marked the analysis as a favorite (star).
+ * @property reputation what public posts say about the company, null when nothing was found.
+ * @property advice advice written by the AI of the server from the computed facts, null when unavailable (the
+ *   screens then keep [timingAdvice] and their own sentences).
  */
 data class Analysis(
     val id: String,
@@ -101,6 +118,8 @@ data class Analysis(
     val comparableOfferCount: Int,
     val timingAdvice: TimingAdvice?,
     val isFavorite: Boolean = false,
+    val reputation: Reputation? = null,
+    val advice: AnalysisAdvice? = null,
 ) {
     /** Competition level of [score]. */
     val level: CompetitionLevel

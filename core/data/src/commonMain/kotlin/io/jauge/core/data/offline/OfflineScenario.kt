@@ -21,7 +21,7 @@ enum class OfflineScenario {
     /** The session has expired (401). */
     SESSION_EXPIRED,
 
-    /** New analyses fail because the free analysis of the week is used (402). */
+    /** A free user without quota: new analyses and calm alerts fail with 402 (paywall). */
     QUOTA_REACHED,
 
     /** Screenshots and photos cannot be read (mockup 10). */

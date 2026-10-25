@@ -2,6 +2,7 @@ package io.jauge.feature.verdict.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.jauge.core.domain.model.AnalysisAdvice
 import io.jauge.core.domain.model.Reliability
 import io.jauge.core.domain.model.SalaryInsight
 import io.jauge.core.domain.model.SkillsInsight
@@ -42,12 +43,15 @@ enum class DetailsSection {
  * @property skills skills section.
  * @property trend trend section.
  * @property reliability reliability of the analysis, for the "Comment on estime" link, null until known.
+ * @property advice advice written by the server (negotiation sentence, missing skills), null when unavailable: the
+ *   sections then keep their own sentences.
  */
 data class DetailsUiState(
     val salary: ContentState<SalaryInsight> = ContentState(),
     val skills: ContentState<SkillsInsight> = ContentState(),
     val trend: ContentState<TrendInsight> = ContentState(),
     val reliability: Reliability? = null,
+    val advice: AnalysisAdvice? = null,
 ) {
     /** True while a pull to refresh is running. */
     val isRefreshing: Boolean
@@ -93,17 +97,18 @@ class DetailsViewModel(
             val salary = async { getSalary(analysisId) }
             val skills = async { getSkills(analysisId) }
             val trend = async { getTrend(analysisId) }
-            val reliability = async { getAnalysis(analysisId).map { it.reliability } }
+            val analysis = async { getAnalysis(analysisId) }
             val salaryOutcome = salary.await()
             val skillsOutcome = skills.await()
             val trendOutcome = trend.await()
-            val reliabilityOutcome = reliability.await()
+            val analysisOutcome = analysis.await()
             state.update {
                 it.copy(
                     salary = it.salary.reduce(salaryOutcome),
                     skills = it.skills.reduce(skillsOutcome),
                     trend = it.trend.reduce(trendOutcome),
-                    reliability = reliabilityOutcome.getOrNull() ?: it.reliability,
+                    reliability = analysisOutcome.getOrNull()?.reliability ?: it.reliability,
+                    advice = analysisOutcome.getOrNull()?.advice ?: it.advice,
                 )
             }
         }

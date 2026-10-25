@@ -13,12 +13,16 @@ class RecordingJaugeApi(private val delegate: JaugeApi) : JaugeApi by delegate {
     /** Bodies of `POST /v1/analyses`, in order. */
     val createdAnalyses = mutableListOf<CreateAnalysisRequestPayload>()
 
+    /** `Idempotency-Key` headers of `POST /v1/analyses`, in order. */
+    val idempotencyKeys = mutableListOf<String?>()
+
     /** Identifiers read with `GET /v1/analyses/{id}`, in order. */
     val polledAnalyses = mutableListOf<String>()
 
-    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload {
+    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload, idempotencyKey: String?): AnalysisPayload {
         createdAnalyses += request
-        return delegate.createAnalysis(request)
+        idempotencyKeys += idempotencyKey
+        return delegate.createAnalysis(request, idempotencyKey)
     }
 
     override suspend fun getAnalysis(analysisId: String): AnalysisPayload {

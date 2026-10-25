@@ -55,6 +55,7 @@ class OfflineJaugeApi(
     private val analyses = dataset.initialAnalyses().associateBy { it.id }.toMutableMap()
     private val order = analyses.keys.toMutableList()
     private val pending = mutableMapOf<String, PendingAnalysis>()
+    private val analysesByIdempotencyKey = mutableMapOf<String, String>()
     private val alerts = mutableListOf<AlertPayload>()
     private val favorites = favoriteStore.read().toMutableSet()
     private val shares = dataset.initialShares().toMutableList()
@@ -64,7 +65,12 @@ class OfflineJaugeApi(
 
     private class PendingAnalysis(val completed: AnalysisPayload, val unreadable: Boolean, var stage: Int = 0)
 
-    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload = simulate(isAnalysisCreation = true) {
+    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload, idempotencyKey: String?): AnalysisPayload = simulate(isLimitedForFreeUsers = true) {
+        // Like the server: the same key gives back the analysis already created, as it is now.
+        idempotencyKey?.let { key -> analysesByIdempotencyKey[key] }?.let { existingId ->
+            pending[existingId]?.let { return@simulate readingSnapshot(it.completed, it.stage) }
+            analyses[existingId]?.let { return@simulate it }
+        }
         val base = dataset.marketingAnalysis(id = nextId(), createdHoursAgo = 0)
         val completed = when (request.type) {
             CreateAnalysisRequestPayload.TYPE_MANUAL -> base.copy(
@@ -83,6 +89,7 @@ class OfflineJaugeApi(
         val unreadable = request.type == CreateAnalysisRequestPayload.TYPE_TEXT &&
             scenarios.scenario.value == OfflineScenario.UNREADABLE_OFFER
         startAnalysis(completed.withArea(request.area), unreadable = unreadable)
+            .also { started -> idempotencyKey?.let { analysesByIdempotencyKey[it] = started.id } }
     }
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload = simulate {
@@ -177,7 +184,8 @@ class OfflineJaugeApi(
 
     override suspend fun getAlerts(): AlertListPayload = simulate { AlertListPayload(if (isEmptyScenario()) emptyList() else alerts.toList()) }
 
-    override suspend fun createAlert(request: CreateAlertRequestPayload): AlertPayload = simulate {
+    // Calm alerts are a Jauge Plus feature: the quota scenario (a free user) answers 402 like the server.
+    override suspend fun createAlert(request: CreateAlertRequestPayload): AlertPayload = simulate(isLimitedForFreeUsers = true) {
         requireAnalysis(request.analysisId)
         AlertPayload(id = "alert-${nextId()}", analysisId = request.analysisId, threshold = request.threshold, active = true)
             .also { alerts.add(0, it) }
@@ -218,7 +226,7 @@ class OfflineJaugeApi(
         dataset.account(analyses.size + 9).copy(consents = consents)
     }
 
-    override suspend fun deleteAccount() = simulate {
+    override suspend fun deleteAccount(appleAuthorizationCode: String?) = simulate {
         accountDeleted = true
         analyses.clear()
         order.clear()
@@ -296,7 +304,13 @@ class OfflineJaugeApi(
         return "offline-$counter"
     }
 
-    private suspend fun <T> simulate(isAnalysisCreation: Boolean = false, block: suspend () -> T): T {
+    /**
+     * Runs [block] after the simulated latency, or fails as the selected scenario says.
+     *
+     * @param isLimitedForFreeUsers true for the calls a free user without quota cannot make (new analysis, calm
+     *   alert): the quota scenario answers 402 for them.
+     */
+    private suspend fun <T> simulate(isLimitedForFreeUsers: Boolean = false, block: suspend () -> T): T {
         val latency = scenarios.latencyMilliseconds
         if (latency.last > 0) delay(random.nextLong(latency.first, latency.last + 1))
         when (scenarios.scenario.value) {
@@ -305,7 +319,7 @@ class OfflineJaugeApi(
             OfflineScenario.SERVER_UNAVAILABLE -> throw NetworkFailure.Http(503, null)
             OfflineScenario.SESSION_EXPIRED -> throw NetworkFailure.Http(401, ApiErrorCodes.UNAUTHORIZED)
             OfflineScenario.INVALID_RESPONSE -> throw NetworkFailure.InvalidResponse()
-            OfflineScenario.QUOTA_REACHED -> if (isAnalysisCreation) throw NetworkFailure.Http(402, ApiErrorCodes.QUOTA_REACHED)
+            OfflineScenario.QUOTA_REACHED -> if (isLimitedForFreeUsers) throw NetworkFailure.Http(402, ApiErrorCodes.QUOTA_REACHED)
             OfflineScenario.NORMAL, OfflineScenario.UNREADABLE_OFFER, OfflineScenario.EMPTY -> Unit
         }
         return mutex.withLock { block() }

@@ -7,6 +7,7 @@ import io.jauge.core.data.preferences.InMemoryKeyValueStore
 import io.jauge.core.data.preferences.PreferencesRepositoryImplementation
 import io.jauge.core.data.preferences.SearchAreaSource
 import io.jauge.core.data.repository.AnalysisRepositoryImplementation
+import io.jauge.core.data.repository.PollingSchedule
 import io.jauge.core.data.repository.InsightRepositoryImplementation
 import io.jauge.core.data.repository.TwinRepositoryImplementation
 import io.jauge.core.domain.model.AnalysisProgress
@@ -65,8 +66,8 @@ class SearchAreaTest {
 
     @Test
     fun newAnalysisUsesTheRadiusOfTheArea() = runTest {
-        val analyses = AnalysisRepositoryImplementation(api, pollIntervalMilliseconds = 0, searchArea = { nantes })
-        val completed = analyses.analyze(OfferSource.Link("https://example.com/offre")).last()
+        val analyses = AnalysisRepositoryImplementation(api, polling = PollingSchedule.IMMEDIATE, searchArea = { nantes })
+        val completed = analyses.analyze(OfferSource.Link("https://example.com/offre"), "request-key-0001").last()
         assertIs<AnalysisProgress.Completed>(completed)
         assertEquals(10, completed.analysis.twinRadiusKilometers)
     }

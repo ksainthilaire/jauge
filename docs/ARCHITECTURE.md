@@ -307,6 +307,27 @@ lines, cut at 20 000 characters) and sends only the text: `POST /v1/analyses` wi
   of the contract stays for other clients but the app never uses it; `AnalysisRepositoryImplementation` refuses an
   `OfferSource.Image` the same way, so an image can never be uploaded by mistake.
 
+## Real API details (contract of 25/10/2026)
+
+- **Idempotency**: every analysis request has a key (`AnalysisRequestKeys`, 32 letters and digits) sent as
+  `Idempotency-Key`. `ReadingViewModel` keeps it on "Réessayer" after a lost answer (no connection, timeout, busy
+  server: `AnalysisRequestKeys.keepsKeyOnRetry`) and takes a new one after any other failure.
+- **Polling**: `PollingSchedule`: every second for 10 polls, then every 2 seconds, 50 polls (90 seconds) before the
+  timeout message.
+- **Advice and reputation** (`result.advice`, `result.reputation`, both optional): the advice text replaces the computed
+  "Postule avant..." card of the verdict, its negotiation sentence replaces the computed one in the salaries of the
+  details and its missing skills are listed under the skills. `ReputationCard` (verdict, under the key figures) shows the
+  summary, a tone pill and links: the posts sent by the server (`https` only), or a search of the company on each source
+  when there are none. Without these fields the screens stay as before.
+- **Calm alerts**: `402` (free user) on `POST /v1/alerts` opens the paywall (`TwinOffersEvent.PaywallRequired`).
+- **Account deletion**: for accounts signed in with Apple, `DeleteAccountUseCase` asks `AppleAuthorization` for a
+  fresh code (iOS: native Apple sheet, `ASAuthorizationAppleIDProvider`, capability "Sign in with Apple" in
+  `iosApp.entitlements`) and sends `{appleAuthorizationCode}`. Closing the sheet keeps the account, silently. Android
+  cannot get a code for the client `io.jauge.app` (no native Sign in with Apple): the deletion is sent without it,
+  which the API accepts.
+- `GET /public/analyses/{id}` is not used by the app: a shared link opens the verdict of the owner's analysis through
+  `GET /v1/analyses/{id}`; the public route serves the web page `jauge.io/a/{id}`.
+
 ## Location and search area
 
 `SearchArea` (city, department, radius, origin) is used by the analyses, the twin offers and the salaries; core:data

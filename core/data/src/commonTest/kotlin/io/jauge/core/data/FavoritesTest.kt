@@ -9,6 +9,7 @@ import io.jauge.core.data.preferences.FavoriteStore
 import io.jauge.core.data.preferences.InMemoryKeyValueStore
 import io.jauge.core.data.repository.AccountRepositoryImplementation
 import io.jauge.core.data.repository.AnalysisRepositoryImplementation
+import io.jauge.core.data.repository.PollingSchedule
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Outcome
 import io.jauge.core.domain.model.getOrNull
@@ -27,7 +28,7 @@ class FavoritesTest {
     private val deviceStore = InMemoryKeyValueStore()
     private val api = OfflineJaugeApi(OfflineDataset(), scenarios, favoriteStore = FavoriteStore(deviceStore, FavoriteStore.OFFLINE_KEY))
 
-    private fun repository() = AnalysisRepositoryImplementation(api, FavoriteStore(deviceStore), pollIntervalMilliseconds = 0)
+    private fun repository() = AnalysisRepositoryImplementation(api, FavoriteStore(deviceStore), polling = PollingSchedule.IMMEDIATE)
 
     @Test
     fun starShowsInTheHistoryAndTheAnalysis() = runTest {

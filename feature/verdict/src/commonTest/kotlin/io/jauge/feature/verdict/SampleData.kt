@@ -2,6 +2,11 @@ package io.jauge.feature.verdict
 
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Analysis
+import io.jauge.core.domain.model.AnalysisAdvice
+import io.jauge.core.domain.model.Reputation
+import io.jauge.core.domain.model.ReputationLink
+import io.jauge.core.domain.model.ReputationSource
+import io.jauge.core.domain.model.ReputationTone
 import io.jauge.core.domain.model.AnalysisProgress
 import io.jauge.core.domain.model.AnalysisSummary
 import io.jauge.core.domain.model.ApplicantEstimate
@@ -58,6 +63,28 @@ object SampleData {
         timingAdvice = TimingAdvice(DayOfWeek.THURSDAY, 70, 5),
     )
 
+    /** Analysis with the advice and the reputation written by the server. */
+    val analysisWithAdvice = analysis.copy(
+        advice = AnalysisAdvice(
+            text = "Postule avant jeudi. 70 % des candidatures arrivent dans les 5 premiers jours : mets en avant tes " +
+                "résultats chiffrés sur les campagnes payantes.",
+            negotiationArgument = "L'offre n'affiche pas de salaire et la médiane de Lyon est de 37 k€ : demande 40 k€.",
+            missingSkills = listOf("HubSpot", "Figma"),
+        ),
+        reputation = Reputation(
+            summary = "Les candidats parlent d'une équipe accueillante et d'un recrutement rapide, mais de salaires un peu " +
+                "sous le marché.",
+            tone = ReputationTone.MIXED,
+            mentionCount = 14,
+            sources = listOf(ReputationSource.REDDIT, ReputationSource.X),
+            links = listOf(
+                ReputationLink(ReputationSource.REDDIT, "https://www.reddit.com/r/france/comments/1/"),
+                ReputationLink(ReputationSource.REDDIT, "https://www.reddit.com/r/lyon/comments/2/"),
+                ReputationLink(ReputationSource.X, "https://x.com/i/status/3"),
+            ),
+        ),
+    )
+
     val salary = SalaryInsight(
         areaName = "Lyon",
         offerCount = 412,
@@ -100,7 +127,7 @@ object SampleData {
 class FakeAnalysisRepository(var outcome: Outcome<Analysis> = Outcome.Success(SampleData.analysis)) : AnalysisRepository {
     var loadCount = 0
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> = emptyFlow()
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> = emptyFlow()
 
     override fun observeHistory(): Flow<List<AnalysisSummary>> = flowOf(emptyList())
 

@@ -11,6 +11,7 @@ import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
 import io.jauge.core.network.payload.CreateShareRequestPayload
+import io.jauge.core.network.payload.DeleteAccountRequestPayload
 import io.jauge.core.network.payload.MethodologyPayload
 import io.jauge.core.network.payload.SalaryInsightPayload
 import io.jauge.core.network.payload.SharePayload
@@ -27,6 +28,7 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -49,8 +51,13 @@ import kotlinx.serialization.SerializationException
  */
 internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
 
-    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload =
-        call { client.post("v1/analyses") { json(request) } }.decode()
+    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload, idempotencyKey: String?): AnalysisPayload =
+        call {
+            client.post("v1/analyses") {
+                json(request)
+                idempotencyKey?.takeIf { it.isNotBlank() }?.let { header(IDEMPOTENCY_KEY_HEADER, it) }
+            }
+        }.decode()
 
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload = call {
@@ -128,8 +135,9 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
     override suspend fun updateConsents(consents: ConsentsPayload): AccountPayload =
         call { client.patch("v1/account/consents") { json(consents) } }.decode()
 
-    override suspend fun deleteAccount() {
-        call { client.delete("v1/account") }
+    override suspend fun deleteAccount(appleAuthorizationCode: String?) {
+        val code = appleAuthorizationCode?.takeIf { it.isNotBlank() }
+        call { client.delete("v1/account") { if (code != null) json(DeleteAccountRequestPayload(code)) } }
     }
 
     override suspend fun getSubscription(): SubscriptionPayload = call { client.get("v1/subscription") }.decode()

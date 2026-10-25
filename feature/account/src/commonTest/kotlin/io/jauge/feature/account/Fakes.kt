@@ -109,8 +109,12 @@ class FakeAccountRepository : AccountRepository {
         return Outcome.Success(account.copy(consents = consents))
     }
 
-    override suspend fun deleteAccount(): Outcome<Unit> {
+    /** Apple code received with the last deletion. */
+    var receivedAppleAuthorizationCode: String? = null
+
+    override suspend fun deleteAccount(appleAuthorizationCode: String?): Outcome<Unit> {
         error?.let { return Outcome.Failure(it) }
+        receivedAppleAuthorizationCode = appleAuthorizationCode
         deleted = true
         return Outcome.Success(Unit)
     }
@@ -175,7 +179,7 @@ class FakeAnalysisRepository : AnalysisRepository {
     /** Stored history. */
     val history = MutableStateFlow<List<AnalysisSummary>>(emptyList())
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> = emptyFlow()
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> = emptyFlow()
 
     override fun observeHistory(): Flow<List<AnalysisSummary>> = history
 

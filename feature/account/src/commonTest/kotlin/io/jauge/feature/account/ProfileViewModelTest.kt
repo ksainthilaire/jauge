@@ -1,5 +1,8 @@
 package io.jauge.feature.account
 
+import io.jauge.core.domain.model.Outcome
+import io.jauge.core.domain.service.AppleAuthorization
+import io.jauge.core.domain.service.NoAppleAuthorization
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.AnalysisSummary
 import io.jauge.core.domain.model.AuthenticationState
@@ -188,17 +191,13 @@ class ProfileViewModelTest {
     fun deletionNeedsConfirmationThenSignsOutAndResets() {
         authentication.completeFromOutside(SignInMethod.APPLE)
         preferences.preferences.value = preferences.preferences.value.copy(hasPassedWelcome = true, hasPassedAccount = true)
-        val viewModel = DeleteAccountViewModel(
-            DeleteAccountUseCase(account),
-            SignOutUseCase(authentication, notifications),
-            UpdateSettingsUseCase(preferences),
-            GetSubscriptionManagementUrlUseCase(subscriptions),
-        )
+        val viewModel = deleteAccountViewModel { Outcome.Success("apple-code-123456") }
         viewModel.delete()
         assertFalse(account.deleted)
         viewModel.setConfirmed(true)
         viewModel.delete()
         assertTrue(account.deleted)
+        assertEquals("apple-code-123456", account.receivedAppleAuthorizationCode)
         assertTrue(viewModel.uiState.value.isDeleted)
         assertFalse(preferences.preferences.value.hasPassedWelcome)
         assertEquals(AuthenticationState.SignedOut, authentication.state.value)
@@ -207,17 +206,52 @@ class ProfileViewModelTest {
     @Test
     fun deletionFailureIsShown() {
         account.error = JaugeError.ServerUnavailable
-        val viewModel = DeleteAccountViewModel(
-            DeleteAccountUseCase(account),
-            SignOutUseCase(authentication, notifications),
-            UpdateSettingsUseCase(preferences),
-            GetSubscriptionManagementUrlUseCase(subscriptions),
-        )
+        val viewModel = deleteAccountViewModel()
         viewModel.setConfirmed(true)
         viewModel.delete()
         assertEquals(JaugeError.ServerUnavailable, viewModel.uiState.value.error)
         assertFalse(viewModel.uiState.value.isDeleted)
     }
+
+    @Test
+    fun closingTheAppleSheetKeepsTheAccountWithoutAnError() {
+        authentication.completeFromOutside(SignInMethod.APPLE)
+        val viewModel = deleteAccountViewModel { Outcome.Failure(JaugeError.SignInCancelled) }
+        viewModel.setConfirmed(true)
+        viewModel.delete()
+        assertFalse(account.deleted)
+        assertNull(viewModel.uiState.value.error)
+        assertFalse(viewModel.uiState.value.isDeleting)
+    }
+
+    @Test
+    fun appleFailuresAndOtherAccountsDeleteWithoutCode() {
+        authentication.completeFromOutside(SignInMethod.APPLE)
+        val failing = deleteAccountViewModel { Outcome.Failure(JaugeError.SignInFailed) }
+        failing.setConfirmed(true)
+        failing.delete()
+        assertTrue(account.deleted)
+        assertNull(account.receivedAppleAuthorizationCode)
+    }
+
+    @Test
+    fun accountsNotSignedInWithAppleNeverShowTheAppleSheet() {
+        authentication.completeFromOutside(SignInMethod.GOOGLE)
+        var asked = false
+        val viewModel = deleteAccountViewModel { asked = true; Outcome.Success("apple-code-123456") }
+        viewModel.setConfirmed(true)
+        viewModel.delete()
+        assertFalse(asked)
+        assertTrue(account.deleted)
+        assertNull(account.receivedAppleAuthorizationCode)
+    }
+
+    private fun deleteAccountViewModel(appleAuthorization: AppleAuthorization = NoAppleAuthorization) = DeleteAccountViewModel(
+        DeleteAccountUseCase(account, authentication, appleAuthorization),
+        SignOutUseCase(authentication, notifications),
+        UpdateSettingsUseCase(preferences),
+        GetSubscriptionManagementUrlUseCase(subscriptions),
+    )
 
     private fun summary(id: String, company: String = "Atelier Sorel") = AnalysisSummary(
         id = id,

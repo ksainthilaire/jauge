@@ -33,7 +33,8 @@ data class DeleteAccountUiState(
 
 /**
  * View model of the account deletion, required by the App Store and Google Play: deletes the account and its data on
- * the server, signs out and forgets the preferences of the device.
+ * the server, signs out and forgets the preferences of the device. Accounts signed in with Apple see the Apple sheet
+ * once more on iOS, so that the server can revoke the Apple tokens ([DeleteAccountUseCase]).
  *
  * @param deleteAccount deletes the account on the server.
  * @param signOut signs out on this device.
@@ -72,7 +73,10 @@ class DeleteAccountViewModel(
                     updateSettings.resetAll()
                     state.update { it.copy(isDeleting = false, isDeleted = true) }
                 }
-                is Outcome.Failure -> state.update { it.copy(isDeleting = false, error = outcome.error) }
+                // Closing the Apple sheet (accounts signed in with Apple) keeps the account: nothing to say.
+                is Outcome.Failure -> state.update {
+                    it.copy(isDeleting = false, error = outcome.error.takeUnless { error -> error == JaugeError.SignInCancelled })
+                }
             }
         }
     }

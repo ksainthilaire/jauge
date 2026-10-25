@@ -281,7 +281,44 @@ private fun VerdictContent(
     }
     VerdictGaugeCard(analysis = analysis, onOpenMethodology = onOpenMethodology, animateGauge = animateGauge)
     MetricGrid(analysis = analysis, onOpenTwins = onOpenTwins, onOpenTrend = onOpenTrend)
-    analysis.timingAdvice?.let { TimingAdviceCard(it) }
+    // The advice written by the server replaces the computed timing sentence; without it the screen keeps it.
+    val advice = analysis.advice
+    if (advice != null) AdviceCard(advice.text) else analysis.timingAdvice?.let { TimingAdviceCard(it) }
+    analysis.reputation?.let { reputation ->
+        ReputationCard(
+            reputation = reputation,
+            searchQuery = offer.company ?: offer.jobTitle,
+            modifier = Modifier.padding(top = JaugeTheme.spacing.medium),
+        )
+    }
+}
+
+/**
+ * Advice of the server (`result.advice.text`) in the card of the timing advice: its first sentence in bold, like
+ * "Postule avant jeudi.".
+ */
+@Composable
+private fun AdviceCard(text: String) {
+    val colors = JaugeTheme.colors
+    val firstSentenceEnd = text.indexOf(". ").takeIf { it > 0 }?.plus(1) ?: text.length
+    JaugeCard(
+        modifier = Modifier.fillMaxWidth().padding(top = JaugeTheme.spacing.medium),
+        containerColor = colors.disputed.container,
+        borderColor = colors.disputed.accent.copy(alpha = 0.35f),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 13.dp),
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(JaugeIcons.Clock, contentDescription = null, tint = colors.disputed.content, modifier = Modifier.size(20.dp))
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(text.substring(0, firstSentenceEnd)) }
+                    append(text.substring(firstSentenceEnd))
+                },
+                style = JaugeTheme.typography.body.copy(fontSize = 14.sp, lineHeight = 19.sp, fontWeight = FontWeight.Normal),
+                color = colors.textPrimary,
+            )
+        }
+    }
 }
 
 @Composable

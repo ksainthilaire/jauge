@@ -92,6 +92,9 @@ sealed interface TwinOffersEvent {
      * @property error the reason, shown as a friendly message.
      */
     data class AlertFailed(val error: JaugeError) : TwinOffersEvent
+
+    /** Calm alerts are a Jauge Plus feature and the user is on the free plan (402): the paywall opens. */
+    data object PaywallRequired : TwinOffersEvent
 }
 
 /**
@@ -207,7 +210,12 @@ class TwinOffersViewModel(
                 }
                 is Outcome.Failure -> {
                     state.update { it.copy(alertSwitchOverride = null) }
-                    eventChannel.send(TwinOffersEvent.AlertFailed(outcome.error))
+                    val event = if (isOn && outcome.error == JaugeError.QuotaReached) {
+                        TwinOffersEvent.PaywallRequired
+                    } else {
+                        TwinOffersEvent.AlertFailed(outcome.error)
+                    }
+                    eventChannel.send(event)
                 }
             }
         }

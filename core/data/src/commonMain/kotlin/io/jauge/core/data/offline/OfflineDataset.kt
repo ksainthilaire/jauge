@@ -13,6 +13,9 @@ import io.jauge.core.network.payload.SalaryRangePayload
 import io.jauge.core.network.payload.SharePayload
 import io.jauge.core.network.payload.SkillDemandPayload
 import io.jauge.core.network.payload.SkillsInsightPayload
+import io.jauge.core.network.payload.AdvicePayload
+import io.jauge.core.network.payload.ReputationLinkPayload
+import io.jauge.core.network.payload.ReputationPayload
 import io.jauge.core.network.payload.TimingAdvicePayload
 import io.jauge.core.network.payload.TrendInsightPayload
 import io.jauge.core.network.payload.TrendPointPayload
@@ -67,6 +70,24 @@ class OfflineDataset(private val clock: Clock = Clock.System) {
             trendThreeMonthsPercent = 18,
             comparableOfferCount = 1_284,
             timingAdvice = TimingAdvicePayload(applyBefore = "THURSDAY", sharePercent = 70, withinDays = 5),
+            reputation = ReputationPayload(
+                summary = "Les candidats parlent d'une équipe accueillante et d'un process de recrutement rapide, mais de " +
+                    "salaires un peu sous le marché.",
+                tone = "mixed",
+                mentionCount = 14,
+                sources = listOf("reddit", "x"),
+                links = listOf(
+                    ReputationLinkPayload("reddit", "https://www.reddit.com/r/france/comments/1q2w3e4/"),
+                    ReputationLinkPayload("x", "https://x.com/i/status/1850000000000000000"),
+                ),
+            ),
+            advice = AdvicePayload(
+                text = "Postule avant jeudi : 70 % des candidatures arrivent dans les 5 premiers jours. Mets en avant " +
+                    "tes résultats chiffrés sur les campagnes payantes, peu de candidats le font.",
+                negotiationArgument = "L'offre n'affiche pas de salaire et la médiane de Lyon est de 37 k€ : demande 40 k€, " +
+                    "ta maîtrise de Google Ads et de GA4 le justifie.",
+                missingSkills = listOf("HubSpot", "Figma"),
+            ),
         ),
     )
 

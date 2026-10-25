@@ -26,7 +26,8 @@ class SwitchingJaugeApi(
     private val current: JaugeApi
         get() = if (apiModeController.isOfflineMode.value) offline else remote
 
-    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload) = current.createAnalysis(request)
+    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload, idempotencyKey: String?) =
+        current.createAnalysis(request, idempotencyKey)
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?) = current.getAnalyses(cursor, limit, query)
 
@@ -68,7 +69,7 @@ class SwitchingJaugeApi(
 
     override suspend fun updateConsents(consents: ConsentsPayload) = current.updateConsents(consents)
 
-    override suspend fun deleteAccount() = current.deleteAccount()
+    override suspend fun deleteAccount(appleAuthorizationCode: String?) = current.deleteAccount(appleAuthorizationCode)
 
     override suspend fun getSubscription() = current.getSubscription()
 }

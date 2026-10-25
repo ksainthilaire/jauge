@@ -10,6 +10,7 @@ import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
 import io.jauge.core.network.payload.CreateShareRequestPayload
+import io.jauge.core.network.payload.DeleteAccountRequestPayload
 import io.jauge.core.network.payload.MethodologyPayload
 import io.jauge.core.network.payload.SalaryInsightPayload
 import io.jauge.core.network.payload.SharePayload
@@ -22,6 +23,8 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -31,7 +34,10 @@ import retrofit2.http.Query
 /** Retrofit description of the Jauge API. Used only through [RetrofitJaugeApi]. */
 internal interface RetrofitJaugeService {
     @POST("v1/analyses")
-    suspend fun createAnalysis(@Body request: CreateAnalysisRequestPayload): AnalysisPayload
+    suspend fun createAnalysis(
+        @Body request: CreateAnalysisRequestPayload,
+        @Header(IDEMPOTENCY_KEY_HEADER) idempotencyKey: String?,
+    ): AnalysisPayload
 
     @GET("v1/analyses")
     suspend fun getAnalyses(
@@ -107,6 +113,9 @@ internal interface RetrofitJaugeService {
 
     @DELETE("v1/account")
     suspend fun deleteAccount(): Response<Unit>
+
+    @HTTP(method = "DELETE", path = "v1/account", hasBody = true)
+    suspend fun deleteAccountWithBody(@Body request: DeleteAccountRequestPayload): Response<Unit>
 
     @GET("v1/subscription")
     suspend fun getSubscription(): SubscriptionPayload
