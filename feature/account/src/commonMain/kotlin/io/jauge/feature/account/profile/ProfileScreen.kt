@@ -591,6 +591,7 @@ private fun PlusOffer(price: String, offersTrial: Boolean, onDiscover: () -> Uni
             size = JaugeButtonSize.MEDIUM,
             trailingIcon = JaugeIcons.ArrowRight,
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            shine = true,
         )
         Text(
             text = stringResource(Res.string.profile_plus_no_commitment),
