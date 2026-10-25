@@ -14,6 +14,7 @@ import io.jauge.feature.account.email.EmailSignInStep
 import io.jauge.feature.account.email.EmailSignInViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -31,8 +32,10 @@ class SignInViewModelTest {
     private val authentication = FakeAuthenticationRepository()
     private val account = FakeAccountRepository()
 
+    private val scheduler = TestCoroutineScheduler()
+
     @BeforeTest
-    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
+    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher(scheduler))
 
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
@@ -116,6 +119,8 @@ class SignInViewModelTest {
         viewModel.sendLink()
         assertEquals(EmailSignInStep.LINK_SENT, viewModel.uiState.value.step)
         assertEquals("ines@exemple.fr", authentication.linkSentTo)
+        scheduler.advanceTimeBy(60_000)
+        scheduler.runCurrent()
         viewModel.resendLink()
         assertTrue(viewModel.uiState.value.linkSentAgain)
         authentication.completeFromOutside(SignInMethod.EMAIL)
@@ -123,5 +128,26 @@ class SignInViewModelTest {
         assertEquals(true, account.savedConsents?.marketingEmails)
         viewModel.changeAddress()
         assertEquals(EmailSignInStep.ADDRESS, viewModel.uiState.value.step)
+    }
+
+    @Test
+    fun resendWaitsSixtySecondsAfterEachSending() {
+        val viewModel = emailViewModel()
+        viewModel.onEmailChange("ines@exemple.fr")
+        viewModel.sendLink()
+        assertEquals(60, viewModel.uiState.value.resendAvailableInSeconds)
+        viewModel.resendLink()
+        assertFalse(viewModel.uiState.value.linkSentAgain)
+        scheduler.advanceTimeBy(18_000)
+        scheduler.runCurrent()
+        assertEquals(42, viewModel.uiState.value.resendAvailableInSeconds)
+        scheduler.advanceTimeBy(42_000)
+        scheduler.runCurrent()
+        assertEquals(0, viewModel.uiState.value.resendAvailableInSeconds)
+        viewModel.resendLink()
+        assertTrue(viewModel.uiState.value.linkSentAgain)
+        assertEquals(60, viewModel.uiState.value.resendAvailableInSeconds)
+        viewModel.changeAddress()
+        assertEquals(0, viewModel.uiState.value.resendAvailableInSeconds)
     }
 }

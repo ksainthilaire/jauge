@@ -13,3 +13,12 @@ expect fun rememberTextSharer(): (title: String, text: String) -> Unit
 /** Version of the installed app ("1.0.0"), empty when it cannot be read. */
 @Composable
 expect fun rememberAppVersion(): String
+
+/**
+ * Remembers a function that opens the mail app of the phone (Android: the default email app, iOS: Mail with the
+ * `message://` scheme). It never throws: when no mail app can be opened it calls `onUnavailable` instead.
+ *
+ * @return the function, taking the callback for a missing mail app.
+ */
+@Composable
+expect fun rememberMailAppOpener(): (onUnavailable: () -> Unit) -> Unit

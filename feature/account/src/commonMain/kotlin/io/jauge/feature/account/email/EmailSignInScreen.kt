@@ -1,7 +1,6 @@
 package io.jauge.feature.account.email
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,7 +44,6 @@ import io.jauge.feature.account.resources.email_invalid
 import io.jauge.feature.account.resources.email_link_headline
 import io.jauge.feature.account.resources.email_link_sent_again
 import io.jauge.feature.account.resources.email_link_spam
-import io.jauge.feature.account.resources.email_link_text
 import io.jauge.feature.account.resources.email_link_waiting
 import io.jauge.feature.account.resources.email_resend
 import io.jauge.feature.account.resources.email_send_link
@@ -55,6 +52,27 @@ import io.jauge.feature.account.resources.email_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import io.jauge.core.designsystem.component.JaugeButtonSize
+import io.jauge.core.designsystem.component.JaugeButtonStyle
+import io.jauge.feature.account.platform.rememberMailAppOpener
+import io.jauge.feature.account.resources.email_link_sent_to
+import io.jauge.feature.account.resources.email_step_open
+import io.jauge.feature.account.resources.email_step_tap
+import io.jauge.feature.account.resources.email_step_back
+import io.jauge.feature.account.resources.email_open_mail_app
+import io.jauge.feature.account.resources.email_resend_in
+import io.jauge.feature.account.resources.email_mail_app_unavailable
 
 /**
  * Sign in with a link sent by email (mockup 11, "Continuer avec un e-mail"), dark like the account screen. The
@@ -76,6 +94,7 @@ fun EmailSignInScreen(marketingEmails: Boolean, onBack: () -> Unit, onSignedIn: 
         onSendLink = viewModel::sendLink,
         onResendLink = viewModel::resendLink,
         onChangeAddress = viewModel::changeAddress,
+        onOpenMailApp = rememberMailAppOpener(),
     )
 }
 
@@ -88,6 +107,7 @@ fun EmailSignInScreen(marketingEmails: Boolean, onBack: () -> Unit, onSignedIn: 
  * @param onSendLink "Recevoir un lien".
  * @param onResendLink "Renvoyer le lien".
  * @param onChangeAddress "Changer d'adresse".
+ * @param onOpenMailApp "Ouvrir ma messagerie": opens the mail app, calls its argument when there is none.
  * @param modifier modifier of the screen.
  */
 @Composable
@@ -98,6 +118,7 @@ fun EmailSignInContent(
     onSendLink: () -> Unit,
     onResendLink: () -> Unit,
     onChangeAddress: () -> Unit,
+    onOpenMailApp: (onUnavailable: () -> Unit) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     JaugeTheme(darkTheme = true) {
@@ -105,6 +126,7 @@ fun EmailSignInContent(
         val typography = JaugeTheme.typography
         val gutter = JaugeTheme.spacing.screenGutter
         val isLinkSent = state.step == EmailSignInStep.LINK_SENT
+        var isMailAppMissing by remember(state.step) { mutableStateOf(false) }
         Column(modifier = modifier.fillMaxSize().background(colors.background).navigationBarsPadding().imePadding()) {
             JaugeTopBar(
                 title = stringResource(Res.string.email_title),
@@ -117,40 +139,24 @@ fun EmailSignInContent(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = gutter)
-                    .padding(top = 28.dp, bottom = 16.dp),
+                    .padding(top = if (isLinkSent) 8.dp else 28.dp, bottom = 16.dp),
             ) {
-                Text(
-                    text = stringResource(if (isLinkSent) Res.string.email_link_headline else Res.string.email_headline),
-                    style = typography.headline,
-                    color = colors.textPrimary,
-                )
-                Text(
-                    text = if (isLinkSent) stringResource(Res.string.email_link_text, state.email.trim()) else stringResource(Res.string.email_text),
-                    style = typography.body.copy(fontSize = 15.5.sp, fontWeight = FontWeight.Normal, lineHeight = 22.sp),
-                    color = colors.textSecondary,
-                    modifier = Modifier.padding(top = 10.dp),
-                )
-                state.error?.takeUnless { it == JaugeError.InvalidEmail }?.let { InlineError(error = it, modifier = Modifier.padding(top = 20.dp)) }
                 if (isLinkSent) {
-                    Row(modifier = Modifier.padding(top = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), color = colors.calm.accent, strokeWidth = 2.dp)
-                        Text(
-                            text = stringResource(Res.string.email_link_waiting),
-                            style = typography.bodySmall,
-                            color = colors.textPrimary,
-                            modifier = Modifier.padding(start = 12.dp),
-                        )
-                    }
-                    Text(
-                        text = stringResource(if (state.linkSentAgain) Res.string.email_link_sent_again else Res.string.email_link_spam),
-                        style = typography.bodySmall,
-                        color = if (state.linkSentAgain) colors.calm.content else colors.textSecondary,
-                        modifier = Modifier.padding(top = 14.dp),
-                    )
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
-                        TextAction(text = stringResource(Res.string.email_change_address), enabled = !state.isLoading, onClick = onChangeAddress)
-                    }
+                    LinkSentBody(state = state, isMailAppMissing = isMailAppMissing)
+                    state.error?.takeUnless { it == JaugeError.InvalidEmail }?.let { InlineError(error = it, modifier = Modifier.padding(top = 16.dp)) }
                 } else {
+                    Text(
+                        text = stringResource(Res.string.email_headline),
+                        style = typography.headline,
+                        color = colors.textPrimary,
+                    )
+                    Text(
+                        text = stringResource(Res.string.email_text),
+                        style = typography.body.copy(fontSize = 15.5.sp, fontWeight = FontWeight.Normal, lineHeight = 22.sp),
+                        color = colors.textSecondary,
+                        modifier = Modifier.padding(top = 10.dp),
+                    )
+                    state.error?.takeUnless { it == JaugeError.InvalidEmail }?.let { InlineError(error = it, modifier = Modifier.padding(top = 20.dp)) }
                     JaugeTextField(
                         value = state.email,
                         onValueChange = onEmailChange,
@@ -165,25 +171,152 @@ fun EmailSignInContent(
                 }
             }
             Column(modifier = Modifier.padding(horizontal = gutter).padding(bottom = 28.dp, top = 8.dp)) {
-                JaugeButton(
-                    text = stringResource(if (isLinkSent) Res.string.email_resend else Res.string.email_send_link),
-                    onClick = if (isLinkSent) onResendLink else onSendLink,
-                    isLoading = state.isLoading,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                if (isLinkSent) {
+                    JaugeButton(
+                        text = stringResource(Res.string.email_open_mail_app),
+                        onClick = { isMailAppMissing = false; onOpenMailApp { isMailAppMissing = true } },
+                        leadingIcon = JaugeIcons.Mail,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        val waitSeconds = state.resendAvailableInSeconds
+                        JaugeButton(
+                            text = if (waitSeconds > 0) {
+                                stringResource(Res.string.email_resend_in, formatCountdown(waitSeconds))
+                            } else {
+                                stringResource(Res.string.email_resend)
+                            },
+                            onClick = onResendLink,
+                            style = JaugeButtonStyle.OUTLINED,
+                            size = JaugeButtonSize.MEDIUM,
+                            enabled = waitSeconds == 0,
+                            isLoading = state.isLoading,
+                            modifier = Modifier.fillMaxWidth().background(colors.surface, JaugeTheme.radii.buttonShape),
+                        )
+                        JaugeButton(
+                            text = stringResource(Res.string.email_change_address),
+                            onClick = onChangeAddress,
+                            style = JaugeButtonStyle.OUTLINED,
+                            size = JaugeButtonSize.MEDIUM,
+                            enabled = !state.isLoading,
+                            modifier = Modifier.fillMaxWidth().background(colors.surface, JaugeTheme.radii.buttonShape),
+                        )
+                    }
+                } else {
+                    JaugeButton(
+                        text = stringResource(Res.string.email_send_link),
+                        onClick = onSendLink,
+                        isLoading = state.isLoading,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
 }
 
+
+/**
+ * Body of the "Regarde ta boîte mail" step: illustration, address highlighted, the three steps, the waiting state
+ * and a short help line.
+ */
 @Composable
-private fun TextAction(text: String, enabled: Boolean, onClick: () -> Unit) {
-    Text(
-        text = text,
-        style = JaugeTheme.typography.body.copy(fontWeight = FontWeight.SemiBold),
-        color = JaugeTheme.colors.textPrimary,
-        modifier = Modifier
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 8.dp),
-    )
+private fun LinkSentBody(state: EmailSignInUiState, isMailAppMissing: Boolean) {
+    val colors = JaugeTheme.colors
+    val typography = JaugeTheme.typography
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        MailIllustration(modifier = Modifier.fillMaxWidth().height(156.dp))
+        Text(
+            text = stringResource(Res.string.email_link_headline),
+            style = typography.headline,
+            color = colors.textPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 18.dp),
+        )
+        Text(
+            text = stringResource(Res.string.email_link_sent_to),
+            style = typography.body.copy(fontSize = 15.5.sp, fontWeight = FontWeight.Normal, lineHeight = 22.sp),
+            color = colors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Row(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .background(colors.surface, JaugeTheme.radii.pillShape)
+                .border(1.dp, colors.outline, JaugeTheme.radii.pillShape)
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(JaugeIcons.Mail, contentDescription = null, tint = colors.calm.accent, modifier = Modifier.size(18.dp))
+            Text(
+                text = state.email.trim(),
+                style = typography.body.copy(fontWeight = FontWeight.Bold),
+                color = colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 8.dp),
+            )
+        }
+        Column(
+            modifier = Modifier
+                .padding(top = 22.dp)
+                .fillMaxWidth()
+                .background(colors.surface, JaugeTheme.radii.cardShape)
+                .border(1.dp, colors.outline, JaugeTheme.radii.cardShape)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            StepRow(number = 1, text = stringResource(Res.string.email_step_open))
+            StepRow(number = 2, text = stringResource(Res.string.email_step_tap))
+            StepRow(number = 3, text = stringResource(Res.string.email_step_back))
+        }
+        Row(modifier = Modifier.padding(top = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = colors.calm.accent, strokeWidth = 2.dp)
+            Text(
+                text = stringResource(Res.string.email_link_waiting),
+                style = typography.bodySmall,
+                color = colors.textPrimary,
+                modifier = Modifier.padding(start = 10.dp),
+            )
+        }
+        val help = when {
+            isMailAppMissing -> stringResource(Res.string.email_mail_app_unavailable)
+            state.linkSentAgain -> stringResource(Res.string.email_link_sent_again)
+            else -> stringResource(Res.string.email_link_spam)
+        }
+        Text(
+            text = help,
+            style = typography.caption.copy(lineHeight = 17.sp),
+            color = if (state.linkSentAgain && !isMailAppMissing) colors.calm.content else colors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 10.dp),
+        )
+    }
 }
+
+/** One numbered step of the "Regarde ta boîte mail" card. */
+@Composable
+private fun StepRow(number: Int, text: String) {
+    val colors = JaugeTheme.colors
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier.size(26.dp).background(colors.calm.container, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = number.toString(), style = JaugeTheme.typography.numberSmall, color = colors.calm.content)
+        }
+        Text(
+            text = text,
+            style = JaugeTheme.typography.bodySmall,
+            color = colors.textPrimary,
+            modifier = Modifier.padding(start = 12.dp),
+        )
+    }
+}
+
+/** Seconds as "0:42". */
+private fun formatCountdown(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"

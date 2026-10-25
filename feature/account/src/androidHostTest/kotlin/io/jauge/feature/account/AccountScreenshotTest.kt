@@ -2,6 +2,9 @@ package io.jauge.feature.account
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.Modifier
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.jauge.core.designsystem.theme.JaugeTheme
@@ -55,6 +58,27 @@ class AccountScreenshotTest {
     @Test
     fun emailLink() = capture("11b-lien-par-email") {
         EmailSignInContent(EmailSignInUiState(step = EmailSignInStep.LINK_SENT, email = "ines@exemple.fr"), {}, {}, {}, {}, {})
+    }
+
+    /** Email link step while "Renvoyer le lien" counts down, as on a phone in the dark theme (the screen is always dark). */
+    @Test
+    fun emailLinkCountdown() = capture("11b-lien-par-email-compte-a-rebours") {
+        EmailSignInContent(
+            EmailSignInUiState(step = EmailSignInStep.LINK_SENT, email = "keny75013@gmail.com", resendAvailableInSeconds = 42),
+            {}, {}, {}, {}, {},
+        )
+    }
+
+    /** Email link step after "Renvoyer le lien" with a large system text size. */
+    @Test
+    fun emailLinkLargeText() = capture("11b-lien-par-email-texte-grand") {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, 1.3f)) {
+            EmailSignInContent(
+                EmailSignInUiState(step = EmailSignInStep.LINK_SENT, email = "ines@exemple.fr", linkSentAgain = true, resendAvailableInSeconds = 60),
+                {}, {}, {}, {}, {},
+            )
+        }
     }
 
     /** Mockup 13. */

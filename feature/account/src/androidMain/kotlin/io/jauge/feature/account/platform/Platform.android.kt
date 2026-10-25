@@ -31,3 +31,17 @@ actual fun rememberAppVersion(): String {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
     }
 }
+
+/** Android: the main activity of the default email app (`CATEGORY_APP_EMAIL`). */
+@Composable
+actual fun rememberMailAppOpener(): (onUnavailable: () -> Unit) -> Unit {
+    val context = LocalContext.current
+    return remember(context) {
+        { onUnavailable ->
+            val mailApp = Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_APP_EMAIL)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if (runCatching { context.startActivity(mailApp) }.isFailure) onUnavailable()
+        }
+    }
+}
