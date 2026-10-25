@@ -17,7 +17,9 @@ how many people are applying, what the job really pays, which skills matter, how
 
 1. Install JDK 17 and the Android SDK (platform 36).
 2. Copy `local.properties.example` to `local.properties` and fill in the values you have. Missing values are fine:
-   the app then starts in offline mode (realistic sample data, no network) and purchases are disabled.
+   debug builds then start in offline mode (realistic sample data, no network) and purchases are disabled. Set
+   `jauge.api.baseUrl` (for example the Supabase function URL) to call the real API from a debug build; release
+   builds always call `https://api.jauge.io/`.
 3. Build the Android app: `./gradlew :androidApp:assembleDebug`
 4. Run the unit tests: `./gradlew testAndroidHostTest`
 5. iOS: open `iosApp/iosApp.xcodeproj` in Xcode (copy `iosApp/Configuration/Config.xcconfig.example` to

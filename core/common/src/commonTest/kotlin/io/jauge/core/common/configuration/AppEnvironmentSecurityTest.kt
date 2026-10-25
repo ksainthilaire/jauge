@@ -41,4 +41,31 @@ class AppEnvironmentSecurityTest {
         assertTrue(debug.canUseSimulatedServices)
         assertTrue(ApiModeController(debug).canSwitchAtRuntime)
     }
+
+    @Test
+    fun releaseBuildsAlwaysCallApiJaugeIo() {
+        assertEquals("https://api.jauge.io/", AppEnvironment.selectApiBaseUrl("https://abc.supabase.co/functions/v1/api/", isDebugBuild = false))
+        assertEquals("https://api.jauge.io/", AppEnvironment.selectApiBaseUrl("", isDebugBuild = false))
+        assertFalse(AppEnvironment.selectOfflineMode("true", "", isDebugBuild = false))
+    }
+
+    @Test
+    fun debugBuildsMayCallTheSupabaseFunction() {
+        assertEquals(
+            "https://abc.supabase.co/functions/v1/api/",
+            AppEnvironment.selectApiBaseUrl("https://abc.supabase.co/functions/v1/api", isDebugBuild = true),
+        )
+        assertEquals("https://api.jauge.io/", AppEnvironment.selectApiBaseUrl("", isDebugBuild = true))
+        assertEquals("https://api.jauge.io/", AppEnvironment.selectApiBaseUrl("http://evil.example/", isDebugBuild = true))
+    }
+
+    @Test
+    fun aConfiguredApiTurnsTheOfflineModeOffUnlessAskedOtherwise() {
+        val supabase = "https://abc.supabase.co/functions/v1/api/"
+        assertFalse(AppEnvironment.selectOfflineMode("", supabase, isDebugBuild = true))
+        assertTrue(AppEnvironment.selectOfflineMode("true", supabase, isDebugBuild = true))
+        assertTrue(AppEnvironment.selectOfflineMode("", "", isDebugBuild = true), "no API configured: sample data")
+        assertFalse(AppEnvironment.selectOfflineMode("false", "", isDebugBuild = true))
+        assertTrue(AppEnvironment.selectOfflineMode("", "http://evil.example/", isDebugBuild = true), "refused URL: sample data")
+    }
 }

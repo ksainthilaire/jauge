@@ -6,9 +6,12 @@
 // Your Apple developer team.
 TEAM_ID=
 
-// Jauge API ("false" calls the real API).
-JAUGE_API_BASE_URL=https:/$()/api.jauge.io/
-JAUGE_API_OFFLINE_MODE=true
+// Jauge API of DEBUG builds (Release always calls https://api.jauge.io/). For example the Supabase function:
+// JAUGE_API_BASE_URL=https:/$()/ynvaaswsenerrummanrs.supabase.co/functions/v1/api/
+// Empty: offline mode (sample data). JAUGE_API_OFFLINE_MODE: "true" forces the offline mode, "false" the API,
+// empty: the API as soon as JAUGE_API_BASE_URL is set.
+JAUGE_API_BASE_URL=
+JAUGE_API_OFFLINE_MODE=
 
 // Supabase: project URL and publishable key (sb_publishable_...).
 JAUGE_SUPABASE_URL=

@@ -9,7 +9,7 @@ import io.jauge.core.common.platform.Platform
  * @property isDebugBuild true for debug builds (enables developer tools such as the hidden offline switch).
  * @property apiBaseUrl base URL of the Jauge API.
  * @property isOfflineModeByDefault true when the app starts without calling the API (sample data). Always false in
- * release builds: the offline mode is a development tool only.
+ * release builds: the offline mode is a development tool only ([selectOfflineMode]).
  * @property supabaseUrl Supabase project URL, empty when notifications are not configured.
  * @property supabasePublishableKey Supabase publishable key, empty when not configured.
  * @property revenueCatApiKey RevenueCat public SDK key used by this build, empty when purchases are disabled. Debug
@@ -47,8 +47,8 @@ data class AppEnvironment(
         fun fromBuildConfiguration(platform: Platform, isDebugBuild: Boolean): AppEnvironment = AppEnvironment(
             platform = platform,
             isDebugBuild = isDebugBuild,
-            apiBaseUrl = secureUrlOrEmpty(BuildConfiguration.API_BASE_URL, isDebugBuild).ifEmpty { DEFAULT_API_BASE_URL },
-            isOfflineModeByDefault = BuildConfiguration.OFFLINE_MODE && isDebugBuild,
+            apiBaseUrl = selectApiBaseUrl(BuildConfiguration.API_BASE_URL, isDebugBuild),
+            isOfflineModeByDefault = selectOfflineMode(BuildConfiguration.OFFLINE_MODE_SETTING, BuildConfiguration.API_BASE_URL, isDebugBuild),
             supabaseUrl = secureUrlOrEmpty(BuildConfiguration.SUPABASE_URL, isDebugBuild),
             supabasePublishableKey = BuildConfiguration.SUPABASE_PUBLISHABLE_KEY,
             revenueCatApiKey = selectRevenueCatApiKey(
@@ -60,8 +60,40 @@ data class AppEnvironment(
             ),
         )
 
-        /** API used when the configured base URL is refused. */
+        /** API of release builds, and of debug builds without a usable configured URL. */
         const val DEFAULT_API_BASE_URL: String = "https://api.jauge.io/"
+
+        /**
+         * Base URL of the API: always [DEFAULT_API_BASE_URL] in release builds; in debug builds the configured URL
+         * (for example the URL of the Supabase function, `https://<project>.supabase.co/functions/v1/api/`) when it
+         * is safe ([secureUrlOrEmpty]), otherwise [DEFAULT_API_BASE_URL].
+         *
+         * @param configuredUrl value of `jauge.api.baseUrl`, empty when not set.
+         * @param isDebugBuild true for debug builds.
+         */
+        fun selectApiBaseUrl(configuredUrl: String, isDebugBuild: Boolean): String {
+            if (!isDebugBuild) return DEFAULT_API_BASE_URL
+            val url = secureUrlOrEmpty(configuredUrl, isDebugBuild = true)
+            return if (url.isEmpty()) DEFAULT_API_BASE_URL else if (url.endsWith("/")) url else "$url/"
+        }
+
+        /**
+         * Whether the app starts in offline mode (sample data). Release builds: never. Debug builds: `true` or
+         * `false` when `jauge.api.offlineMode` says so; when it is not set, the real API is called as soon as an API
+         * URL is configured, and the offline mode is kept otherwise.
+         *
+         * @param offlineModeSetting value of `jauge.api.offlineMode` (`true`, `false` or empty).
+         * @param configuredUrl value of `jauge.api.baseUrl`, empty when not set.
+         * @param isDebugBuild true for debug builds.
+         */
+        fun selectOfflineMode(offlineModeSetting: String, configuredUrl: String, isDebugBuild: Boolean): Boolean {
+            if (!isDebugBuild) return false
+            return when (offlineModeSetting.trim().lowercase()) {
+                "true" -> true
+                "false" -> false
+                else -> secureUrlOrEmpty(configuredUrl, isDebugBuild = true).isEmpty()
+            }
+        }
 
         /**
          * Returns [url] when it may be used by this build: `https` always, `http` only in debug builds and only for

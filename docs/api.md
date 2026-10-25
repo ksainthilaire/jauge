@@ -2,9 +2,11 @@
 
 This document and `docs/openapi.yaml` (OpenAPI 3.1, the reference) describe the API. It is implemented by the Edge
 Function `supabase/functions/api` (architecture, queue, costs and deployment in `docs/backend/`); it is not deployed
-yet, so the app still runs in **offline mode** by default (see the end of this document).
+yet. Release builds call `https://api.jauge.io/`; debug builds call `jauge.api.baseUrl` when it is set, and the
+**offline mode** (see the end of this document) otherwise.
 
-- Base URL: `https://api.jauge.io/` (configurable with `jauge.api.baseUrl`).
+- Base URL: `https://api.jauge.io/` (release builds). Debug builds may use another URL with `jauge.api.baseUrl`, for
+  example the Supabase function `https://<project>.supabase.co/functions/v1/api/` (same routes).
 - Paths in English, versioned under `/v1`. JSON bodies in UTF-8, except image uploads (multipart).
 - Dates: ISO 8601 (`2026-10-23`, `2026-10-23T08:00:00Z`). Months: `2026-10`.
 - Salaries: annual gross, in thousands of euros (`{"minimum": 36, "maximum": 41}` means 36 to 41 k€).
@@ -153,7 +155,7 @@ progresses 20, 40, 62, 85 % then completes. New analyses, alerts and shares are 
 city of the area, twin offers keep the radius and move to the city of the area outside Rhône, new analyses use the
 radius of the area.
 
-It is on when `jauge.api.offlineMode` is not `false` (the default while the API does not exist). In debug builds a
-long press on the "Profil" tab switches between offline and real API at runtime. `OfflineScenarioController`
+Debug builds only. It is on when `jauge.api.offlineMode` is `true`, or when it is empty and no `jauge.api.baseUrl`
+is set; release builds never use it. In debug builds a long press on the "Profil" tab switches between offline and real API at runtime. `OfflineScenarioController`
 simulates failures: `NO_CONNECTION`, `TIMEOUT`, `SERVER_UNAVAILABLE`, `SESSION_EXPIRED`, `QUOTA_REACHED`,
 `UNREADABLE_OFFER`, `INVALID_RESPONSE` and `EMPTY` (empty lists).
