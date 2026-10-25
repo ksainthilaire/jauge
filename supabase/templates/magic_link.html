@@ -1,0 +1,118 @@
+{{- /* Jauge: Magic link email, Supabase Auth Go template. Bilingual: English when the user metadata
+     says locale = "en" (sent by the app at sign in), French otherwise. No tracker, no remote font, one remote image
+     (the logo, https://jauge.io/email/logo-jauge-96.png) with a text fallback. Supabase renders it with Go html/template, which removes
+     HTML comments: the comments below are for readers of this file only. See docs/supabase.md. */ -}}
+{{- $english := and .Data (eq .Data.locale "en") -}}
+<!DOCTYPE html>
+<html lang="{{ if $english }}en{{ else }}fr{{ end }}" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>{{ if $english }}Your Jauge sign-in link{{ else }}Ton lien de connexion à Jauge{{ end }}</title>
+<style>
+  :root { color-scheme: light dark; supported-color-schemes: light dark; }
+  body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+  table { border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; }
+  img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+  a { text-decoration: none; }
+  @media only screen and (max-width: 620px) {
+    .container { width: 100% !important; }
+    .gutter { padding-left: 16px !important; padding-right: 16px !important; }
+    .card-inner { padding: 28px 22px !important; }
+    .heading { font-size: 24px !important; line-height: 30px !important; }
+  }
+  @media (prefers-color-scheme: dark) {
+    .bg-page { background-color: #13211D !important; }
+    .bg-card { background-color: #1E302A !important; border-color: #2C423B !important; }
+    .bg-note { background-color: #2C423B !important; }
+    .text-main { color: #F7F2E8 !important; }
+    .text-soft { color: #A9B3AE !important; }
+    .text-link { color: #FF8A70 !important; }
+    .line { border-color: #2C423B !important; }
+  }
+  [data-ogsc] .bg-page { background-color: #13211D !important; }
+  [data-ogsc] .bg-card { background-color: #1E302A !important; border-color: #2C423B !important; }
+  [data-ogsc] .bg-note { background-color: #2C423B !important; }
+  [data-ogsc] .text-main { color: #F7F2E8 !important; }
+  [data-ogsc] .text-soft { color: #A9B3AE !important; }
+  [data-ogsc] .text-link { color: #FF8A70 !important; }
+</style>
+</head>
+<body class="bg-page" style="margin:0; padding:0; background-color:#F7F2E8;">
+<div style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px; color:#F7F2E8; opacity:0;">{{ if $english }}Tap the button to sign in. The link is valid for 1 hour.{{ else }}Touche le bouton pour te connecter. Le lien est valable 1 heure.{{ end }}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+<table role="presentation" class="bg-page" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F2E8;">
+  <tr>
+    <td align="center" class="gutter" style="padding:32px 20px 40px 20px;">
+      <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+
+        <!-- Logo: image hosted on jauge.io (decorative, empty alt), the name is real text next to it: it stays when images are blocked. -->
+        <tr>
+          <td style="padding:0 4px 20px 4px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td width="48" valign="middle" style="width:48px;">
+                  <img src="https://jauge.io/email/logo-jauge-96.png" width="48" height="48" alt="" style="display:block; width:48px; height:48px; border-radius:12px; background-color:#13211D; color:#F7F2E8; font-family:'Bricolage Grotesque','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; line-height:48px; text-align:center;">
+                </td>
+                <td valign="middle" class="text-main" style="padding-left:12px; font-family:'Bricolage Grotesque','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:26px; line-height:30px; font-weight:800; letter-spacing:-0.5px; color:#13211D;">Jauge</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Card -->
+        <tr>
+          <td>
+            <table role="presentation" class="bg-card" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; background-color:#FFFDF8; border:1px solid #E2DACB; border-radius:20px;">
+              <tr>
+                <td class="card-inner" style="padding:36px 40px;">
+                  <h1 class="heading text-main" style="margin:0 0 12px 0; font-family:'Bricolage Grotesque','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:28px; line-height:34px; font-weight:800; letter-spacing:-0.5px; color:#13211D;">{{ if $english }}Your sign-in link{{ else }}Ton lien de connexion{{ end }}</h1>
+                  <p class="text-main" style="margin:0 0 28px 0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:17px; line-height:26px; color:#13211D;">{{ if $english }}Tap the button below to sign in to Jauge. No password to remember.{{ else }}Touche le bouton ci-dessous pour te connecter à Jauge. Pas de mot de passe à retenir.{{ end }}</p>
+
+                  <!-- Button -->
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate; margin:0 0 20px 0;">
+                    <tr>
+                      <td align="center" bgcolor="#FF5B3A" style="border-radius:14px; background-color:#FF5B3A;">
+                        <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block; padding:16px 34px; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:18px; line-height:22px; font-weight:700; color:#FFFFFF; text-decoration:none; border-radius:14px;">{{ if $english }}Sign me in{{ else }}Me connecter{{ end }}</a>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <p class="text-soft" style="margin:0 0 28px 0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:22px; color:#6C7A74;">{{ if $english }}This link is valid for <strong>1&nbsp;hour</strong> and works only once.{{ else }}Ce lien est valable <strong>1&nbsp;heure</strong> et ne sert qu'une fois.{{ end }}</p>
+
+                  <!-- Safety note -->
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">
+                    <tr>
+                      <td class="bg-note" style="background-color:#F7F2E8; border-radius:14px; padding:16px 18px;">
+                        <p class="text-main" style="margin:0 0 4px 0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:22px; font-weight:700; color:#13211D;">{{ if $english }}Wasn't you?{{ else }}Ce n'est pas toi ?{{ end }}</p>
+                        <p class="text-soft" style="margin:0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:22px; color:#6C7A74;">{{ if $english }}If you didn't ask for this link, ignore this email: nobody can sign in without it. Don't forward it to anyone.{{ else }}Si tu n'as pas demandé ce lien, ignore cet e-mail : personne ne peut se connecter sans lui. Ne le transfère à personne.{{ end }}</p>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- Plain link for clients that hide the button -->
+                  <p class="text-soft" style="margin:24px 0 6px 0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#6C7A74;">{{ if $english }}Button not working? Copy this link into your browser:{{ else }}Le bouton ne marche pas ? Copie ce lien dans ton navigateur :{{ end }}</p>
+                  <p style="margin:0; font-family:'JetBrains Mono',Menlo,Consolas,'Courier New',monospace; font-size:12px; line-height:18px; word-break:break-all;"><a href="{{ .ConfirmationURL }}" target="_blank" class="text-link" style="color:#C2361A; text-decoration:underline;">{{ .ConfirmationURL }}</a></p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer: why this email, who sends it. -->
+        <tr>
+          <td style="padding:24px 8px 0 8px;">
+            <p class="text-soft" style="margin:0 0 8px 0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#6C7A74;">{{ if $english }}You're getting this email because a Jauge sign-in was requested for{{ else }}Tu reçois cet e-mail parce qu'une connexion à Jauge a été demandée avec l'adresse{{ end }} <span class="text-main" style="color:#13211D;">{{ .Email }}</span>.</p>
+            <p class="text-soft" style="margin:0; font-family:'Instrument Sans','Avenir Next','Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#6C7A74;">{{ if $english }}Jauge is published by Keny SAINT HILAIRE EI. Questions? Write to{{ else }}Jauge est édité par Keny SAINT HILAIRE EI. Une question ? Écris à{{ end }} <a href="mailto:contact@jauge.io" class="text-link" style="color:#C2361A; text-decoration:underline;">contact@jauge.io</a>.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

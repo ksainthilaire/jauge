@@ -47,6 +47,31 @@ enable_confirmations = false
 # Magic links stay valid one hour and work once (the app says so when a link has expired).
 otp_expiry = 3600
 
+# Branded emails (French and English in one template: the app sends `data: { locale }` with the sign in request, and
+# the templates read it as `.Data.locale`; French when it is missing). The subject is a Go template too.
+# Copy the same subject and file content to the hosted project: dashboard > Authentication > Emails > Templates
+# (see docs/supabase.md, section "E-mails de connexion avec Brevo").
+[auth.email.template.magic_link]
+subject = "{{ if and .Data (eq .Data.locale \"en\") }}Your Jauge sign-in link{{ else }}Ton lien de connexion à Jauge{{ end }}"
+content_path = "./supabase/templates/magic_link.html"
+
+# Only sent for a new account when "Confirm email" is on (enable_confirmations); same look as the magic link.
+[auth.email.template.confirmation]
+subject = "{{ if and .Data (eq .Data.locale \"en\") }}Confirm your email for Jauge{{ else }}Confirme ton adresse pour Jauge{{ end }}"
+content_path = "./supabase/templates/confirmation.html"
+
+# Emails go out through Brevo (SMTP relay). The login and the SMTP key are read from the environment, never written
+# here: BREVO_SMTP_LOGIN (the SMTP login shown by Brevo, like 1a2b3c001@smtp-brevo.com) and BREVO_SMTP_KEY (an SMTP
+# key, not the API key). Without them, set `enabled = false` to keep the local test inbox (Inbucket/Mailpit).
+[auth.email.smtp]
+enabled = true
+host = "smtp-relay.brevo.com"
+port = 587
+user = "env(BREVO_SMTP_LOGIN)"
+pass = "env(BREVO_SMTP_KEY)"
+admin_email = "connexion@jauge.io"
+sender_name = "Jauge"
+
 [auth.external.apple]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
