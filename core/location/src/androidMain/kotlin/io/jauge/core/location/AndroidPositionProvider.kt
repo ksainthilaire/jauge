@@ -17,7 +17,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 /**
- * Android: approximate position from [LocationManager] (network or fused provider), without Google Play services.
+ * Android: approximate position from [LocationManager] (a recent known position, else a fresh one from the fused,
+ * network or satellite provider, blurred by Android to the approximate level), without Google Play services.
  * The permission is asked once by [LocationPermissionActivity]; a refusal is remembered so that the app does not ask
  * again by itself.
  *
@@ -47,15 +48,28 @@ class AndroidPositionProvider(private val context: Context) : DevicePositionProv
         val providers = buildList {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) add(LocationManager.FUSED_PROVIDER)
             add(LocationManager.NETWORK_PROVIDER)
+            // With the approximate permission, Android blurs every provider, satellites included, to about 2 km.
+            add(LocationManager.GPS_PROVIDER)
             add(LocationManager.PASSIVE_PROVIDER)
         }.filter { runCatching { manager.isProviderEnabled(it) }.getOrDefault(false) }
         if (providers.isEmpty()) return null
-        val fresh = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            withTimeoutOrNull(TIMEOUT_MILLISECONDS) { currentLocation(manager, providers.first()) }
-        } else {
-            null
+        val recent = providers
+            .mapNotNull { runCatching { manager.getLastKnownLocation(it) }.getOrNull() }
+            .filter { System.currentTimeMillis() - it.time < RECENT_MILLISECONDS }
+            .maxByOrNull { it.time }
+        if (recent != null) return DevicePosition(recent.latitude, recent.longitude)
+        var fresh: Location? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            withTimeoutOrNull(TIMEOUT_MILLISECONDS) {
+                for (provider in providers.filter { it != LocationManager.PASSIVE_PROVIDER }) {
+                    fresh = withTimeoutOrNull(TIMEOUT_MILLISECONDS / 2) { currentLocation(manager, provider) }
+                    if (fresh != null) break
+                }
+            }
         }
-        val location = fresh ?: providers.firstNotNullOfOrNull { runCatching { manager.getLastKnownLocation(it) }.getOrNull() }
+        val location = fresh ?: providers
+            .mapNotNull { runCatching { manager.getLastKnownLocation(it) }.getOrNull() }
+            .maxByOrNull { it.time }
         return location?.let { DevicePosition(it.latitude, it.longitude) }
     }
 
@@ -78,6 +92,7 @@ class AndroidPositionProvider(private val context: Context) : DevicePositionProv
     private companion object {
         const val PREFERENCES = "jauge_location"
         const val KEY_ASKED = "permission_asked"
-        const val TIMEOUT_MILLISECONDS = 8_000L
+        const val TIMEOUT_MILLISECONDS = 10_000L
+        const val RECENT_MILLISECONDS = 10 * 60 * 1_000L
     }
 }
