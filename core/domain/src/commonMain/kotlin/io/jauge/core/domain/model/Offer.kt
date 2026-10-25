@@ -98,7 +98,6 @@ data class AnalysisAdvice(
  * @property comparableOfferCount number of comparable offers used ("1 284 offres du Rhône").
  * @property timingAdvice advice about when to apply, if any.
  * @property isFavorite true when the user marked the analysis as a favorite (star).
- * @property reputation what public posts say about the company, null when nothing was found.
  * @property advice advice written by the AI of the server from the computed facts, null when unavailable (the
  *   screens then keep [timingAdvice] and their own sentences).
  */
@@ -118,7 +117,6 @@ data class Analysis(
     val comparableOfferCount: Int,
     val timingAdvice: TimingAdvice?,
     val isFavorite: Boolean = false,
-    val reputation: Reputation? = null,
     val advice: AnalysisAdvice? = null,
 ) {
     /** Competition level of [score]. */

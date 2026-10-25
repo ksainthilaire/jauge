@@ -315,11 +315,10 @@ lines, cut at 20 000 characters) and sends only the text: `POST /v1/analyses` wi
   server: `AnalysisRequestKeys.keepsKeyOnRetry`) and takes a new one after any other failure.
 - **Polling**: `PollingSchedule`: every second for 10 polls, then every 2 seconds, 50 polls (90 seconds) before the
   timeout message.
-- **Advice and reputation** (`result.advice`, `result.reputation`, both optional): the advice text replaces the computed
-  "Postule avant..." card of the verdict, its negotiation sentence replaces the computed one in the salaries of the
-  details and its missing skills are listed under the skills. `ReputationCard` (verdict, under the key figures) shows the
-  summary, a tone pill and links: the posts sent by the server (`https` only), or a search of the company on each source
-  when there are none. Without these fields the screens stay as before.
+- **Advice** (`result.advice`, optional): its text replaces the computed "Postule avant..." card of the verdict, its
+  negotiation sentence replaces the computed one in the salaries of the details and its missing skills are listed
+  under the skills. Without it the screens stay as before. `result.reputation` (Reddit, X) is never shown: it only
+  feeds the advice on the server, and the app ignores the field if a server still sends it.
 - **Calm alerts**: `402` (free user) on `POST /v1/alerts` opens the paywall (`TwinOffersEvent.PaywallRequired`).
 - **Account deletion**: for accounts signed in with Apple, `DeleteAccountUseCase` asks `AppleAuthorization` for a
   fresh code (iOS: native Apple sheet, `ASAuthorizationAppleIDProvider`, capability "Sign in with Apple" in

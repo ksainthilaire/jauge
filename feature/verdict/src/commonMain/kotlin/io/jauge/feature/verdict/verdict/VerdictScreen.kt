@@ -284,13 +284,6 @@ private fun VerdictContent(
     // The advice written by the server replaces the computed timing sentence; without it the screen keeps it.
     val advice = analysis.advice
     if (advice != null) AdviceCard(advice.text) else analysis.timingAdvice?.let { TimingAdviceCard(it) }
-    analysis.reputation?.let { reputation ->
-        ReputationCard(
-            reputation = reputation,
-            searchQuery = offer.company ?: offer.jobTitle,
-            modifier = Modifier.padding(top = JaugeTheme.spacing.medium),
-        )
-    }
 }
 
 /**
