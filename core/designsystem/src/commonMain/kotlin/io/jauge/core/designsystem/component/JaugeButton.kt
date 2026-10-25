@@ -1,6 +1,7 @@
 package io.jauge.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.jauge.core.designsystem.motion.shine
 import io.jauge.core.designsystem.theme.JaugeTheme
 
 /** Visual styles of [JaugeButton]. */
@@ -53,6 +55,9 @@ enum class JaugeButtonSize {
  * @param trailingIcon optional icon after the label.
  * @param enabled false to disable the button.
  * @param isLoading true to show a progress indicator instead of the content (the button is then not clickable).
+ * @param shine true to sweep a light reflection across the button every few seconds (main offer only), drawn behind
+ *   the label; off while disabled or loading and when the system asks for fewer animations.
+ * @param shineProgress fixed position of the reflection for screenshots, null to animate.
  */
 @Composable
 fun JaugeButton(
@@ -65,6 +70,8 @@ fun JaugeButton(
     trailingIcon: ImageVector? = null,
     enabled: Boolean = true,
     isLoading: Boolean = false,
+    shine: Boolean = false,
+    shineProgress: Float? = null,
 ) {
     val colors = JaugeTheme.colors
     val (container, content) = when (style) {
@@ -76,14 +83,19 @@ fun JaugeButton(
         JaugeButtonSize.LARGE -> 56.dp
         JaugeButtonSize.MEDIUM -> 50.dp
     }
+    val shape = JaugeTheme.radii.buttonShape
+    val isShining = shine && enabled && !isLoading && style != JaugeButtonStyle.OUTLINED
     Button(
         onClick = onClick,
         enabled = enabled && !isLoading,
         // Minimum height only: with large text sizes (accessibility settings) the label wraps instead of being cut.
-        modifier = modifier.heightIn(min = height),
-        shape = JaugeTheme.radii.buttonShape,
+        modifier = modifier
+            .heightIn(min = height)
+            // The shining button draws its own background, then the reflection, then the label on top.
+            .then(if (isShining) Modifier.background(container, shape).shine(shape, fixedProgress = shineProgress) else Modifier),
+        shape = shape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = container,
+            containerColor = if (isShining) Color.Transparent else container,
             contentColor = content,
             disabledContainerColor = if (style == JaugeButtonStyle.OUTLINED) Color.Transparent else container.copy(alpha = 0.45f),
             disabledContentColor = content.copy(alpha = 0.7f),

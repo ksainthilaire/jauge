@@ -551,6 +551,7 @@ private fun BottomArea(state: PaywallUiState, actions: PaywallActions, onPurchas
                 style = JaugeButtonStyle.PRIMARY,
                 enabled = state.canPurchase,
                 isLoading = state.isPurchasing,
+                shine = true,
             )
             if (offer != null) {
                 LegalText(offer, state.platform)
