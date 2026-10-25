@@ -35,7 +35,7 @@ Légende : **OK**, **Corrigé** (corrigé pendant l'audit), **À toi** (voir [a-
 | 5.1.1(v) Pas de compte obligatoire | OK | « Continuer sans compte » ; l'app est utilisable sans connexion. |
 | 5.1.1(v) Suppression du compte dans l'app | OK | Profil, Supprimer mon compte, avec rappel que l'abonnement se gère dans l'App Store. |
 | 5.1.1(v) Révocation du jeton « Se connecter avec Apple » à la suppression | À toi (serveur) | Le serveur doit appeler `https://appleid.apple.com/auth/revoke` dans `DELETE /v1/account` (écrit dans `docs/api.md`). |
-| 5.1.2(i) Données envoyées à une IA tierce : le dire et demander l'accord | À toi | Les conditions et la politique disent maintenant que l'analyse est automatique et peut utiliser l'IA. **Si les captures partent chez un fournisseur d'IA extérieur** (OpenAI, Anthropic, Google...), Apple exige de le nommer et de demander un accord explicite avant le premier envoi : dis-moi lequel et j'ajoute l'écran d'accord et le nom dans la politique. Si l'IA tourne sur vos propres serveurs, rien de plus. |
+| 5.1.2(i) Données envoyées à une IA tierce : le dire et demander l'accord | À décider | Le fournisseur (Google Gemini ou Mistral AI) est nommé dans la politique (25/10/2026). Seul le texte de l'offre part (les captures sont lues sur le téléphone), sans nom, e-mail ni identifiant. Si le texte d'une capture peut contenir des données personnelles, Apple peut demander un accord explicite avant le premier envoi : dis-moi si tu veux cet écran d'accord. |
 | 5.1.2 Pas de revente, pas de pub, pas de profilage | OK | Écrit dans la politique (section 5) et vrai dans le code : aucun SDK de pub ni de mesure. |
 
 ## 3. Connexion (4.8, « Se connecter avec Apple »)
