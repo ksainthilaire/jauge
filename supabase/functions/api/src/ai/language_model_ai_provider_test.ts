@@ -141,6 +141,34 @@ Deno.test("advice: numbers only from the facts, the computed weekday, skills fro
   assert(client.requests[1].user.includes("weekday"));
 });
 
+Deno.test("advice v2: the feedback of candidates is internal context, used carefully and never cited", async () => {
+  const careful = {
+    ...GOOD_ADVICE,
+    advice: "Postule avant jeudi : environ 70 % des candidatures arrivent en 5 jours. Prévois une relance polie si " +
+      "la réponse tarde.",
+  };
+  const client = new ReplayModelClient([reply(careful)]);
+  const result = await provider(client).writeAdvice(MOCKUP_FACTS);
+  assert(result.advice?.text.includes("relance"), "the advice may use the feedback");
+  const system = client.requests[0].system;
+  assert(system.includes("candidateFeedback is internal context"));
+  assert(system.includes("Never say where it comes from"));
+  assert(system.includes("Never judge the company"));
+  assert(client.requests[0].user.includes('"candidateFeedback"'), "the feedback is given to the model");
+
+  const cited = { ...GOOD_ADVICE, advice: "Postule avant jeudi : sur Reddit, des avis disent que la réponse tarde." };
+  const onX = { ...GOOD_ADVICE, advice: "Postule avant jeudi, certains candidats sur X trouvent la réponse lente." };
+  const citing = new ReplayModelClient([reply(cited), reply(onX)]);
+  assertEquals((await provider(citing).writeAdvice(MOCKUP_FACTS)).advice, null);
+  assert(citing.requests[1].user.includes("cites the internal context: reddit, avis"));
+
+  // "11 semaines" is in the feedback, not in the computed facts: a number taken from it is invented.
+  const borrowed = { ...GOOD_ADVICE, advice: "Postule avant jeudi : la réponse peut prendre 11 semaines." };
+  const borrowing = new ReplayModelClient([reply(borrowed), reply(borrowed)]);
+  assertEquals((await provider(borrowing).writeAdvice(MOCKUP_FACTS)).advice, null);
+  assert(borrowing.requests[1].user.includes("numbers that are not in the facts: 11"));
+});
+
 const MENTIONS: SocialMention[] = [
   {
     source: "reddit",

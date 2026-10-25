@@ -85,7 +85,7 @@ function formatNumber(value: number, language: "fr" | "en"): string {
  * Pipeline of an analysis, run by the worker stage after stage:
  * read_offer, then the 7 day cache (finalize at once, or wait_snapshot when another analysis computes the same
  * offer), then market (market slice of 7 days: reuse or start the collections), market_wait (poll Apify runs),
- * social (social search and AI summary), compute (score, salary, trend, twins), finalize.
+ * social (social search and AI summary, internal context of the advice), compute (score, salary, trend, twins), finalize.
  */
 export class AnalysisPipeline implements JobHandler {
   private readonly reputations: ReputationService;
@@ -1034,7 +1034,8 @@ export class AnalysisPipeline implements JobHandler {
       reputation,
       fresh.snapshotId,
     );
-    const result = { ...computed, reputation, advice };
+    // The reputation is internal context of the advice: it is not stored in the result and never sent to the app.
+    const result = { ...computed, advice };
     const steps = this.updateSteps(fresh, {
       position_and_place: { status: "done" },
       skills: { status: "done" },
@@ -1071,7 +1072,10 @@ export class AnalysisPipeline implements JobHandler {
     return { kind: "done" };
   }
 
-  /** Reputation of the company in the user's language, from the cache of 30 days filled by the social stage. */
+  /**
+   * Reputation of the company in the user's language, from the cache of 30 days filled by the social stage. Internal
+   * context of the advice only.
+   */
   private async reputationOf(
     offer: { jobTitle: string; company: string | null; city: string },
     language: "fr" | "en",

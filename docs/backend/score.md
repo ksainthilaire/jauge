@@ -100,6 +100,15 @@ months without data are left out. Change over 3 months = last month compared wit
 Share of the comparable offers (with skills) that ask for each skill (spelling folded, most common spelling shown),
 the 8 most asked above 5 %.
 
+## What the score never uses
+
+The reputation of the company (what public Reddit and X posts say about it, `docs/backend/ia.md`) never changes a
+number: score, applicants, range, reliability, percentile, salary, trend and twins are computed only from the market
+data above, with the same functions for every company. A few anonymous posts are opinions, not measures: they are not
+comparable from one company to another, most companies have none, and they would make the score unfair and impossible
+to check against real numbers. The reputation is only internal context for the wording of the advice
+(`result.advice`), and it is never shown to the user.
+
 ## Checking ourselves
 
 `POST /v1/analyses/{id}/feedback` stores the real number of applicants known by users next to the estimate

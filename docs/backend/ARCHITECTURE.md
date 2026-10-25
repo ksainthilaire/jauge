@@ -79,12 +79,14 @@ worker (POST /internal/worker, answers 202 at once and works up to 50 s in the b
                 sources (Indeed) once; stop waiting 15 s before the deadline and go on with the data at hand
                 (partial: lower reliability, slice kept 1 day); late runs are stored by the webhook or the maintenance
   social        reputation of the company: 30 day cache per company, else social search (Reddit, X through Apify)
-                + AI summary in French and English (never blocks the analysis, docs/backend/ia.md)
+                + AI summary in French and English (internal context of the advice, never sent to the app, never
+                used by the score; never blocks the analysis, docs/backend/ia.md)
   compute       comparables (same family and department, 12 months) + market_statistics history
                 -> score, applicants, reliability, salary scale, probable salary, trend, skills, timing, twins
                 -> offer_snapshots ready (7 days, 1 day when partial), snapshot_twins, market_statistics
   finalize      analysis_results (offer + result frozen for the history, twins counted in the user's radius,
-                reputation in the user's language, advice written by the AI from the computed facts),
+                advice written by the AI from the computed facts and the reputation as internal context; the
+                reputation itself is not stored in the result),
                 status completed, progress 100, search_text for the list search
 errors          retryable (network, 5xx, database) -> backoff 2^attempt s (max 60 s), up to 6 attempts and the
                 deadline; then giveUp: analysis failed "internal", free analysis given back, snapshot released
@@ -206,7 +208,7 @@ When the database nears 400 MB or invocations near 400 000 per month: Pro plan, 
   English summary for the reputation) and `SocialSearch`; keep the cost per call in the result. Cache the reputation
   per company (30 days) to cut the cost.
 - **App wiring** (phase 2): send `type: "text"` after ML Kit / Vision OCR (the image path stays as a fallback),
-  `Idempotency-Key` on creation, show `result.reputation`, send `appleAuthorizationCode` on deletion for Apple
+  `Idempotency-Key` on creation, send `appleAuthorizationCode` on deletion for Apple
   accounts, slow the polling to every 2 s after 10 s, set `jauge.api.offlineMode=false`.
 - Later: share card images (`imageUrl` is null for now, the app draws the card), monthly calibration of the error
   with `applicant_feedback`, update of the privacy policy (Apify, the AI provider as subprocessors).

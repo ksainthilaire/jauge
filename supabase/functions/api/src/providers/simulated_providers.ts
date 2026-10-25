@@ -282,7 +282,10 @@ const CONTRACT_WORDS: readonly [RegExp, ContractType][] = [
   [/\binterim\b/, "temporary"],
 ];
 
-/** Simulated AI: reads offers with simple rules and writes a reputation summary from a template. */
+/**
+ * Simulated AI: reads offers with simple rules, writes a reputation summary from a template and an advice that, like
+ * the real prompt, turns a feedback about slow answers into a careful follow up tip without citing it.
+ */
 export class SimulatedAiProvider implements AiProvider {
   readonly name = "simulated_ai";
 
@@ -368,9 +371,16 @@ export class SimulatedAiProvider implements AiProvider {
       : french
       ? `Vise ${facts.negotiationTarget} k€ : c'est le haut de la fourchette des offres comparables.`
       : `Aim for €${facts.negotiationTarget}k: the upper part of the range of comparable offers.`;
+    const slowAnswers = facts.candidateFeedback !== null &&
+      /lent|tard|delai|slow|take long|delay/.test(normalizeSearchText(facts.candidateFeedback));
+    const followUp = !slowAnswers
+      ? ""
+      : french
+      ? " Prévois une relance polie si la réponse tarde, le recrutement peut parfois prendre du temps."
+      : " Plan a polite follow up if the answer takes a while, hiring can sometimes be slow.";
     return Promise.resolve({
       advice: {
-        text: timing,
+        text: `${timing}${followUp}`,
         negotiationArgument: negotiation,
         missingSkills: facts.missingSkillCandidates.slice(0, 3),
       },

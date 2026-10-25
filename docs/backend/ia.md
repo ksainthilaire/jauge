@@ -2,7 +2,12 @@
 
 Code: `supabase/functions/api/src/ai/` (models, prompts, checks), `src/social/` (Reddit and X through Apify),
 `src/services/reputation_service.ts` (30 day cache per company), `src/services/advice_facts.ts` (facts given to the
-AI). Interfaces: `AiProvider` and `SocialSearch` in `src/providers/provider_types.ts`, wired in `createProviders`
+AI).
+
+**The reputation is internal** (decision of the owner, 25/10/2026): what Reddit and X say about a company is never
+shown to the user. It is not in any response of the API, not in the shared page, not in the stored result (results
+stored before carry it and are cleaned at reading, `publicResult`). It only helps the AI write `result.advice`, and it
+never changes a number of the score (`docs/backend/score.md`, "What the score never uses"). Interfaces: `AiProvider` and `SocialSearch` in `src/providers/provider_types.ts`, wired in `createProviders`
 (`src/providers/provider_registry.ts`). Prices below were checked on the official pages on 25/10/2026.
 
 ## What the AI does, and what it never does
@@ -11,12 +16,29 @@ AI). Interfaces: `AiProvider` and `SocialSearch` in `src/providers/provider_type
 |---|---|---|---|
 | `extract_text` | analysis of a text read on the phone or pasted | offer text (15 000 characters at most) | the offer (title, company, city, contract, salary, date, skills, applicants shown) |
 | `extract_image` | fallback when the phone could not read the screenshot | image (deleted right after) | same |
-| `reputation` | once per company every 30 days | anonymized Reddit and X posts | summary in French **and** English, tone, numbers of the cited posts |
-| `advice` | every completed analysis | facts computed by Jauge (score, applicants, salary, trend, twins, skills, timing, reputation) | advice ("Postule avant jeudi..."), negotiation argument, missing skills, in the user's language |
+| `reputation` | once per company every 30 days | anonymized Reddit and X posts | internal summary in French **and** English, tone (kept on the server, never sent) |
+| `advice` | every completed analysis | facts computed by Jauge (score, applicants, salary, trend, twins, skills, timing) + `candidateFeedback`, the reputation summary as internal context | advice ("Postule avant jeudi..."), negotiation argument, missing skills, in the user's language |
 
 The AI **never produces a number of the estimate**: score, applicants, salaries, trend and twins come from
-`src/scoring/estimation.ts` (`docs/backend/score.md`). The advice may only repeat numbers present in the facts; a
-salary or an applicant count read from a text must be written in that text, otherwise the field stays empty.
+`src/scoring/estimation.ts` (`docs/backend/score.md`). The advice may only repeat numbers present in the computed facts
+(never a number of `candidateFeedback`); a salary or an applicant count read from a text must be written in that text,
+otherwise the field stays empty.
+
+## How the advice uses the reputation (prompt `advice.v2`)
+
+`candidateFeedback` is the reputation summary of the company in the user's language (from the 30 day cache, anonymized
+posts, no usernames, no links), or null. Only the summary is given: not the tone, not the counts, not the sources. The
+prompt tells the model to use it only when it talks about the hiring itself, and only to make the advice more practical
+and careful, for example:
+
+- a slow recruitment: "le recrutement peut parfois prendre du temps";
+- frequent remarks about late answers: "prévois une relance polie si la réponse tarde".
+
+And never to: cite where it comes from (Reddit, X, Twitter, posts, reviews, reputation, forum), judge the company (good
+or bad employer, atmosphere, management), or take a number or a duration from it. The code checks the answer too: an
+advice that names a source or the reputation (`socialSourceWords` in `src/ai/output_guards.ts`) or that contains a
+number found only in `candidateFeedback` is refused and asked again once, then dropped (the app shows the computed
+timing advice). Without feedback, or with feedback about something else, the advice is the same as before.
 
 ## Providers
 
@@ -43,7 +65,7 @@ Flash-Lite per token and keeps the data in Europe; Gemini stays the default as a
   one, no link, no username, handle, email or phone number; long dashes are replaced by commas.
 - A rejected answer is asked again **once** with the reason (2 attempts). Then the operation gives up gracefully:
   unreadable offer (the free analysis is given back), no advice (the app shows the computed timing advice), no
-  reputation.
+  internal reputation (the advice is written without it).
 - Timeout of 20 s per call; network errors, 408, 429 and 5xx are retryable (the queue retries with a backoff until the
   deadline of the analysis); 400, 401, 403 and blocked prompts are not.
 - Tokens and cost of **every attempt** are journaled in `provider_costs` (`model`, `input_tokens`, `output_tokens`,
@@ -54,17 +76,19 @@ Flash-Lite per token and keeps the data in Europe; Gemini stays the default as a
 
 ## The prompts
 
-Versioned in `src/ai/prompts/v1/` (`offer_extraction.v1`, `reputation.v1`, `advice.v1`; the version is logged with
-each call). Written in English for the model; the outputs are in French or English (the reputation in both at once,
-so that one summary serves every user for 30 days). A new wording goes in `prompts/v2/` with new tests, never by
-editing `v1` in place.
+Versioned in `src/ai/prompts/v1/` (`offer_extraction.v1`, `reputation.v1`) and `src/ai/prompts/v2/` (`advice.v2`,
+used since 25/10/2026: the reputation becomes internal context; `v1/advice.ts` is kept as history and no longer
+used). The version is logged with each call. Written in English for the model; the outputs are in French or English
+(the reputation in both at once, so that one summary serves every user for 30 days). A new wording goes in a new
+version folder with new tests, never by editing a version in place.
 
 Rules written in the prompts and checked by the code:
 
 - Never make up a number; use only the facts. Weekday only the computed one.
-- Cite sources: the reputation cites posts by their number; the links are added by the code (`result.reputation.links`),
-  so the model can never invent or promote a link.
-- Honest tone: a low reliability must be called rough; opinions are "some public posts mention...", never facts.
+- Sources: the reputation summary cites posts by their number only; the links of the posts are not kept (nothing
+  shows them since the reputation is internal), and the advice never names its sources.
+- Honest tone: a low reliability must be called rough; opinions are "some public posts mention..." in the internal
+  summary, "parfois" / "sometimes" in the advice, never facts.
 - No personal data of third parties: no names of people, no usernames or handles; posts are anonymized before the
   model reads them (`src/social/anonymize.ts`); X links lose the handle (`https://x.com/i/status/<id>`).
 - Defamation: neutral and careful wording, accusations of crimes, harassment or illegal practices are not repeated
@@ -99,8 +123,8 @@ offer names a company, Reddit and X side by side with the synchronous Apify endp
 never stored. A failure is not cached (the next analysis tries again); the reputation never blocks an analysis.
 
 Legal note (to decide by the owner, see `docs/audit/a-faire-par-toi.md`): reading public posts is lawful under the
-GDPR with data minimization (legitimate interest: informing candidates; no usernames, nothing stored but a short
-summary), but scraping goes against the terms of Reddit and X. The risk is contractual (blocking, request to stop),
+GDPR with data minimization (legitimate interest: better advice for candidates; no usernames, no links, nothing stored
+but a short summary that no user sees), but scraping goes against the terms of Reddit and X. The risk is contractual (blocking, request to stop),
 not criminal. The fully compliant setup is the official X API (a small `SocialActor`-like connector to write, about
 0.10 USD per company) and a Reddit commercial agreement. `JAUGE_SOCIAL_SOURCES` turns each network on or off
 (`reddit,x`, `x`, `reddit`, or `none`).
@@ -125,8 +149,10 @@ Everything stays under the daily limit `JAUGE_DAILY_SPEND_LIMIT_USD` with the Ap
 ## Tests
 
 No test calls the network: answers recorded from the real APIs are replayed (`src/testing/recorded_answers.ts`).
-`src/ai/*_test.ts` (schemas, guards, Gemini and Mistral requests and errors, retries, cost, injection),
+`src/ai/*_test.ts` (schemas, guards, Gemini and Mistral requests and errors, retries, cost, injection, advice v2:
+feedback used carefully, never cited, no number taken from it),
 `src/social/apify_social_search_test.ts` (filtering, anonymization, cost, failures),
-`src/services/reputation_service_test.ts` (30 day cache, nothing found, daily limit),
-`src/queue/ai_pipeline_test.ts` (advice and reputation in a completed analysis, tokens journaled),
+`src/services/reputation_service_test.ts` (30 day cache, nothing found, daily limit, links not kept),
+`src/queue/ai_pipeline_test.ts` (the advice uses the reputation; the reputation never appears in any response, the
+shared page, an old stored result, a failed advice or an error; tokens journaled),
 `src/providers/provider_registry_test.ts` (configuration).

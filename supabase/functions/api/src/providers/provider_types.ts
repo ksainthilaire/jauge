@@ -196,7 +196,10 @@ export interface SocialSearch {
   }>;
 }
 
-/** Reputation of the company and the job as summarized by the AI from the social posts. */
+/**
+ * Reputation of the company and the job as summarized by the AI from the social posts. Internal context of the
+ * advice only: it is never sent to the app (not in any response, not in the shared page).
+ */
 export interface Reputation {
   /** Two sentences at most, in the language of the analysis. */
   readonly summary: string;
@@ -205,8 +208,6 @@ export interface Reputation {
   readonly mentionCount: number;
   /** Sources that brought posts. */
   readonly sources: readonly ("reddit" | "x")[];
-  /** Links of the posts the summary relies on (at most 5). */
-  readonly links?: readonly ReputationLink[];
 }
 
 /** A post cited by the reputation. */
@@ -227,7 +228,7 @@ export interface ReputationSummary {
 
 /**
  * What the AI may say about an analysis: only facts computed by Jauge (the AI never makes up a number), the offer as
- * read, and the reputation. Every number of the advice must come from here.
+ * read, and an internal context from public posts. Every number of the advice must come from the computed facts.
  */
 export interface AdviceFacts {
   readonly language: "fr" | "en";
@@ -264,7 +265,12 @@ export interface AdviceFacts {
   readonly marketSkills: readonly { readonly name: string; readonly sharePercent: number }[];
   /** Market skills that the offer does not mention: the only ones the advice may call missing. */
   readonly missingSkillCandidates: readonly string[];
-  readonly reputation: { readonly summary: string; readonly tone: Reputation["tone"] } | null;
+  /**
+   * Internal context: what public posts say about the hiring of the company (pace of recruitment, delays to answer
+   * candidates), summarized and anonymized. It may make the advice more careful, it is never shown or cited, and its
+   * numbers are never allowed in the advice. Null when nothing was found.
+   */
+  readonly candidateFeedback: string | null;
 }
 
 /** Advice of the verdict, written by the AI from the facts. */

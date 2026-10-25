@@ -1,7 +1,7 @@
 import { assert, assertEquals } from "@std/assert";
 import { LanguageModelAiProvider } from "../ai/language_model_ai_provider.ts";
 import { MemoryLogger } from "../operations/logger.ts";
-import type { SocialMention, SocialSearch } from "../providers/provider_types.ts";
+import { ProviderError, type SocialMention, type SocialSearch } from "../providers/provider_types.ts";
 import { createSimulatedProviders, SimulatedAiProvider } from "../providers/simulated_providers.ts";
 import { GOOD_ADVICE, ReplayModelClient, reply } from "../testing/recorded_answers.ts";
 import { createTestApplication } from "../testing/test_application.ts";
@@ -33,7 +33,17 @@ class FixedSearch implements SocialSearch {
   }
 }
 
-Deno.test("a completed analysis carries the advice and the reputation with its links, in the user's language", async () => {
+/** Words of the reputation that must never reach a response of the API. */
+const REPUTATION_TRACES = ["reputation", "reddit", "x.com", "Des avis publics", "Some public posts", "Bonne ambiance"];
+
+function assertNoReputation(body: unknown, where: string): void {
+  const text = JSON.stringify(body);
+  for (const trace of REPUTATION_TRACES) {
+    assert(!text.includes(trace), `${where} must not contain "${trace}": ${text.slice(0, 200)}`);
+  }
+}
+
+Deno.test("the reputation is internal context of the advice: never in any response, the advice may use it", async () => {
   const search = new FixedSearch();
   const api = await createTestApplication({
     providers: (accounts) => ({ ...createSimulatedProviders(accounts), socialSearch: search }),
@@ -45,18 +55,37 @@ Deno.test("a completed analysis carries the advice and the reputation with its l
       body: { type: "link", url: LINK },
       headers: { "Accept-Language": "fr-FR" },
     });
+    assertNoReputation(created.body, "the creation");
     await api.runWorker();
     const analysis = await api.request("GET", `/v1/analyses/${created.body.id}`, { userId: user });
     const result = analysis.body.result as Record<string, Record<string, unknown>>;
     assertEquals(analysis.body.status, "completed");
-    assertEquals(result.reputation.tone, "positive");
-    assertEquals(result.reputation.links, [
-      { source: "reddit", url: "https://www.reddit.com/r/lyon/comments/1abcd2/a/" },
-      { source: "x", url: "https://x.com/i/status/1845000000000000001" },
-    ]);
-    assert(String(result.reputation.summary).startsWith("Des avis publics"));
-    assert(typeof result.advice.text === "string" && String(result.advice.text).length > 10);
+    assertEquals("reputation" in result, false);
+    assert(String(result.advice.text).includes("Prévois une relance"), "the advice uses the internal context");
     assert(Array.isArray(result.advice.missingSkills));
+    assertNoReputation(analysis.body, "the analysis");
+
+    // Collected and summarized once for the company (30 day cache), stored outside the result.
+    const cached = await api.test.database.query<{ found: boolean; links: unknown }>(
+      `select found, links from public.company_reputations`,
+    );
+    assertEquals(cached, [{ found: true, links: [] }]);
+    const stored = await api.test.database.query<{ result: Record<string, unknown> }>(
+      `select result from public.analysis_results`,
+    );
+    assertEquals("reputation" in stored[0].result, false, "not stored in the result either");
+
+    const id = String(created.body.id);
+    for (const path of ["", "/salary", "/skills", "/trend", "/twins"]) {
+      const response = await api.request("GET", `/v1/analyses/${id}${path}`, { userId: user });
+      assertNoReputation(response.body, `GET /v1/analyses/{id}${path}`);
+    }
+    assertNoReputation((await api.request("GET", "/v1/analyses", { userId: user })).body, "the list");
+    const share = await api.request("POST", "/v1/shares", { userId: user, body: { analysisId: id, format: "link" } });
+    assertNoReputation(share.body, "the share");
+    const publicView = await api.request("GET", `/public/analyses/${id}`);
+    assertEquals(publicView.status, 200);
+    assertNoReputation(publicView.body, "the public page");
 
     // Another user, in English, on the same offer: snapshot and reputation from the caches, advice in English.
     const other = await api.test.createUser();
@@ -68,8 +97,63 @@ Deno.test("a completed analysis carries the advice and the reputation with its l
     await api.runWorker();
     const english = await api.request("GET", `/v1/analyses/${second.body.id}`, { userId: other });
     const englishResult = english.body.result as Record<string, Record<string, unknown>>;
-    assert(String(englishResult.reputation.summary).startsWith("Some public posts"));
+    assert(String(englishResult.advice.text).includes("follow up"));
+    assertNoReputation(english.body, "the English analysis");
     assertEquals(search.calls, 1, "the company is searched once");
+  } finally {
+    await api.close();
+  }
+});
+
+Deno.test("the reputation never leaks: results stored before the change, failed advice, failed analyses", async () => {
+  const failingAdvice = new SimulatedAiProvider();
+  failingAdvice.writeAdvice = () => Promise.reject(new ProviderError("simulated_ai", "server_error", true));
+  const api = await createTestApplication({
+    providers: (accounts) => ({
+      ...createSimulatedProviders(accounts),
+      socialSearch: new FixedSearch(),
+      ai: failingAdvice,
+    }),
+  });
+  try {
+    const user = await api.test.createUser();
+    await api.makePlus(user);
+    const created = await api.request("POST", "/v1/analyses", { userId: user, body: { type: "link", url: LINK } });
+    await api.runWorker();
+    const id = String(created.body.id);
+    const analysis = await api.request("GET", `/v1/analyses/${id}`, { userId: user });
+    assertEquals(analysis.body.status, "completed");
+    assertEquals((analysis.body.result as Record<string, unknown>).advice, null, "the advice failed");
+    assertNoReputation(analysis.body, "an analysis whose advice failed");
+
+    // A result stored by the previous version with a reputation and its links.
+    await api.test.database.query(
+      `update public.analysis_results
+       set result = result || '{"reputation":{"summary":"Des avis publics","tone":"positive","mentionCount":2,
+         "sources":["reddit"],"links":[{"source":"reddit","url":"https://www.reddit.com/r/a/1"}]}}'::jsonb
+       where analysis_id = $1::uuid`,
+      [id],
+    );
+    assertNoReputation((await api.request("GET", `/v1/analyses/${id}`, { userId: user })).body, "an old result");
+    await api.request("POST", "/v1/shares", { userId: user, body: { analysisId: id, format: "link" } });
+    assertNoReputation((await api.request("GET", `/public/analyses/${id}`)).body, "the public page of an old result");
+
+    // A failed analysis and the errors of the API.
+    const unreadable = await api.request("POST", "/v1/analyses", {
+      userId: user,
+      body: { type: "text", text: "Bonne ambiance." },
+    });
+    await api.runWorker();
+    if (unreadable.status < 400) {
+      const failed = await api.request("GET", `/v1/analyses/${unreadable.body.id}`, { userId: user });
+      assertEquals(failed.body.status, "failed");
+      assertNoReputation(failed.body, "a failed analysis");
+    } else {
+      assertNoReputation(unreadable.body, "a refused analysis");
+    }
+    const missing = await api.request("GET", "/v1/analyses/00000000-0000-4000-8000-000000000000", { userId: user });
+    assertEquals(missing.status, 404);
+    assertNoReputation(missing.body, "an error");
   } finally {
     await api.close();
   }
