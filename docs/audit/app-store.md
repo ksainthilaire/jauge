@@ -63,7 +63,7 @@ donnée croisée avec celles d'autres entreprises, aucun courtier de données. D
 | Section | Contenu |
 | --- | --- |
 | Suivi | `NSPrivacyTracking` faux, aucun domaine. |
-| Données collectées (toutes liées à l'utilisateur, aucune pour le suivi, finalité « fonctionnement de l'app ») | Adresse e-mail, nom, identifiant utilisateur, identifiant de l'appareil (jeton push), photos (captures, effacées sous 24 h), position approximative (ville de la zone de recherche), autre contenu de l'utilisateur (liens, alertes, partages), historique d'achats. |
+| Données collectées (toutes liées à l'utilisateur, aucune pour le suivi, finalité « fonctionnement de l'app ») | Adresse e-mail, nom, identifiant utilisateur, identifiant de l'appareil (jeton push), position approximative (ville de la zone de recherche), autre contenu de l'utilisateur (liens, texte lu sur les captures, alertes, partages). Les captures restent sur le téléphone (Apple Vision) : pas de photos collectées, historique d'achats. |
 | API à raison obligatoire | `NSUserDefaults` : raison `CA92.1` (réglages et session de l'app, `KeyValueStore.ios.kt`, session Supabase). Horloge depuis le démarrage : raison `35F9.1` (horloge monotone du runtime Kotlin et des coroutines). Aucun accès aux dates de fichiers, à l'espace disque ou aux claviers actifs. |
 | SDK tiers | RevenueCat (`PurchasesHybridCommon` / `RevenueCat`) fournit son propre manifeste. À la première archive, vérifier le rapport : Xcode › Product › Archive, puis clic droit sur l'archive › « Generate Privacy Report ». |
 
@@ -75,7 +75,6 @@ App Store Connect › App Privacy. « Données utilisées pour vous suivre » : 
 | --- | --- | --- | --- | --- |
 | Coordonnées | Adresse e-mail | Fonctionnement de l'app ; Marketing de l'éditeur (seulement si la case « conseils » est cochée) | Oui | Non |
 | Coordonnées | Nom | Fonctionnement de l'app | Oui | Non |
-| Contenu de l'utilisateur | Photos ou vidéos | Fonctionnement de l'app | Oui | Non |
 | Contenu de l'utilisateur | Autre contenu de l'utilisateur | Fonctionnement de l'app | Oui | Non |
 | Position | Position approximative (ville et département de la zone de recherche) | Fonctionnement de l'app | Oui | Non |
 | Identifiants | Identifiant de l'utilisateur | Fonctionnement de l'app | Oui | Non |

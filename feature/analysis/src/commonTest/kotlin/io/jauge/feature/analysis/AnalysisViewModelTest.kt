@@ -4,6 +4,8 @@ import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.AnalysisProgress
 import io.jauge.core.domain.model.ImageOrigin
 import io.jauge.core.domain.model.OfferSource
+import io.jauge.core.domain.model.Outcome
+import io.jauge.core.domain.service.TextRecognizer
 import io.jauge.core.domain.usecase.AnalysisFilter
 import io.jauge.core.domain.usecase.AnalyzeOfferUseCase
 import io.jauge.core.domain.usecase.FavoriteAnalysisUseCase
@@ -42,6 +44,9 @@ import kotlin.test.assertTrue
 class AnalysisViewModelTest {
     private val repository = FakeAnalysisRepository()
     private val store = PendingAnalysisStore()
+    private val recognizer = TextRecognizer { _, _ ->
+        Outcome.Success("Chargé(e) de marketing digital\nMaison Odier\nLyon 3e, CDI, 38 à 42 k€ brut par an")
+    }
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -113,7 +118,7 @@ class AnalysisViewModelTest {
         val requestId = store.put(OfferSource.Link("https://emplois-rhone.fr/offre/1"))
         val reading = AnalysisProgress.Reading("analysis-1", 62, emptyList(), 2, false)
         repository.progress = listOf(reading)
-        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository))
+        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository, recognizer))
         assertEquals(reading, viewModel.uiState.value.progress)
         assertNull(viewModel.uiState.value.completedAnalysisId)
     }
@@ -122,7 +127,7 @@ class AnalysisViewModelTest {
     fun unreadableOfferOpensItsScreen() {
         val requestId = store.put(OfferSource.Image(byteArrayOf(1), "image/jpeg", ImageOrigin.PHOTO))
         repository.progress = listOf(AnalysisProgress.Failed(JaugeError.UnreadableOffer("Maison Odier")))
-        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository))
+        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository, recognizer))
         assertEquals("Maison Odier", viewModel.uiState.value.unreadable?.recognizedCompany)
         viewModel.onNavigated()
         assertNull(viewModel.uiState.value.unreadable)
@@ -136,7 +141,7 @@ class AnalysisViewModelTest {
     fun otherFailuresAreShownAndCanBeRetried() {
         val requestId = store.put(OfferSource.Link("https://emplois-rhone.fr/offre/1"))
         repository.progress = listOf(AnalysisProgress.Failed(JaugeError.Timeout))
-        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository))
+        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository, recognizer))
         assertEquals(JaugeError.Timeout, viewModel.uiState.value.error)
         repository.progress = listOf(AnalysisProgress.Reading("analysis-1", 10, emptyList(), null, null))
         viewModel.retry()
@@ -145,7 +150,7 @@ class AnalysisViewModelTest {
 
     @Test
     fun unknownRequestIsNotFound() {
-        val viewModel = ReadingViewModel("request-unknown", store, AnalyzeOfferUseCase(repository))
+        val viewModel = ReadingViewModel("request-unknown", store, AnalyzeOfferUseCase(repository, recognizer))
         assertEquals(JaugeError.NotFound, viewModel.uiState.value.error)
     }
 

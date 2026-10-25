@@ -28,9 +28,6 @@ class SwitchingJaugeApi(
 
     override suspend fun createAnalysis(request: CreateAnalysisRequestPayload) = current.createAnalysis(request)
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?) =
-        current.createAnalysisFromImage(image, mimeType, origin, area)
-
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?) = current.getAnalyses(cursor, limit, query)
 
     override suspend fun getAnalysis(analysisId: String) = current.getAnalysis(analysisId)

@@ -56,6 +56,29 @@ class RetrofitJaugeApiTest {
     }
 
     @Test
+    fun createsAnAnalysisFromTheTextOfACaptureAsJson() = runTest {
+        server.enqueue(
+            MockResponse.Builder()
+                .code(202)
+                .body("""{"id":"a2","status":"processing","createdAt":"2026-10-23T08:00:00Z"}""")
+                .build(),
+        )
+        api.createAnalysis(
+            CreateAnalysisRequestPayload(
+                type = CreateAnalysisRequestPayload.TYPE_TEXT,
+                text = "Chargé(e) de marketing digital, Maison Odier, Lyon 3e",
+                origin = ImageOrigins.SCREENSHOT,
+            ),
+        )
+        val request = server.takeRequest()
+        val body = request.body?.utf8().orEmpty()
+        assertTrue(request.headers["Content-Type"].orEmpty().startsWith("application/json"))
+        assertTrue(body.contains("\"type\":\"text\""))
+        assertTrue(body.contains("\"origin\":\"screenshot\""))
+        assertTrue(body.contains("\"text\":\"Chargé(e) de marketing digital, Maison Odier, Lyon 3e\""))
+    }
+
+    @Test
     fun errorBodiesBecomeHttpFailuresWithTheirCode() = runTest {
         server.enqueue(MockResponse.Builder().code(402).body("""{"error":{"code":"quota_reached"}}""").build())
         val failure = assertFailsWith<NetworkFailure.Http> { api.getAnalysis("a1") }

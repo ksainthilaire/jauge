@@ -97,19 +97,23 @@ Réponses générales :
 | Informations personnelles | Adresse e-mail | Oui | Non | Oui (compte facultatif) | Fonctionnement de l'app, gestion du compte, communications (seulement avec l'accord « conseils par e-mail ») |
 | Informations personnelles | Nom | Oui | Non | Oui | Gestion du compte |
 | Informations personnelles | Identifiants utilisateur | Oui | Non | Non | Fonctionnement de l'app, gestion du compte |
-| Photos et vidéos | Photos | Oui (effacées sous 24 h) | Non | Oui | Fonctionnement de l'app |
-| Activité dans l'app | Autre contenu généré par l'utilisateur (liens d'offres, alertes, partages, chiffres signalés) | Oui | Non | Non | Fonctionnement de l'app |
+| Activité dans l'app | Autre contenu généré par l'utilisateur (liens d'offres, texte lu sur les captures, alertes, partages, chiffres signalés) | Oui | Non | Non | Fonctionnement de l'app |
 | Informations financières | Historique des achats | Oui | Non | Oui | Fonctionnement de l'app, gestion du compte |
 | Position | Position approximative | Oui (seulement la ville et le département de la zone de recherche, trouvés sur le téléphone ; la position n'est jamais envoyée) | Non | Oui (refus : Paris, ville modifiable) | Fonctionnement de l'app |
 | Identifiants de l'appareil | Jeton de notification (FCM) | Oui | Non | Oui (seulement si les alertes sont activées) | Fonctionnement de l'app |
-| Infos et performances de l'app | Diagnostics (version de l'app, système, langue, journaux techniques côté serveur) | Oui | Non | Non | Fonctionnement de l'app, analyses techniques |
+| Infos et performances de l'app | Diagnostics (version de l'app, système, langue, journaux techniques côté serveur ; statistiques techniques anonymes de ML Kit) | Oui | Non | Non | Fonctionnement de l'app, analyses techniques |
 
-Non collectés : position précise, localisation en arrière-plan, contacts, messages,
+Non collectés : photos (depuis le 25/10/2026, les captures sont lues sur le téléphone par ML Kit, modèle intégré à
+l'app, et seul leur texte est envoyé), position précise, localisation en arrière-plan, contacts, messages,
 audio, fichiers, santé, identifiant publicitaire, historique de navigation. Aucun SDK de publicité, de mesure
 d'audience ni de rapport de plantage (vérifié dans toutes les dépendances).
 
-Si le serveur envoie les captures à un fournisseur d'IA extérieur (voir 9), ce fournisseur est un prestataire : la
-réponse « Partage : Non » reste juste, mais il doit être nommé dans la politique de confidentialité.
+ML Kit (lecture du texte des captures) tourne sur le téléphone : ni l'image ni le texte ne partent chez Google, mais la
+bibliothèque envoie des statistiques techniques anonymes. Avant de remplir le formulaire, relis la page « ML Kit data
+disclosure » de Google (developers.google.com/ml-kit/android-data-disclosure) et reporte ce qu'elle indique.
+
+Le texte des captures part chez le fournisseur d'IA du serveur (voir 9) : c'est un prestataire, la réponse
+« Partage : Non » reste juste, et il est nommé dans la politique de confidentialité.
 
 ## 5. Abonnement (Play Billing par RevenueCat)
 

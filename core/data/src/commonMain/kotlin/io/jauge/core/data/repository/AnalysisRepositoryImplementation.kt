@@ -62,6 +62,12 @@ class AnalysisRepositoryImplementation(
     private val favoriteMutex = Mutex()
 
     override fun analyze(source: OfferSource): Flow<AnalysisProgress> = flow {
+        if (source is OfferSource.Image) {
+            // Images are read on the phone by AnalyzeOfferUseCase and only their text is sent: an image is never
+            // uploaded, even if one reaches this point.
+            emit(AnalysisProgress.Failed(JaugeError.UnreadableOffer()))
+            return@flow
+        }
         try {
             var payload = create(source)
             var polls = 0
@@ -157,15 +163,18 @@ class AnalysisRepositoryImplementation(
             is OfferSource.Manual -> api.createAnalysis(
                 CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_MANUAL, jobTitle = source.jobTitle, city = source.city, area = area),
             )
-        is OfferSource.Image -> api.createAnalysisFromImage(
-            image = source.bytes,
-            mimeType = source.mimeType,
-            origin = when (source.origin) {
-                ImageOrigin.SCREENSHOT -> ImageOrigins.SCREENSHOT
-                ImageOrigin.PHOTO -> ImageOrigins.PHOTO
-            },
-            area = area,
-        )
+            is OfferSource.Text -> api.createAnalysis(
+                CreateAnalysisRequestPayload(
+                    type = CreateAnalysisRequestPayload.TYPE_TEXT,
+                    text = source.text,
+                    origin = when (source.origin) {
+                        ImageOrigin.SCREENSHOT -> ImageOrigins.SCREENSHOT
+                        ImageOrigin.PHOTO -> ImageOrigins.PHOTO
+                    },
+                    area = area,
+                ),
+            )
+            is OfferSource.Image -> error("Images are read on the phone by AnalyzeOfferUseCase, never uploaded")
         }
     }
 
@@ -186,3 +195,4 @@ class AnalysisRepositoryImplementation(
         const val HISTORY_PAGE_SIZE = 50
     }
 }
+

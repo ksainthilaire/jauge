@@ -26,8 +26,6 @@ import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
@@ -37,8 +35,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.ContentConvertException
@@ -56,28 +52,6 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
     override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload =
         call { client.post("v1/analyses") { json(request) } }.decode()
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload = call {
-        val extension = mimeType.substringAfter('/', "jpg")
-        client.submitFormWithBinaryData(
-            url = "v1/analyses",
-            formData = formData {
-                append("origin", origin)
-                area?.let {
-                    append("areaCity", it.city)
-                    it.departmentCode?.let { department -> append("areaDepartment", department) }
-                    append("areaRadius", it.radiusKilometers.toString())
-                }
-                append(
-                    key = "image",
-                    value = image,
-                    headers = Headers.build {
-                        append(HttpHeaders.ContentType, mimeType)
-                        append(HttpHeaders.ContentDisposition, "filename=\"offer.$extension\"")
-                    },
-                )
-            },
-        )
-    }.decode()
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload = call {
         client.get("v1/analyses") {

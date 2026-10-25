@@ -63,7 +63,8 @@ quota_reached`. `result.reputation` (optional) sums up what public Reddit and X 
    `unreadable_offer` (with `recognizedCompany` when the company could still be read) or `unsupported_link`.
 4. An unreadable image does not use the free analysis of the week (nor an unsupported link, nor a server failure).
 5. Images are read once and deleted at once (24 hours at most); the text read on the phone (`type: "text"`) is better:
-   the image never leaves the phone.
+   the image never leaves the phone. The app only sends `type: "text"` (ML Kit on Android, Vision on iOS); when the
+   phone reads less than 40 characters it shows the screen 10 without calling the API.
 
 ### Search area (location)
 

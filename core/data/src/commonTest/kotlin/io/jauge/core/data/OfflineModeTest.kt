@@ -77,8 +77,8 @@ class OfflineModeTest {
     @Test
     fun unreadableScreenshotFailsWithTheRecognizedCompany() = runTest {
         scenarios.select(OfflineScenario.UNREADABLE_OFFER)
-        val image = OfferSource.Image(byteArrayOf(1, 2, 3), "image/png", ImageOrigin.SCREENSHOT)
-        val last = analyses.analyze(image).toList().last()
+        val capture = OfferSource.Text("Chargé de marketing digital, Maison Odier, Lyon 3e, CDI", ImageOrigin.SCREENSHOT)
+        val last = analyses.analyze(capture).toList().last()
         assertEquals(AnalysisProgress.Failed(JaugeError.UnreadableOffer(OfflineDataset.UNREADABLE_COMPANY)), last)
     }
 

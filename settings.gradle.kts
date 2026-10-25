@@ -42,6 +42,7 @@ include(":core:network")
 include(":core:billing")
 include(":core:notifications")
 include(":core:location")
+include(":core:textrecognition")
 include(":core:authentication")
 
 include(":feature:onboarding")

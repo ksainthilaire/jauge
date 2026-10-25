@@ -19,12 +19,15 @@ data class AreaPayload(
 )
 
 /**
- * Body of `POST /v1/analyses` for a link or a manual entry (images are sent as multipart).
+ * Body of `POST /v1/analyses`: a link, a manual entry, or the text of a capture read on the phone. The app never
+ * sends images: the multipart upload of the contract is kept for other clients only.
  *
- * @property type `link` or `manual`.
+ * @property type `link`, `manual` or `text`.
  * @property url link of the offer, for `link`.
  * @property jobTitle job title, for `manual`.
  * @property city city, for `manual`.
+ * @property text text of the screenshot or the photo (40 to 20 000 characters), for `text`.
+ * @property origin `screenshot` or `photo`, for `text`.
  * @property area search area of the user, for the comparisons and the twin offers.
  */
 @Serializable
@@ -33,6 +36,8 @@ data class CreateAnalysisRequestPayload(
     val url: String? = null,
     val jobTitle: String? = null,
     val city: String? = null,
+    val text: String? = null,
+    val origin: String? = null,
     val area: AreaPayload? = null,
 ) {
     /** Values of [type]. */
@@ -42,6 +47,9 @@ data class CreateAnalysisRequestPayload(
 
         /** Analysis of a manual entry. */
         const val TYPE_MANUAL = "manual"
+
+        /** Analysis of the text of a capture read on the phone. */
+        const val TYPE_TEXT = "text"
     }
 }
 

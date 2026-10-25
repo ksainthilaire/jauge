@@ -21,9 +21,6 @@ import io.jauge.core.network.payload.TrendInsightPayload
 import io.jauge.core.network.payload.TwinOffersPayload
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
@@ -41,22 +38,6 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
 
     override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload = call { service.createAnalysis(request) }
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload = call {
-        val extension = mimeType.substringAfter('/', "jpg")
-        val imagePart = MultipartBody.Part.createFormData(
-            name = "image",
-            filename = "offer.$extension",
-            body = image.toRequestBody(mimeType.toMediaType()),
-        )
-        val text = "text/plain".toMediaType()
-        service.createAnalysisFromImage(
-            image = imagePart,
-            origin = origin.toRequestBody(text),
-            areaCity = area?.city?.toRequestBody(text),
-            areaDepartment = area?.departmentCode?.toRequestBody(text),
-            areaRadius = area?.radiusKilometers?.toString()?.toRequestBody(text),
-        )
-    }
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload =
         call { service.getAnalyses(cursor, limit, query?.trim()?.takeIf { it.isNotEmpty() }) }

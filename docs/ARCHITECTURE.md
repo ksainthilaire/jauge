@@ -20,6 +20,7 @@ texts, `BRANDING.md` for the brand).
 | Retrofit / OkHttp (Android) | 3.0.0 / 5.5.1 |
 | Ktor (iOS) | 3.6.0 |
 | RevenueCat purchases-kmp / Supabase / Lottie / Compottie | 3.15.0 / 3.8.0 / 6.7.1 / 2.3.3 |
+| ML Kit Text Recognition (Android, bundled Latin model) | 16.0.1 |
 
 Every version lives in `gradle/libs.versions.toml`. Never write a version in a module build file.
 
@@ -44,6 +45,8 @@ core/data             Repository implementations, payload mapping, error mapping
 core/network          JaugeApi interface and payloads, Retrofit/OkHttp (Android), Ktor (iOS)
 core/billing          Store purchases (BillingClient): RevenueCat purchases-kmp, see docs/revenuecat.md
 core/notifications    NotificationRepository: push tokens (FCM, APNs), notifications table, Realtime calm alerts
+core/textrecognition  TextRecognizer: text of screenshots and photos read on the phone (Android ML Kit, bundled model;
+                      iOS Apple Vision). Images never leave the phone
 core/location         LocationRepository: approximate position (Android LocationManager, iOS CoreLocation) turned into a
                       city on the phone (FrenchCities), never sent
 core/authentication   AuthenticationRepository: Supabase Auth (Apple, Google, email link), simulated without Supabase
@@ -286,6 +289,23 @@ libraries ship with the app in `composeApp/src/commonMain/composeResources/files
 The app is portrait only: `android:screenOrientation="portrait"` on `MainActivity` (`"behind"` on the translucent
 notification permission activity), `UISupportedInterfaceOrientations` = portrait on iOS (iPhone only). Android 16
 ignores the forced orientation on large screens, which is accepted.
+
+## Reading screenshots and photos on the phone
+
+A screenshot or a photo (`OfferSource.Image`) is never uploaded. `AnalyzeOfferUseCase` asks the `TextRecognizer` of
+`core:textrecognition` for its text, cleans it (`RecognizedText.clean`: trimmed lines, no repeated spaces or empty
+lines, cut at 20 000 characters) and sends only the text: `POST /v1/analyses` with
+`{type: "text", text, origin: "screenshot" | "photo", area}` (`OfferSource.Text`).
+
+- Android: ML Kit Text Recognition with the Latin model **bundled** in the app (`com.google.mlkit:text-recognition`):
+  offline, no Google Play service, no paid Google API. A photo taken sideways (the picker drops the orientation tag)
+  is also read turned by 90 and 270 degrees when the upright reading finds little text; the longest text wins.
+- iOS: Apple Vision (`VNRecognizeTextRequest`, accurate level, French then English), on a background dispatcher.
+- **Fallback**: when the recognizer fails or the text is shorter than 40 characters (or has fewer than 20 letters or
+  digits), the analysis fails at once with `JaugeError.UnreadableOffer` and the screen 10 "offre illisible" opens
+  (new photo, or manual entry). Nothing is sent, so the free analysis of the week is kept. The multipart image upload
+  of the contract stays for other clients but the app never uses it; `AnalysisRepositoryImplementation` refuses an
+  `OfferSource.Image` the same way, so an image can never be uploaded by mistake.
 
 ## Location and search area
 
