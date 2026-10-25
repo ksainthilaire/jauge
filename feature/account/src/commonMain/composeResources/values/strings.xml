@@ -54,7 +54,13 @@
     <string name="profile_provider_apple">Apple</string>
     <string name="profile_provider_google">Google</string>
     <string name="profile_provider_email">un e-mail</string>
-    <string name="profile_create_account">Créer un compte pour garder mes analyses</string>
+    <string name="profile_create_account">Créer mon compte</string>
+    <string name="profile_keep_title">Garde tes analyses</string>
+    <plurals name="profile_keep_message">
+        <item quantity="one">Retrouve ton offre jaugée sur tous tes appareils.</item>
+        <item quantity="other">Retrouve tes %1$d offres jaugées sur tous tes appareils.</item>
+    </plurals>
+    <string name="profile_keep_message_without_count">Retrouve tes offres jaugées et tes alertes sur tous tes appareils.</string>
     <string name="profile_plus_name">Jauge Plus</string>
     <string name="profile_status_trial">Essai gratuit</string>
     <string name="profile_status_active">Actif</string>

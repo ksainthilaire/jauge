@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.jauge.core.common.link.WebLinks
 import io.jauge.core.designsystem.component.JaugeButton
 import io.jauge.core.designsystem.component.JaugeButtonStyle
+import io.jauge.core.designsystem.component.JaugeCard
 import io.jauge.core.designsystem.component.JaugePill
 import io.jauge.core.designsystem.component.JaugeRefreshContainer
 import io.jauge.core.designsystem.component.JaugeScreenScaffold
@@ -79,6 +81,9 @@ import io.jauge.feature.account.resources.profile_calm_alerts_off
 import io.jauge.feature.account.resources.profile_calm_alerts_on
 import io.jauge.feature.account.resources.profile_cancel
 import io.jauge.feature.account.resources.profile_create_account
+import io.jauge.feature.account.resources.profile_keep_message
+import io.jauge.feature.account.resources.profile_keep_message_without_count
+import io.jauge.feature.account.resources.profile_keep_title
 import io.jauge.feature.account.resources.profile_delete_account
 import io.jauge.feature.account.resources.profile_discover_plus
 import io.jauge.feature.account.resources.profile_ending_text
@@ -265,11 +270,10 @@ fun ProfileContent(
         ) {
             ProfileHeader(state = state)
             if (state.user == null) {
-                JaugeButton(
-                    text = stringResource(Res.string.profile_create_account),
-                    onClick = navigation.onOpenAccount,
-                    style = JaugeButtonStyle.OUTLINED,
-                    modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
+                CreateAccountCard(
+                    analysisCount = content?.account?.analysisCount,
+                    onCreateAccount = navigation.onOpenAccount,
+                    modifier = Modifier.padding(top = 14.dp),
                 )
             }
             when {
@@ -391,6 +395,50 @@ private fun ProfileHeader(state: ProfileUiState) {
                 )
             }
         }
+    }
+}
+
+/**
+ * Invitation to create an account for a user without one: cloud icon, the reason ("Retrouve tes 12 offres jaugées sur
+ * tous tes appareils") and a filled ink (light theme) or cream (dark theme) button, visible without competing with the
+ * coral Jauge Plus offer below.
+ */
+@Composable
+private fun CreateAccountCard(analysisCount: Int?, onCreateAccount: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = JaugeTheme.colors
+    JaugeCard(modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier.size(44.dp).background(colors.calm.container, JaugeTheme.radii.cardShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(JaugeIcons.CloudSync, contentDescription = null, tint = colors.calm.content, modifier = Modifier.size(24.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.profile_keep_title),
+                    style = JaugeTheme.typography.bodyStrong,
+                    color = colors.textPrimary,
+                )
+                Text(
+                    text = if (analysisCount != null && analysisCount > 0) {
+                        pluralStringResource(Res.plurals.profile_keep_message, analysisCount, analysisCount)
+                    } else {
+                        stringResource(Res.string.profile_keep_message_without_count)
+                    },
+                    style = JaugeTheme.typography.bodySmall,
+                    color = colors.textSecondary,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+            }
+        }
+        JaugeButton(
+            text = stringResource(Res.string.profile_create_account),
+            onClick = onCreateAccount,
+            style = JaugeButtonStyle.NEUTRAL,
+            size = JaugeButtonSize.MEDIUM,
+            modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
+        )
     }
 }
 
