@@ -8,6 +8,7 @@ import io.jauge.core.domain.model.ImageOrigin
 import io.jauge.core.domain.model.OfferSource
 import io.jauge.core.domain.model.Outcome
 import io.jauge.core.domain.repository.AnalysisRepository
+import io.jauge.core.domain.service.PersonalData
 import io.jauge.core.domain.service.RecognizedText
 import io.jauge.core.domain.service.TextRecognizer
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,9 @@ import kotlin.random.Random
  * A screenshot or a photo is read on the phone by [textRecognizer] and only its text is sent
  * ([OfferSource.Text]): the image never leaves the phone. When nothing usable is read, the analysis fails with
  * [JaugeError.UnreadableOffer] (mockup 10) without calling the server, so the free analysis of the week is kept.
+ *
+ * Every text and manual entry is cleaned of personal data on the phone before it is sent ([PersonalData.scrub]):
+ * e-mail addresses, phone numbers and names of recruiters become neutral markers.
  *
  * @param repository analyses repository.
  * @param textRecognizer reads the text of images on the phone.
@@ -51,7 +55,9 @@ class AnalyzeOfferUseCase(
             if (source.jobTitle.isBlank() || source.city.isBlank()) {
                 flowOf(AnalysisProgress.Failed(JaugeError.InvalidData))
             } else {
-                repository.analyze(OfferSource.Manual(source.jobTitle.trim(), source.city.trim()), requestKey)
+                val jobTitle = PersonalData.scrub(source.jobTitle.trim())
+                val city = PersonalData.scrub(source.city.trim())
+                repository.analyze(OfferSource.Manual(jobTitle, city), requestKey)
             }
         }
         is OfferSource.Text -> analyzeText(source.text, source.origin, requestKey)
@@ -72,7 +78,7 @@ class AnalyzeOfferUseCase(
     }
 
     private fun analyzeText(text: String, origin: ImageOrigin, requestKey: String): Flow<AnalysisProgress> {
-        val cleaned = RecognizedText.clean(text)
+        val cleaned = PersonalData.scrub(RecognizedText.clean(text)).take(RecognizedText.MAXIMUM_LENGTH).trim()
         return if (RecognizedText.isReadable(cleaned)) {
             repository.analyze(OfferSource.Text(cleaned, origin), requestKey)
         } else {

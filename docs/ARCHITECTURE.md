@@ -308,6 +308,24 @@ lines, cut at 20 000 characters) and sends only the text: `POST /v1/analyses` wi
   of the contract stays for other clients but the app never uses it; `AnalysisRepositoryImplementation` refuses an
   `OfferSource.Image` the same way, so an image can never be uploaded by mistake.
 
+### Personal data removed before sending
+
+Before any text leaves the phone (capture, photo, pasted text, and the job title and city of the manual entry),
+`AnalyzeOfferUseCase` runs `PersonalData.scrub` (`core:domain`, commonMain, regular expressions only, no model):
+
+- e-mail addresses become `[e-mail retiré]`;
+- phone numbers become `[téléphone retiré]`: French numbers (`06 12 34 56 78`, `0612345678`, `01.23.45.67.89`) and
+  international ones (`+33 6 ...`, `+33 (0)1 ...`, `0033 ...`, `+44 20 ...`). Salaries (`38 000`, `+25 000 000`),
+  postal codes, SIRET, dates, offer references (`Réf. 0612345678`) and links are kept;
+- names of people become `[nom retiré]`, only when they are found without doubt: after a label (`Contact :`,
+  `Recruteur :`, `Votre contact`, `auprès de`...) when the first word is a known first name, after a civility
+  (`M.`, `Mme`, `Monsieur`...), or in a signature or recruiter card (`Marie Dupont, Talent Acquisition`, the hiring
+  team of LinkedIn). Companies named after a person (`Yves Rocher`, `Pierre Fabre`) are never removed.
+
+The API applies the same rules again in defense (`supabase/functions/api/src/text/personal_data.ts`) to the text and
+the job title it receives, before they are kept or read by the AI. Both sides share the same test cases
+(`PersonalDataTest.kt`, `personal_data_test.ts`) and word lists (`NameWords.kt`, `name_words.ts`).
+
 ## Real API details (contract of 25/10/2026)
 
 - **Idempotency**: every analysis request has a key (`AnalysisRequestKeys`, 32 letters and digits) sent as
