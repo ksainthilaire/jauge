@@ -50,6 +50,27 @@ export interface Configuration {
     readonly keyId: string | null;
     readonly privateKey: string | null;
   };
+  /** Artificial intelligence (live mode): provider, keys, models, prices. See docs/backend/ia.md. */
+  readonly ai: {
+    /** `gemini` (default) or `mistral`. */
+    readonly provider: "gemini" | "mistral";
+    readonly geminiApiKey: string | null;
+    readonly geminiModel: string;
+    readonly mistralApiKey: string | null;
+    readonly mistralModel: string;
+    /** Prices of a model missing from the price lists (USD per million tokens), null to use the lists. */
+    readonly inputUsdPerMillionTokens: number | null;
+    readonly outputUsdPerMillionTokens: number | null;
+  };
+  /** Social search (live mode): Apify token, networks searched and their actors. */
+  readonly social: {
+    readonly apifyToken: string | null;
+    readonly sources: readonly ("reddit" | "x")[];
+    readonly redditActorId: string | null;
+    readonly xActorId: string | null;
+  };
+  /** Days the reputation of a company is reused (30 by default). */
+  readonly reputationCacheDays: number;
   /** Version of the API, shown by the health check. */
   readonly version: string;
 }
@@ -107,6 +128,29 @@ export function loadConfiguration(read: EnvironmentReader): Configuration {
       keyId: text("APPLE_KEY_ID"),
       privateKey: text("APPLE_PRIVATE_KEY_P8"),
     },
+    ai: {
+      provider: text("AI_PROVIDER")?.toLowerCase() === "mistral" ? "mistral" : "gemini",
+      geminiApiKey: text("GEMINI_API_KEY"),
+      geminiModel: text("GEMINI_MODEL") ?? "gemini-3.1-flash-lite",
+      mistralApiKey: text("MISTRAL_API_KEY"),
+      mistralModel: text("MISTRAL_MODEL") ?? "mistral-small-2603",
+      inputUsdPerMillionTokens: text("AI_INPUT_USD_PER_MILLION_TOKENS")
+        ? number("AI_INPUT_USD_PER_MILLION_TOKENS", 0, 0, 100)
+        : null,
+      outputUsdPerMillionTokens: text("AI_OUTPUT_USD_PER_MILLION_TOKENS")
+        ? number("AI_OUTPUT_USD_PER_MILLION_TOKENS", 0, 0, 100)
+        : null,
+    },
+    social: {
+      apifyToken: text("APIFY_TOKEN"),
+      sources: (text("JAUGE_SOCIAL_SOURCES") ?? "reddit,x")
+        .split(",")
+        .map((source) => source.trim().toLowerCase())
+        .filter((source): source is "reddit" | "x" => source === "reddit" || source === "x"),
+      redditActorId: text("JAUGE_REDDIT_ACTOR"),
+      xActorId: text("JAUGE_X_ACTOR"),
+    },
+    reputationCacheDays: number("JAUGE_REPUTATION_CACHE_DAYS", 30, 1, 90),
     version: text("JAUGE_API_VERSION") ?? "1.0.0",
   };
 }

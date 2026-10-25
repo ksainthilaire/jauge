@@ -25,7 +25,7 @@ const tokenVerifier: TokenVerifier = configuration.supabaseUrl
     throw new Error("SUPABASE_URL is missing");
   })();
 
-const providers = createProviders(configuration);
+const providers = createProviders(configuration, {}, fetch, logger);
 if (configuration.environment === "production" && providers.mode === "simulated") {
   logger.log("warning", "simulated_providers_in_production", {});
 }

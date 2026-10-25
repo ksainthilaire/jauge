@@ -2,6 +2,8 @@ import { REFERENCE_CITIES } from "../geography/reference_cities.ts";
 import { distanceKilometers, findCity } from "../geography/cities.ts";
 import { normalizeSearchText } from "../text/search_text.ts";
 import type {
+  Advice,
+  AdviceFacts,
   AiProvider,
   AppleTokenRevoker,
   AuthAdministration,
@@ -16,7 +18,7 @@ import type {
   OfferSource,
   OperationsAlerter,
   Providers,
-  Reputation,
+  ReputationSummary,
   SocialMention,
   SocialSearch,
   SubscriptionStore,
@@ -333,21 +335,59 @@ export class SimulatedAiProvider implements AiProvider {
     company: string | null;
     jobTitle: string;
     mentions: readonly SocialMention[];
-    language: "fr" | "en";
-  }): Promise<{ reputation: Reputation | null; costMicroUsd: number }> {
-    if (input.mentions.length === 0) return Promise.resolve({ reputation: null, costMicroUsd: 0 });
+  }): Promise<{ summary: ReputationSummary | null; costMicroUsd: number }> {
+    if (input.mentions.length === 0) return Promise.resolve({ summary: null, costMicroUsd: 0 });
     const positive = input.mentions.filter((mention) => mention.text.startsWith("Bonne")).length;
     const tone = positive * 2 > input.mentions.length ? "positive" : positive === 0 ? "negative" : "mixed";
-    const summary = input.language === "fr"
-      ? `${input.mentions.length} avis publics trouvés : ambiance plutôt appréciée, délais de réponse parfois longs.`
-      : `${input.mentions.length} public posts found: people like the atmosphere, answers sometimes take long.`;
     const sources = [...new Set(input.mentions.map((mention) => mention.source))];
     return Promise.resolve({
-      reputation: { summary, tone, mentionCount: input.mentions.length, sources },
+      summary: {
+        summaryFrench: "Des avis publics évoquent une ambiance plutôt appréciée et des réponses parfois lentes.",
+        summaryEnglish: "Some public posts mention a well liked atmosphere and answers that sometimes take long.",
+        tone,
+        mentionCount: input.mentions.length,
+        sources,
+        links: input.mentions.slice(0, 3).map((mention) => ({ source: mention.source, url: mention.url })),
+      },
+      costMicroUsd: 0,
+    });
+  }
+
+  writeAdvice(facts: AdviceFacts): Promise<{ advice: Advice | null; costMicroUsd: number }> {
+    const french = facts.language === "fr";
+    const day = facts.timingAdvice ? WEEKDAY_NAMES[facts.timingAdvice.applyBefore]?.[french ? 0 : 1] : null;
+    const timing = facts.timingAdvice && day
+      ? french
+        ? `Postule avant ${day} : environ ${facts.timingAdvice.sharePercent} % des candidatures arrivent en ${facts.timingAdvice.withinDays} jours.`
+        : `Apply before ${day}: about ${facts.timingAdvice.sharePercent} % of applications arrive within ${facts.timingAdvice.withinDays} days.`
+      : french
+      ? `Environ ${facts.applicants.estimate} candidats estimés sur cette offre.`
+      : `About ${facts.applicants.estimate} applicants estimated on this offer.`;
+    const negotiation = facts.negotiationTarget === null
+      ? null
+      : french
+      ? `Vise ${facts.negotiationTarget} k€ : c'est le haut de la fourchette des offres comparables.`
+      : `Aim for €${facts.negotiationTarget}k: the upper part of the range of comparable offers.`;
+    return Promise.resolve({
+      advice: {
+        text: timing,
+        negotiationArgument: negotiation,
+        missingSkills: facts.missingSkillCandidates.slice(0, 3),
+      },
       costMicroUsd: 0,
     });
   }
 }
+
+const WEEKDAY_NAMES: Readonly<Record<string, readonly [string, string]>> = {
+  MONDAY: ["lundi", "Monday"],
+  TUESDAY: ["mardi", "Tuesday"],
+  WEDNESDAY: ["mercredi", "Wednesday"],
+  THURSDAY: ["jeudi", "Thursday"],
+  FRIDAY: ["vendredi", "Friday"],
+  SATURDAY: ["samedi", "Saturday"],
+  SUNDAY: ["dimanche", "Sunday"],
+};
 
 /** Records the account calls instead of making them (RevenueCat, Apple, Supabase Auth, alerts). */
 export class RecordingAccountServices

@@ -1,5 +1,5 @@
 import type { Database } from "../database/database.ts";
-import type { OperationsAlerter } from "../providers/provider_types.ts";
+import type { AiUsage, OperationsAlerter } from "../providers/provider_types.ts";
 import type { Clock } from "./clock.ts";
 import { utcDay } from "./clock.ts";
 import type { Logger } from "./logger.ts";
@@ -12,6 +12,8 @@ export interface CostEntry {
   readonly units?: number;
   readonly sliceId?: string | null;
   readonly snapshotId?: string | null;
+  /** Model and tokens of an AI operation. */
+  readonly usage?: AiUsage;
 }
 
 /**
@@ -68,8 +70,9 @@ export class SpendGuard {
   async record(entry: CostEntry): Promise<void> {
     if (entry.costMicroUsd <= 0) return;
     await this.database.query(
-      `insert into public.provider_costs (provider, operation, slice_id, snapshot_id, units, cost_micro_usd, simulated)
-       values ($1, $2, $3, $4, $5, $6, $7)`,
+      `insert into public.provider_costs (provider, operation, slice_id, snapshot_id, units, cost_micro_usd, simulated,
+                                          model, input_tokens, output_tokens)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
         entry.provider,
         entry.operation,
@@ -78,6 +81,9 @@ export class SpendGuard {
         entry.units ?? 1,
         Math.round(entry.costMicroUsd),
         this.settings.simulated,
+        entry.usage?.model.slice(0, 80) ?? null,
+        entry.usage ? Math.round(entry.usage.inputTokens) : null,
+        entry.usage ? Math.round(entry.usage.outputTokens) : null,
       ],
     );
     if (this.settings.simulated) return;

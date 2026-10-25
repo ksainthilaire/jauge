@@ -588,6 +588,9 @@ components:
         reputation:
           oneOf: [ { $ref: '#/components/schemas/Reputation' }, { type: 'null' } ]
           description: What public posts (Reddit, X) say about the company and the job, summarized by the AI. Null when nothing was found.
+        advice:
+          oneOf: [ { $ref: '#/components/schemas/Advice' }, { type: 'null' } ]
+          description: Advice of the verdict written by the AI from the computed facts, in the language of the analysis. Null when unavailable (show timingAdvice).
     Analysis:
       type: object
       required: [id, status, createdAt]
@@ -702,6 +705,22 @@ components:
         tone: { type: string, enum: [positive, mixed, negative, unknown] }
         mentionCount: { type: integer }
         sources: { type: array, items: { type: string, enum: [reddit, x] } }
+        links:
+          type: array
+          description: Public posts the summary relies on (5 at most), links without usernames.
+          items:
+            type: object
+            required: [source, url]
+            properties:
+              source: { type: string, enum: [reddit, x] }
+              url: { type: string, format: uri }
+    Advice:
+      type: object
+      required: [text, missingSkills]
+      properties:
+        text: { type: string, description: 'Two or three sentences: when and how to apply. Every number comes from the result.' }
+        negotiationArgument: { type: [string, 'null'], description: One sentence for the salary negotiation. }
+        missingSkills: { type: array, items: { type: string }, description: Skills often asked by comparable offers and missing from this offer (4 at most). }
     PublicAnalysis:
       type: object
       description: What the page https://jauge.io/a/{analysisId} shows. No data about the user.
