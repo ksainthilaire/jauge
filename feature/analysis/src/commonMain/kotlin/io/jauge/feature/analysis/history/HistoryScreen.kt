@@ -19,8 +19,10 @@ import io.jauge.core.designsystem.component.JaugeChip
 import io.jauge.core.designsystem.component.JaugeChipStyle
 import io.jauge.core.designsystem.component.JaugeRefreshContainer
 import io.jauge.core.designsystem.component.JaugeScreenScaffold
+import io.jauge.core.designsystem.component.JaugeSearchField
 import io.jauge.core.designsystem.component.RoundIconButton
 import io.jauge.core.designsystem.component.SkeletonList
+import io.jauge.core.designsystem.component.hideKeyboardOnScroll
 import io.jauge.core.designsystem.icon.JaugeIcons
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.core.domain.usecase.AnalysisFilter
@@ -34,6 +36,11 @@ import io.jauge.feature.analysis.resources.history_favorites_empty_message
 import io.jauge.feature.analysis.resources.history_favorites_empty_title
 import io.jauge.feature.analysis.resources.history_filter_all
 import io.jauge.feature.analysis.resources.history_filter_favorites
+import io.jauge.feature.analysis.resources.history_search_clear
+import io.jauge.feature.analysis.resources.history_search_empty_action
+import io.jauge.feature.analysis.resources.history_search_empty_message
+import io.jauge.feature.analysis.resources.history_search_empty_title
+import io.jauge.feature.analysis.resources.history_search_placeholder
 import io.jauge.feature.analysis.resources.history_title
 import io.jauge.feature.analysis.resources.home_empty_message
 import io.jauge.feature.analysis.resources.home_empty_title
@@ -63,6 +70,8 @@ fun HistoryScreen(onBack: () -> Unit, onOpenAnalysis: (String) -> Unit, onOpenPa
         onErrorAction = { action -> if (action == FriendlyAction.OPEN_PAYWALL) onOpenPaywall() else viewModel.refresh() },
         onSelectFilter = viewModel::selectFilter,
         onToggleFavorite = viewModel::toggleFavorite,
+        onQueryChange = viewModel::updateQuery,
+        onClearQuery = viewModel::clearQuery,
         snackbarHostState = snackbarHostState,
     )
 }
@@ -77,6 +86,8 @@ fun HistoryScreen(onBack: () -> Unit, onOpenAnalysis: (String) -> Unit, onOpenPa
  * @param onErrorAction action of a friendly error.
  * @param onSelectFilter "Toutes" or "Favoris".
  * @param onToggleFavorite star of an analysis tapped, with its new value.
+ * @param onQueryChange text typed in the search field (shown when the list holds more than 6 analyses).
+ * @param onClearQuery empties the search field.
  * @param modifier modifier of the screen.
  * @param snackbarHostState host of the short messages (star refused by the server).
  * @param animateGauges false to draw the gauges at once (screenshots).
@@ -90,6 +101,8 @@ fun HistoryContent(
     onErrorAction: (FriendlyAction) -> Unit,
     onSelectFilter: (AnalysisFilter) -> Unit,
     onToggleFavorite: (String, Boolean) -> Unit,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     animateGauges: Boolean = true,
@@ -105,11 +118,22 @@ fun HistoryContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .hideKeyboardOnScroll()
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = JaugeTheme.spacing.screenGutter)
                     .padding(top = 12.dp, bottom = 24.dp),
             ) {
                 val analyses = state.visibleAnalyses
+                if (state.showsSearch && !analysesState.isLoading && !analysesState.showsFullScreenError) {
+                    JaugeSearchField(
+                        query = state.query,
+                        onQueryChange = onQueryChange,
+                        placeholder = stringResource(Res.string.history_search_placeholder),
+                        clearDescription = stringResource(Res.string.history_search_clear),
+                        onClear = onClearQuery,
+                        modifier = Modifier.padding(bottom = 12.dp),
+                    )
+                }
                 if (!analysesState.isLoading && !analysesState.showsFullScreenError && !analysesState.content.isNullOrEmpty()) {
                     Row(modifier = Modifier.padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         AnalysisFilter.entries.forEach { filter ->
@@ -128,6 +152,13 @@ fun HistoryContent(
                     analysesState.content.isNullOrEmpty() -> EmptyState(
                         title = stringResource(Res.string.home_empty_title),
                         message = stringResource(Res.string.home_empty_message),
+                    )
+                    state.hasNoSearchResult -> EmptyState(
+                        title = stringResource(Res.string.history_search_empty_title, state.appliedQuery),
+                        message = stringResource(Res.string.history_search_empty_message),
+                        icon = JaugeIcons.Search,
+                        actionLabel = stringResource(Res.string.history_search_empty_action),
+                        onAction = onClearQuery,
                     )
                     analyses.isNullOrEmpty() -> EmptyState(
                         title = stringResource(Res.string.history_favorites_empty_title),

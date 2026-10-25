@@ -2,9 +2,11 @@ package io.jauge.feature.twins.twinoffers
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.jauge.core.common.text.SearchText
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.CalmAlert
 import io.jauge.core.domain.model.Outcome
+import io.jauge.core.domain.model.TwinOffer
 import io.jauge.core.domain.model.TwinOffers
 import io.jauge.core.domain.model.TwinSort
 import io.jauge.core.domain.usecase.CreateCalmAlertUseCase
@@ -17,6 +19,7 @@ import io.jauge.core.ui.state.reduce
 import io.jauge.core.ui.state.refreshing
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +38,8 @@ import kotlinx.coroutines.launch
  * @property hasNoAnalysis true when the user has no analysis yet (empty state).
  * @property alerts calm alerts of the user.
  * @property alertSwitchOverride value shown by the switch while a change is being saved, null otherwise.
+ * @property query text of the search field, shown as typed.
+ * @property appliedQuery search applied to the list, [query] after a short typing delay.
  */
 data class TwinOffersUiState(
     val analysisId: String? = null,
@@ -43,7 +48,21 @@ data class TwinOffersUiState(
     val hasNoAnalysis: Boolean = false,
     val alerts: List<CalmAlert> = emptyList(),
     val alertSwitchOverride: Boolean? = null,
+    val query: String = "",
+    val appliedQuery: String = "",
 ) {
+    /** Twins kept by the search (job title, company or place, accents and case ignored), null while unknown. */
+    val visibleOffers: List<TwinOffer>?
+        get() = twins.content?.offers?.filter { SearchText.matches(appliedQuery, it.jobTitle, it.company, it.place) }
+
+    /** True when the list is long enough to show the search field, or while a search is typed. */
+    val showsSearch: Boolean
+        get() = (twins.content?.offers?.size ?: 0) > SearchText.LIST_SIZE_WITHOUT_SEARCH || query.isNotBlank()
+
+    /** True when twins exist but none matches the search ("Aucun résultat pour « … »"). */
+    val hasNoSearchResult: Boolean
+        get() = appliedQuery.isNotBlank() && !twins.content?.offers.isNullOrEmpty() && visibleOffers.isNullOrEmpty()
+
     /** The active calm alert of [analysisId], if any. */
     val activeAlert: CalmAlert?
         get() = alerts.firstOrNull { it.analysisId == analysisId && it.isActive }
@@ -98,6 +117,7 @@ class TwinOffersViewModel(
     private val state = MutableStateFlow(TwinOffersUiState(analysisId = initialAnalysisId))
     private val eventChannel = Channel<TwinOffersEvent>(Channel.BUFFERED)
     private var loadJob: Job? = null
+    private var searchJob: Job? = null
 
     /** Observed state of the screen. */
     val uiState: StateFlow<TwinOffersUiState> = state.asStateFlow()
@@ -134,6 +154,26 @@ class TwinOffersViewModel(
         if (sort == state.value.sort) return
         state.update { it.copy(sort = sort) }
         refresh()
+    }
+
+    /**
+     * Changes the text of the search field; the list follows after a short typing delay.
+     *
+     * @param query the text typed by the user.
+     */
+    fun updateQuery(query: String) {
+        state.update { it.copy(query = query) }
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SearchText.TYPING_DELAY_MILLISECONDS)
+            state.update { it.copy(appliedQuery = query.trim()) }
+        }
+    }
+
+    /** Empties the search field and shows every twin at once. */
+    fun clearQuery() {
+        searchJob?.cancel()
+        state.update { it.copy(query = "", appliedQuery = "") }
     }
 
     /**

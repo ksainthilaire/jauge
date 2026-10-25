@@ -58,7 +58,8 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
         )
     }
 
-    override suspend fun getAnalyses(cursor: String?, limit: Int): AnalysisPagePayload = call { service.getAnalyses(cursor, limit) }
+    override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload =
+        call { service.getAnalyses(cursor, limit, query?.trim()?.takeIf { it.isNotEmpty() }) }
 
     override suspend fun getAnalysis(analysisId: String): AnalysisPayload = call { service.getAnalysis(analysisId) }
 
@@ -75,8 +76,13 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
 
     override suspend fun getTrend(analysisId: String): TrendInsightPayload = call { service.getTrend(analysisId) }
 
-    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload =
-        call { service.getTwins(analysisId, sort, area?.city, area?.departmentCode, area?.radiusKilometers) }
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?, query: String?): TwinOffersPayload =
+        call {
+            service.getTwins(
+                analysisId, sort, area?.city, area?.departmentCode, area?.radiusKilometers,
+                query?.trim()?.takeIf { it.isNotEmpty() },
+            )
+        }
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) =
         callWithoutBody { service.sendApplicantFeedback(analysisId, request) }

@@ -26,6 +26,19 @@ val sampleAnalyses = listOf(
     AnalysisSummary("analysis-ardent", Clock.System.now(), "Responsable CRM", "Vélo Ardent", "Vaise", 19),
 )
 
+/** Twelve analyses: long enough for the search field of the full list (more than 6). */
+val manyAnalyses = sampleAnalyses + listOf(
+    AnalysisSummary("analysis-lumiere", Clock.System.now(), "Community manager", "Brasserie Lumière", "Lyon 2e", 63),
+    AnalysisSummary("analysis-garance", Clock.System.now(), "Spécialiste SEO", "Éditions Garance", "Villeurbanne", 37),
+    AnalysisSummary("analysis-redaction", Clock.System.now(), "Rédactrice web", "Atelier Sorel", "Lyon 3e", 71),
+    AnalysisSummary("analysis-coeur", Clock.System.now(), "Product marketing manager", "Cœur de Lyon", "Lyon 1er", 55),
+    AnalysisSummary("analysis-emailing", Clock.System.now(), "Chargé·e d'emailing", "Vélo Ardent", "Lyon 9e (Vaise)", 24),
+    AnalysisSummary("analysis-odier", Clock.System.now(), "Social ads manager", "Maison Odier", "Caluire", 48),
+    AnalysisSummary("analysis-data", Clock.System.now(), "Data analyst marketing", "Groupe Pellat", "Villeurbanne", 33),
+    AnalysisSummary("analysis-evrard", Clock.System.now(), "Chef de marque junior", "Fromagerie Évrard", "Écully", 82),
+    AnalysisSummary("analysis-mirabelle", Clock.System.now(), "Growth hacker", "Studio Mirabelle", "Part-Dieu", 58),
+)
+
 /** Analyses with programmable answers. */
 class FakeAnalysisRepository : AnalysisRepository {
     /** Stored history. */
@@ -36,6 +49,9 @@ class FakeAnalysisRepository : AnalysisRepository {
 
     /** Progress returned by [analyze]. */
     var progress: List<AnalysisProgress> = emptyList()
+
+    /** History stored by the next successful refresh. */
+    var refreshedHistory: List<AnalysisSummary> = sampleAnalyses
 
     /** Last analyzed source. */
     var analyzed: OfferSource? = null
@@ -72,7 +88,7 @@ class FakeAnalysisRepository : AnalysisRepository {
 
     override suspend fun refreshHistory(): Outcome<Unit> {
         refreshError?.let { return Outcome.Failure(it) }
-        history.value = sampleAnalyses
+        history.value = refreshedHistory
         return Outcome.Success(Unit)
     }
 

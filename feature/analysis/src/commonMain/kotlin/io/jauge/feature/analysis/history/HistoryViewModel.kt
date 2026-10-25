@@ -2,6 +2,7 @@ package io.jauge.feature.analysis.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.jauge.core.common.text.SearchText
 import io.jauge.core.domain.model.AnalysisSummary
 import io.jauge.core.domain.model.Outcome
 import io.jauge.core.domain.usecase.AnalysisFilter
@@ -10,7 +11,9 @@ import io.jauge.core.domain.usecase.GetAnalysisHistoryUseCase
 import io.jauge.core.ui.state.ContentState
 import io.jauge.core.ui.state.refreshing
 import io.jauge.feature.analysis.favorites.FavoriteFailure
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,14 +28,30 @@ import kotlinx.coroutines.launch
  *
  * @property analyses every analysis of the user, with the loading, refreshing and error states.
  * @property filter chosen filter ("Toutes" or "Favoris").
+ * @property query text of the search field, shown as typed.
+ * @property appliedQuery search applied to the list, [query] after a short typing delay.
  */
 data class HistoryUiState(
     val analyses: ContentState<List<AnalysisSummary>> = ContentState(),
     val filter: AnalysisFilter = AnalysisFilter.ALL,
+    val query: String = "",
+    val appliedQuery: String = "",
 ) {
-    /** Analyses shown with the current [filter], null while unknown. */
-    val visibleAnalyses: List<AnalysisSummary>?
+    /** Analyses kept by the [filter] only, before the search, null while unknown. */
+    private val filteredAnalyses: List<AnalysisSummary>?
         get() = analyses.content?.let(filter::apply)
+
+    /** Analyses shown with the current [filter] and search (job title, company or city), null while unknown. */
+    val visibleAnalyses: List<AnalysisSummary>?
+        get() = filteredAnalyses?.filter { SearchText.matches(appliedQuery, it.jobTitle, it.company, it.place) }
+
+    /** True when the filtered list is long enough to show the search field, or while a search is typed. */
+    val showsSearch: Boolean
+        get() = (filteredAnalyses?.size ?: 0) > SearchText.LIST_SIZE_WITHOUT_SEARCH || query.isNotBlank()
+
+    /** True when the filter keeps analyses but none matches the search ("Aucun résultat pour « … »"). */
+    val hasNoSearchResult: Boolean
+        get() = appliedQuery.isNotBlank() && !filteredAnalyses.isNullOrEmpty() && visibleAnalyses.isNullOrEmpty()
 }
 
 /**
@@ -48,6 +67,7 @@ class HistoryViewModel(
     private val state = MutableStateFlow(HistoryUiState())
     private val favoriteFailureChannel = Channel<FavoriteFailure>(Channel.BUFFERED)
     private var hasLoadedOnce = false
+    private var searchJob: Job? = null
 
     /** Observed state of the screen. */
     val uiState: StateFlow<HistoryUiState> = state.asStateFlow()
@@ -86,6 +106,26 @@ class HistoryViewModel(
      */
     fun selectFilter(filter: AnalysisFilter) {
         state.update { it.copy(filter = filter) }
+    }
+
+    /**
+     * Changes the text of the search field; the list follows after a short typing delay.
+     *
+     * @param query the text typed by the user.
+     */
+    fun updateQuery(query: String) {
+        state.update { it.copy(query = query) }
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SearchText.TYPING_DELAY_MILLISECONDS)
+            state.update { it.copy(appliedQuery = query.trim()) }
+        }
+    }
+
+    /** Empties the search field and shows the whole list at once. */
+    fun clearQuery() {
+        searchJob?.cancel()
+        state.update { it.copy(query = "", appliedQuery = "") }
     }
 
     /**

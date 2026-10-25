@@ -30,6 +30,20 @@ object TwinsSampleData {
         ),
     )
 
+    /** Twelve twins: long enough for the search field (more than 6). */
+    val manyTwins = twins.copy(
+        offers = twins.offers + listOf(
+            TwinOffer("garance", "Chargée de communication digitale", "Éditions Garance", "Villeurbanne", SalaryRange(34, 38), 125, 60, 5, LocalDate(2026, 10, 19), null),
+            TwinOffer("coeur", "Responsable marketing digital", "Cœur de Lyon", "Lyon 1er", SalaryRange(42, 47), 130, 62, 3, LocalDate(2026, 10, 17), null),
+            TwinOffer("evrard", "Chargé·e d'acquisition", "Fromagerie Évrard", "Écully", SalaryRange(36, 40), 140, 64, 8, LocalDate(2026, 10, 22), null),
+            TwinOffer("lumiere", "Marketing manager", "Brasserie Lumière", "Lyon 2e", SalaryRange(39, 44), 150, 67, 4, LocalDate(2026, 10, 18), null),
+            TwinOffer("perche", "Chargée de marketing et réseaux sociaux", "Atelier Perché", "Vénissieux", SalaryRange(31, 35), 165, 70, 9, LocalDate(2026, 10, 15), null),
+            TwinOffer("ardent", "Traffic manager", "Vélo Ardent", "Lyon 9e", SalaryRange(36, 41), 175, 72, 7, LocalDate(2026, 10, 23), null),
+            TwinOffer("pellat", "Chef·fe de projet marketing", "Groupe Pellat", "Villeurbanne", SalaryRange(38, 43), 195, 76, 5, LocalDate(2026, 10, 13), null),
+            TwinOffer("saba", "Assistant·e marketing digital", "Maison Saba", "Bron", SalaryRange(28, 31), 230, 81, 10, LocalDate(2026, 10, 20), null),
+        ),
+    )
+
     val latestAnalysis = AnalysisSummary("analysis-marketing", Instant.parse("2026-10-23T08:00:00Z"), "Chargée de marketing digital", "Atelier Sorel", "Lyon 3e", 78)
 }
 

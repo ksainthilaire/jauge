@@ -70,8 +70,14 @@ class OfflineDataset(private val clock: Clock = Clock.System) {
         ),
     )
 
-    /** The three analyses of the home screen (mockup 02), newest first. */
-    fun initialAnalyses(): List<AnalysisPayload> = listOf(
+    /**
+     * The three analyses of the home screen (mockup 02), newest first, followed by older ones so that the full list
+     * ("Tout voir") is long enough to show its search field.
+     */
+    fun initialAnalyses(): List<AnalysisPayload> = mockupAnalyses() + olderAnalyses()
+
+    /** The three analyses of mockup 02, newest first. */
+    private fun mockupAnalyses(): List<AnalysisPayload> = listOf(
         marketingAnalysis(),
         completed(
             id = TRAFFIC_ID,
@@ -124,6 +130,52 @@ class OfflineDataset(private val clock: Clock = Clock.System) {
         ),
     )
 
+    /** Older analyses of the sample history (one to five weeks old), newest first. */
+    private fun olderAnalyses(): List<AnalysisPayload> = listOf(
+        older("demo-community-manager", 8, "Community manager", "Brasserie Lumière", "Lyon 2e", 63, 140, SalaryRangePayload(30, 34)),
+        older("demo-seo-specialist", 10, "Spécialiste SEO", "Éditions Garance", "Villeurbanne", 37, 60, SalaryRangePayload(36, 42)),
+        older("demo-content-writer", 13, "Rédactrice web", "Atelier Sorel", "Lyon 3e", 71, 175, SalaryRangePayload(29, 33)),
+        older("demo-product-marketing", 16, "Product marketing manager", "Cœur de Lyon", "Lyon 1er", 55, 110, SalaryRangePayload(42, 48)),
+        older("demo-email-marketing", 20, "Chargé·e d'emailing", "Vélo Ardent", "Lyon 9e (Vaise)", 24, 30, SalaryRangePayload(32, 36)),
+        older("demo-social-ads", 23, "Social ads manager", "Maison Odier", "Caluire", 48, 90, SalaryRangePayload(35, 39)),
+        older("demo-data-analyst", 27, "Data analyst marketing", "Groupe Pellat", "Villeurbanne", 33, 50, SalaryRangePayload(40, 45)),
+        older("demo-brand-manager", 31, "Chef de marque junior", "Fromagerie Évrard", "Écully", 82, 260, SalaryRangePayload(34, 38)),
+        older("demo-growth-hacker", 36, "Growth hacker", "Studio Mirabelle", "Part-Dieu", 58, 125, SalaryRangePayload(37, 41)),
+    )
+
+    private fun older(
+        id: String,
+        daysAgo: Int,
+        jobTitle: String,
+        company: String,
+        city: String,
+        score: Int,
+        applicants: Int,
+        salary: SalaryRangePayload,
+    ) = completed(
+        id = id,
+        createdHoursAgo = daysAgo * 24,
+        offer = OfferPayload(
+            jobTitle = jobTitle,
+            company = company,
+            city = city,
+            contractType = "permanent",
+            publishedOn = today.minus(DatePeriod(days = daysAgo + 2)).toString(),
+            skills = listOf("GA4", "Brevo", "Canva"),
+        ),
+        result = AnalysisResultPayload(
+            score = score,
+            percentileInRegion = score,
+            regionName = "Rhône",
+            applicants = ApplicantsPayload(estimate = applicants, low = applicants * 3 / 4, high = applicants * 5 / 4),
+            reliability = "medium",
+            estimatedSalary = salary,
+            twinOfferCount = 18,
+            trendThreeMonthsPercent = 3,
+            comparableOfferCount = 1_284,
+        ),
+    )
+
     /** Summary of an analysis for lists. */
     fun summaryOf(analysis: AnalysisPayload): AnalysisSummaryPayload? {
         val offer = analysis.offer ?: return null
@@ -165,7 +217,7 @@ class OfflineDataset(private val clock: Clock = Clock.System) {
         return TrendInsightPayload(points = points, changeThreeMonthsPercent = 18)
     }
 
-    /** Twin offers around Lyon (mockup 06). */
+    /** Twin offers around Lyon (the four calmest are those of mockup 06, the others are busier and make the list long enough to be searched). */
     fun twins(): TwinOffersPayload = TwinOffersPayload(
         areaName = "Lyon + 30 km",
         radiusKilometers = 30,
@@ -174,6 +226,14 @@ class OfflineDataset(private val clock: Clock = Clock.System) {
             TwinOfferPayload("twin-ferme-numerique", "Chef·fe de projet acquisition", "Ferme Numérique", "Lyon 7e", SalaryRangePayload(35, 39), 60, 31, 4, today.minus(DatePeriod(days = 3)).toString()),
             TwinOfferPayload("twin-studio-mirabelle", "Growth marketer junior", "Studio Mirabelle", "Part-Dieu", SalaryRangePayload(33, 37), 95, 48, 2, today.toString()),
             TwinOfferPayload("twin-maison-odier", "Marketing digital & CRM", "Maison Odier", "Caluire", SalaryRangePayload(37, 40), 120, 58, 6, today.minus(DatePeriod(days = 2)).toString()),
+            TwinOfferPayload("twin-editions-garance", "Chargée de communication digitale", "Éditions Garance", "Villeurbanne", SalaryRangePayload(34, 38), 125, 60, 5, today.minus(DatePeriod(days = 4)).toString()),
+            TwinOfferPayload("twin-coeur-de-lyon", "Responsable marketing digital", "Cœur de Lyon", "Lyon 1er", SalaryRangePayload(42, 47), 130, 62, 3, today.minus(DatePeriod(days = 6)).toString()),
+            TwinOfferPayload("twin-fromagerie-evrard", "Chargé·e d'acquisition", "Fromagerie Évrard", "Écully", SalaryRangePayload(36, 40), 140, 64, 8, today.minus(DatePeriod(days = 1)).toString()),
+            TwinOfferPayload("twin-brasserie-lumiere", "Marketing manager", "Brasserie Lumière", "Lyon 2e", SalaryRangePayload(39, 44), 150, 67, 4, today.minus(DatePeriod(days = 5)).toString()),
+            TwinOfferPayload("twin-atelier-perche", "Chargée de marketing et réseaux sociaux", "Atelier Perché", "Vénissieux", SalaryRangePayload(31, 35), 165, 70, 9, today.minus(DatePeriod(days = 8)).toString()),
+            TwinOfferPayload("twin-velo-ardent", "Traffic manager", "Vélo Ardent", "Lyon 9e", SalaryRangePayload(36, 41), 175, 72, 7, today.toString()),
+            TwinOfferPayload("twin-groupe-pellat", "Chef·fe de projet marketing", "Groupe Pellat", "Villeurbanne", SalaryRangePayload(38, 43), 195, 76, 5, today.minus(DatePeriod(days = 10)).toString()),
+            TwinOfferPayload("twin-maison-saba", "Assistant·e marketing digital", "Maison Saba", "Bron", SalaryRangePayload(28, 31), 230, 81, 10, today.minus(DatePeriod(days = 3)).toString()),
         ),
     )
 

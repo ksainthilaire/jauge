@@ -79,10 +79,11 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
         )
     }.decode()
 
-    override suspend fun getAnalyses(cursor: String?, limit: Int): AnalysisPagePayload = call {
+    override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload = call {
         client.get("v1/analyses") {
             if (cursor != null) parameter("cursor", cursor)
             parameter("limit", limit)
+            query?.trim()?.takeIf { it.isNotEmpty() }?.let { parameter("query", it) }
         }
     }.decode()
 
@@ -113,9 +114,10 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
 
     override suspend fun getTrend(analysisId: String): TrendInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/trend") }.decode()
 
-    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload = call {
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?, query: String?): TwinOffersPayload = call {
         client.get("v1/analyses/${pathSegment(analysisId)}/twins") {
             parameter("sort", sort)
+            query?.trim()?.takeIf { it.isNotEmpty() }?.let { parameter("query", it) }
             area?.let {
                 parameter("city", it.city)
                 it.departmentCode?.let { department -> parameter("department", department) }

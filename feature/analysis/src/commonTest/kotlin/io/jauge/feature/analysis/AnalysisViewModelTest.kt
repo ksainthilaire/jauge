@@ -21,7 +21,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import io.jauge.core.common.text.SearchText
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -184,6 +187,85 @@ class AnalysisViewModelTest {
         viewModel.selectFilter(AnalysisFilter.FAVORITES)
         assertEquals(emptyList(), viewModel.uiState.value.visibleAnalyses)
         assertEquals(3, viewModel.uiState.value.analyses.content?.size)
+    }
+
+    private fun longHistoryViewModel(): HistoryViewModel {
+        repository.refreshedHistory = manyAnalyses
+        return HistoryViewModel(GetAnalysisHistoryUseCase(repository), FavoriteAnalysisUseCase(repository))
+    }
+
+    private fun TestScope.typeAndWait(viewModel: HistoryViewModel, query: String) {
+        viewModel.updateQuery(query)
+        advanceTimeBy(SearchText.TYPING_DELAY_MILLISECONDS + 1)
+    }
+
+    @Test
+    fun historySearchFieldOnlyShowsForMoreThanSixAnalyses() {
+        val short = HistoryViewModel(GetAnalysisHistoryUseCase(repository), FavoriteAnalysisUseCase(repository))
+        assertFalse(short.uiState.value.showsSearch)
+        assertTrue(longHistoryViewModel().uiState.value.showsSearch)
+    }
+
+    @Test
+    fun historySearchFiltersOnTitleCompanyAndCityAfterAShortDelay() = runTest {
+        val viewModel = longHistoryViewModel()
+
+        viewModel.updateQuery("villeurbanne")
+        assertEquals(12, viewModel.uiState.value.visibleAnalyses?.size, "not filtered while typing")
+        advanceTimeBy(SearchText.TYPING_DELAY_MILLISECONDS + 1)
+        assertEquals(listOf("analysis-pellat", "analysis-garance", "analysis-data"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+
+        typeAndWait(viewModel, "sorel")
+        assertEquals(listOf("analysis-sorel", "analysis-redaction"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+
+        typeAndWait(viewModel, "manager")
+        assertEquals(listOf("analysis-pellat", "analysis-lumiere", "analysis-coeur", "analysis-odier"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+    }
+
+    @Test
+    fun historySearchIgnoresAccentsAndCase() = runTest {
+        val viewModel = longHistoryViewModel()
+
+        typeAndWait(viewModel, "VELO")
+        assertEquals(listOf("analysis-ardent", "analysis-emailing"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+
+        typeAndWait(viewModel, "editions ecully")
+        assertEquals(emptyList(), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+
+        typeAndWait(viewModel, "evrard ecully")
+        assertEquals(listOf("analysis-evrard"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+
+        typeAndWait(viewModel, "chargee")
+        assertEquals(listOf("analysis-sorel", "analysis-emailing"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+    }
+
+    @Test
+    fun historySearchCombinesWithTheFavoritesFilter() = runTest {
+        val viewModel = longHistoryViewModel()
+        viewModel.toggleFavorite("analysis-pellat", true)
+        viewModel.toggleFavorite("analysis-sorel", true)
+
+        typeAndWait(viewModel, "villeurbanne")
+        viewModel.selectFilter(AnalysisFilter.FAVORITES)
+
+        assertEquals(listOf("analysis-pellat"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+        assertTrue(viewModel.uiState.value.showsSearch, "the field stays while a search is typed")
+        viewModel.clearQuery()
+        assertEquals(listOf("analysis-sorel", "analysis-pellat"), viewModel.uiState.value.visibleAnalyses?.map { it.id })
+        assertFalse(viewModel.uiState.value.showsSearch, "two favorites: no search field")
+    }
+
+    @Test
+    fun historySearchWithoutResultShowsTheEmptyStateUntilCleared() = runTest {
+        val viewModel = longHistoryViewModel()
+
+        typeAndWait(viewModel, "boulangerie")
+        assertTrue(viewModel.uiState.value.hasNoSearchResult)
+        assertEquals("boulangerie", viewModel.uiState.value.appliedQuery)
+
+        viewModel.clearQuery()
+        assertFalse(viewModel.uiState.value.hasNoSearchResult)
+        assertEquals(12, viewModel.uiState.value.visibleAnalyses?.size)
     }
 
     @Test

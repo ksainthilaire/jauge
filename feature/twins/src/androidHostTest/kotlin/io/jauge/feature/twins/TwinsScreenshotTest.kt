@@ -41,7 +41,40 @@ class TwinsScreenshotTest {
                 alerts = listOf(CalmAlert("alert", "analysis-marketing", 30, true)),
             ),
             snackbarHostState = SnackbarHostState(),
-            onBack = null, onRefresh = {}, onSelectSort = {}, onAlertChange = {}, onAnalyzeOffer = {},
+            onBack = null, onRefresh = {}, onSelectSort = {}, onAlertChange = {}, onAnalyzeOffer = {}, onQueryChange = {}, onClearQuery = {},
+        )
+    }
+
+    /** Long list: the search field appears above the twins. */
+    @Test
+    fun twinOffersSearch() = capture("06-twin-offers-recherche") { TwinOffersSearchSample(query = "") }
+
+    @Test
+    fun twinOffersSearchDark() = capture("06-twin-offers-recherche-sombre", darkTheme = true) { TwinOffersSearchSample(query = "") }
+
+    /** Search typed: only the matching twins stay. */
+    @Test
+    fun twinOffersSearchTyped() = capture("06-twin-offers-recherche-ecully") { TwinOffersSearchSample(query = "ecully") }
+
+    /** Search without result: friendly empty state with an action to clear the search. */
+    @Test
+    fun twinOffersSearchNoResult() = capture("06-twin-offers-recherche-aucun-resultat") { TwinOffersSearchSample(query = "boulangerie") }
+
+    @Test
+    fun twinOffersSearchNoResultDark() =
+        capture("06-twin-offers-recherche-aucun-resultat-sombre", darkTheme = true) { TwinOffersSearchSample(query = "boulangerie") }
+
+    @Composable
+    private fun TwinOffersSearchSample(query: String) {
+        TwinOffersLayout(
+            state = TwinOffersUiState(
+                analysisId = "analysis-marketing",
+                twins = ContentState(TwinsSampleData.manyTwins, isLoading = false),
+                query = query,
+                appliedQuery = query,
+            ),
+            snackbarHostState = SnackbarHostState(),
+            onBack = null, onRefresh = {}, onSelectSort = {}, onAlertChange = {}, onAnalyzeOffer = {}, onQueryChange = {}, onClearQuery = {},
         )
     }
 
@@ -50,7 +83,7 @@ class TwinsScreenshotTest {
         TwinOffersLayout(
             state = TwinOffersUiState(twins = ContentState(isLoading = false), hasNoAnalysis = true),
             snackbarHostState = SnackbarHostState(),
-            onBack = null, onRefresh = {}, onSelectSort = {}, onAlertChange = {}, onAnalyzeOffer = {},
+            onBack = null, onRefresh = {}, onSelectSort = {}, onAlertChange = {}, onAnalyzeOffer = {}, onQueryChange = {}, onClearQuery = {},
         )
     }
 }

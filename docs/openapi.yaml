@@ -68,6 +68,7 @@ paths:
         - name: limit
           in: query
           schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - $ref: '#/components/parameters/SearchQuery'
       responses:
         '200':
           description: One page of analyses.
@@ -183,6 +184,7 @@ paths:
           in: query
           description: Radius of the search area in kilometers (10, 30, 50 or 100). Twins are looked for within it.
           schema: { type: integer, minimum: 1, maximum: 200 }
+        - $ref: '#/components/parameters/SearchQuery'
       responses:
         '200':
           description: Twin offers.
@@ -392,6 +394,15 @@ components:
       in: path
       required: true
       schema: { type: string }
+    SearchQuery:
+      name: query
+      in: query
+      description: >-
+        Optional search on the job title, the company and the city (or place) of each element. Case, accents,
+        ligatures and the middle dots of inclusive writing are ignored ("chargee" finds "Chargé·e"); every word must
+        appear in one of the fields, in any order. Absent or blank returns every element. It combines with `sort`
+        and the other filters.
+      schema: { type: string, maxLength: 100 }
     AreaCity:
       name: city
       in: query

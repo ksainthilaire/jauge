@@ -89,4 +89,9 @@
     <string name="history_filter_favorites">Favorites</string>
     <string name="history_favorites_empty_title">No favorites yet</string>
     <string name="history_favorites_empty_message">Tap the star of an analyzed offer to find it here.</string>
+    <string name="history_search_placeholder">Job, company or city</string>
+    <string name="history_search_clear">Clear the search</string>
+    <string name="history_search_empty_title">No result for “%1$s”</string>
+    <string name="history_search_empty_message">No gauged offer matches. Check the spelling or try another job, company or city.</string>
+    <string name="history_search_empty_action">Clear the search</string>
 </resources>

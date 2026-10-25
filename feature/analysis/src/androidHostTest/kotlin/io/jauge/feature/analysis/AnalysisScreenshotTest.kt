@@ -83,7 +83,7 @@ class AnalysisScreenshotTest {
                 HistoryContent(
                     state = HistoryUiState(ContentState(content = favoriteAnalyses, isLoading = false), AnalysisFilter.FAVORITES),
                     onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
-                    onToggleFavorite = { _, _ -> }, animateGauges = false,
+                    onToggleFavorite = { _, _ -> }, onQueryChange = {}, onClearQuery = {}, animateGauges = false,
                 )
             }
         }
@@ -97,7 +97,7 @@ class AnalysisScreenshotTest {
                 HistoryContent(
                     state = HistoryUiState(ContentState(content = favoriteAnalyses, isLoading = false), AnalysisFilter.ALL),
                     onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
-                    onToggleFavorite = { _, _ -> }, animateGauges = false,
+                    onToggleFavorite = { _, _ -> }, onQueryChange = {}, onClearQuery = {}, animateGauges = false,
                 )
             }
         }
@@ -109,8 +109,63 @@ class AnalysisScreenshotTest {
         HistoryContent(
             state = HistoryUiState(ContentState(content = analyses, isLoading = false), AnalysisFilter.FAVORITES),
             onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
-            onToggleFavorite = { _, _ -> },
+            onToggleFavorite = { _, _ -> }, onQueryChange = {}, onClearQuery = {},
         )
+    }
+
+    private val manyAnalyses = analyses + listOf(
+        AnalysisSummary("4", now - 8.days, "Community manager", "Brasserie Lumière", "Lyon 2e", 63),
+        AnalysisSummary("5", now - 10.days, "Spécialiste SEO", "Éditions Garance", "Villeurbanne", 37),
+        AnalysisSummary("6", now - 13.days, "Rédactrice web", "Atelier Sorel", "Lyon 3e", 71),
+        AnalysisSummary("7", now - 16.days, "Product marketing manager", "Cœur de Lyon", "Lyon 1er", 55),
+        AnalysisSummary("8", now - 20.days, "Chargé·e d'emailing", "Vélo Ardent", "Lyon 9e (Vaise)", 24),
+        AnalysisSummary("9", now - 23.days, "Social ads manager", "Maison Odier", "Caluire", 48),
+        AnalysisSummary("10", now - 27.days, "Data analyst marketing", "Groupe Pellat", "Villeurbanne", 33),
+        AnalysisSummary("11", now - 31.days, "Chef de marque junior", "Fromagerie Évrard", "Écully", 82),
+        AnalysisSummary("12", now - 36.days, "Growth hacker", "Studio Mirabelle", "Part-Dieu", 58),
+    )
+
+    /** "Tout voir" with more than 6 analyses: the search field appears, light and dark themes. */
+    @Test
+    fun historySearch() {
+        listOf(false, true).forEach { dark ->
+            capture(if (dark) "02-tout-voir-recherche-sombre" else "02-tout-voir-recherche", darkTheme = dark) {
+                HistoryContent(
+                    state = HistoryUiState(ContentState(content = manyAnalyses, isLoading = false), AnalysisFilter.ALL),
+                    onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
+                    onToggleFavorite = { _, _ -> }, onQueryChange = {}, onClearQuery = {}, animateGauges = false,
+                )
+            }
+        }
+    }
+
+    /** Search typed in "Tout voir": accents ignored ("velo" finds "Vélo Ardent"). */
+    @Test
+    fun historySearchTyped() = capture("02-tout-voir-recherche-velo") {
+        HistoryContent(
+            state = HistoryUiState(ContentState(content = manyAnalyses, isLoading = false), AnalysisFilter.ALL, query = "velo", appliedQuery = "velo"),
+            onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
+            onToggleFavorite = { _, _ -> }, onQueryChange = {}, onClearQuery = {}, animateGauges = false,
+        )
+    }
+
+    /** Search without result in "Tout voir", light and dark themes. */
+    @Test
+    fun historySearchNoResult() {
+        listOf(false, true).forEach { dark ->
+            capture(if (dark) "02-tout-voir-aucun-resultat-sombre" else "02-tout-voir-aucun-resultat", darkTheme = dark) {
+                HistoryContent(
+                    state = HistoryUiState(
+                        ContentState(content = manyAnalyses, isLoading = false),
+                        AnalysisFilter.ALL,
+                        query = "boulangerie",
+                        appliedQuery = "boulangerie",
+                    ),
+                    onBack = {}, onOpenAnalysis = {}, onRefresh = {}, onErrorAction = {}, onSelectFilter = {},
+                    onToggleFavorite = { _, _ -> }, onQueryChange = {}, onClearQuery = {}, animateGauges = false,
+                )
+            }
+        }
     }
 
     /** Mockup 03. */

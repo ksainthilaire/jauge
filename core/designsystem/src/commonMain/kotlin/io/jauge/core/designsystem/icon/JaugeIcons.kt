@@ -100,6 +100,9 @@ object JaugeIcons {
     /** Empty star: the analysis is not a favorite. */
     val Star: ImageVector by lazy { strokeIcon("Star", "M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z") }
 
+    /** Magnifying glass of the search fields. */
+    val Search: ImageVector by lazy { strokeIcon("Search", "M4 11a7 7 0 1 0 14 0a7 7 0 1 0 -14 0z M20 20l-4-4") }
+
     /** Filled star: the analysis is a favorite. */
     val StarFilled: ImageVector by lazy { filledIcon("StarFilled", "M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z") }
 }
