@@ -46,7 +46,6 @@
 
     <!-- 04 Verdict -->
     <string name="verdict_screen_title">Analysis of %2$s %1$d</string>
-    <string name="verdict_score_out_of"> /100</string>
     <string name="verdict_more_than_offers">more than %1$d% of offers in %2$s</string>
     <string name="verdict_less_than_offers">fewer than %1$d% of offers in %2$s</string>
     <string name="verdict_estimate_line">Jauge estimate · %1$s · </string>

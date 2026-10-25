@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,7 +80,6 @@ import io.jauge.feature.verdict.resources.verdict_salary_displayed
 import io.jauge.feature.verdict.resources.verdict_salary_label
 import io.jauge.feature.verdict.resources.verdict_salary_not_displayed
 import io.jauge.feature.verdict.resources.verdict_salary_unknown
-import io.jauge.feature.verdict.resources.verdict_score_out_of
 import io.jauge.feature.verdict.resources.verdict_screen_title
 import io.jauge.feature.verdict.resources.verdict_timing_apply_before
 import io.jauge.feature.verdict.resources.verdict_timing_detail
@@ -289,36 +288,29 @@ private fun VerdictContent(
 private fun VerdictGaugeCard(analysis: Analysis, onOpenMethodology: () -> Unit, animateGauge: Boolean) {
     val colors = JaugeTheme.colors
     val level = GaugeLevel.valueOf(analysis.level.name)
+    // The verdict card follows the theme: ink on a light screen, a raised dark card on a dark screen (never a bright
+    // cream block at night).
     JaugeCard(
         modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
-        containerColor = colors.inverseSurface,
-        borderColor = colors.inverseSurface,
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 18.dp),
+        containerColor = colors.emphasisSurface,
+        borderColor = colors.emphasisOutline,
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 18.dp),
     ) {
+        // The score lives inside the arc, the cursor rides the arc: nothing ever covers the number, and the arc keeps
+        // its margin at any width and text size.
         JaugeGauge(
             score = analysis.score,
             size = GaugeSize.LARGE,
-            needleColor = colors.onInverseSurface,
+            contentColor = colors.onEmphasisSurface,
+            surfaceColor = colors.emphasisSurface,
+            showOutOf = true,
             animate = animateGauge,
-            modifier = Modifier.fillMaxWidth().height(150.dp),
+            modifier = Modifier.fillMaxWidth().widthIn(max = GAUGE_MAXIMUM_WIDTH).align(Alignment.CenterHorizontally),
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 0.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = buildAnnotatedString {
-                    append(analysis.score.toString())
-                    withStyle(SpanStyle(fontSize = 18.sp, color = colors.textTertiary, letterSpacing = 0.sp)) {
-                        append(stringResource(Res.string.verdict_score_out_of))
-                    }
-                },
-                // Natural line height: the line box holds the whole glyphs, so the digits never rise into the gauge
-                // and its needle pivot, whatever the score (0 to 100) and the text size of the system.
-                style = JaugeTheme.typography.numberLarge.copy(lineHeight = TextUnit.Unspecified),
-                color = colors.onInverseSurface,
-                modifier = Modifier.padding(top = SCORE_GAP_BELOW_GAUGE),
-            )
             val comparison = if (analysis.percentileInRegion >= 50) {
                 stringResource(Res.string.verdict_more_than_offers, analysis.percentileInRegion, analysis.regionName)
             } else {
@@ -328,17 +320,17 @@ private fun VerdictGaugeCard(analysis: Analysis, onOpenMethodology: () -> Unit, 
                 level = level,
                 text = joinWithDots(stringResource(level.label), comparison),
                 showDot = true,
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier.padding(top = 4.dp),
             )
             Text(
                 text = buildAnnotatedString {
                     append(stringResource(Res.string.verdict_estimate_line, analysis.reliability.label().lowercase()))
-                    withStyle(SpanStyle(color = colors.onInverseSurface, textDecoration = TextDecoration.Underline)) {
+                    withStyle(SpanStyle(color = colors.onEmphasisSurface, textDecoration = TextDecoration.Underline)) {
                         append(stringResource(Res.string.verdict_how))
                     }
                 },
                 style = JaugeTheme.typography.caption,
-                color = colors.textTertiary,
+                color = colors.onEmphasisSurfaceSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -446,4 +438,5 @@ private fun VerdictSkeleton() {
 }
 
 /** Space between the bottom of the gauge (needle pivot) and the score. */
-private val SCORE_GAP_BELOW_GAUGE = 4.dp
+/** Widest verdict gauge: on tablets and in landscape the arc stays a comfortable size. */
+private val GAUGE_MAXIMUM_WIDTH = 360.dp

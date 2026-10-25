@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -25,13 +27,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.jauge.core.designsystem.component.GaugeLevel
@@ -61,7 +59,6 @@ import io.jauge.feature.share.resources.share_card_link_caption
 import io.jauge.feature.share.resources.share_card_link_hint
 import io.jauge.feature.share.resources.share_card_salary_caption
 import io.jauge.feature.share.resources.share_card_salary_value
-import io.jauge.feature.share.resources.share_card_score_suffix
 import io.jauge.feature.share.resources.share_card_trend_caption
 import io.jauge.feature.share.resources.share_card_trend_value
 import io.jauge.feature.share.resources.share_card_twin_detail
@@ -127,10 +124,10 @@ private fun CardHeader(analysis: Analysis) {
         JaugeGauge(
             score = 72,
             size = GaugeSize.MINI,
-            needleColor = colors.textPrimary,
-            dimInactiveSegments = false,
+            surfaceColor = colors.background,
+            showScore = false,
             animate = false,
-            modifier = Modifier.size(24.dp, 17.dp),
+            modifier = Modifier.width(26.dp),
         )
         Text(
             text = stringResource(Res.string.share_card_brand),
@@ -176,43 +173,35 @@ private fun ColumnScope.GaugeCardBody(analysis: Analysis, calmTwin: TwinOffer?, 
     val isStory = options.format == ShareFormat.STORY
     val level = GaugeLevel.valueOf(analysis.level.name)
     OfferTitle(analysis, options)
-    val score = buildAnnotatedString {
-        withStyle(JaugeTheme.typography.numberLarge.toSpanStyle().copy(fontSize = 32.sp, letterSpacing = 0.sp)) {
-            append(analysis.score.toString())
-        }
-        withStyle(SpanStyle(fontSize = 13.sp, color = colors.textSecondary)) {
-            append(stringResource(Res.string.share_card_score_suffix))
-        }
-        withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, color = level.colors.accent)) {
-            append(stringResource(level.label).lowercase())
-        }
-    }
+    val levelWord = stringResource(level.label)
     if (isStory) {
+        // The score sits inside the arc, the cursor rides the arc: the number is never covered.
         JaugeGauge(
             score = analysis.score,
             size = GaugeSize.MEDIUM,
-            needleColor = colors.textPrimary,
+            surfaceColor = colors.background,
+            showOutOf = true,
             animate = animateGauge,
-            modifier = Modifier.padding(top = 8.dp).fillMaxWidth().height(104.dp),
+            modifier = Modifier.padding(top = 10.dp).fillMaxWidth().widthIn(max = STORY_GAUGE_WIDTH).align(Alignment.CenterHorizontally),
         )
         Text(
-            text = score,
-            // Natural line height: the large digits stay below the needle pivot at any text size.
-            style = JaugeTheme.typography.body.copy(lineHeight = TextUnit.Unspecified),
-            color = colors.textPrimary,
+            text = levelWord,
+            style = JaugeTheme.typography.bodyStrong,
+            color = level.colors.accent,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
         )
     } else {
-        Row(modifier = Modifier.padding(top = 10.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(modifier = Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             JaugeGauge(
                 score = analysis.score,
                 size = GaugeSize.MEDIUM,
-                needleColor = colors.textPrimary,
+                surfaceColor = colors.background,
+                showOutOf = true,
                 animate = animateGauge,
-                modifier = Modifier.size(124.dp, 64.dp),
+                modifier = Modifier.width(SQUARE_GAUGE_WIDTH),
             )
-            Text(text = score, style = JaugeTheme.typography.body, color = colors.textPrimary)
+            Text(text = levelWord, style = JaugeTheme.typography.bodyStrong.copy(fontSize = 18.sp), color = level.colors.accent)
         }
     }
     Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -273,7 +262,7 @@ private fun CalmTwinBox(twin: TwinOffer) {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        JaugeGauge(score = twin.score, size = GaugeSize.MINI, needleColor = colors.textPrimary, animate = false, modifier = Modifier.size(38.dp, 26.dp))
+        JaugeGauge(score = twin.score, size = GaugeSize.MINI, surfaceColor = colors.background, animate = false, modifier = Modifier.width(44.dp))
         Column {
             Text(
                 text = stringResource(Res.string.share_card_twin_title, twin.distanceKilometers),
@@ -337,3 +326,8 @@ private fun Footer() {
     )
 }
 
+/** Width of the gauge of the story card. */
+private val STORY_GAUGE_WIDTH = 230.dp
+
+/** Width of the gauge of the square card. */
+private val SQUARE_GAUGE_WIDTH = 124.dp

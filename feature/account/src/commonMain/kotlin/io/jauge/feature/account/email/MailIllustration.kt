@@ -13,10 +13,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import io.jauge.core.designsystem.component.GaugeFrame
+import io.jauge.core.designsystem.component.drawJaugeArc
 import io.jauge.core.designsystem.theme.JaugePalette
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * Brand illustration of the "Regarde ta boîte mail" step: an open envelope with a letter that carries a small calm
@@ -122,19 +121,21 @@ fun MailIllustration(modifier: Modifier = Modifier) {
     }
 }
 
-/** The three segment gauge of the letter, needle on the calm side. */
+/** The brand gauge of the letter, cursor on the calm side. */
 private fun DrawScope.drawLetterGauge(center: Offset, radius: Float, unit: Float) {
-    val stroke = Stroke(width = 7f * unit, cap = StrokeCap.Round)
-    val topLeft = Offset(center.x - radius, center.y - radius)
-    val arcSize = Size(radius * 2f, radius * 2f)
-    listOf(JaugePalette.Mint to 180f, JaugePalette.Amber to 240f, JaugePalette.Coral to 300f).forEach { (color, start) ->
-        drawArc(color = color, startAngle = start + 5f, sweepAngle = 50f, useCenter = false, topLeft = topLeft, size = arcSize, style = stroke)
-    }
-    val angle = (180f - 22f * 1.8f) * PI.toFloat() / 180f
-    val length = radius - 9f * unit
-    val tip = Offset(center.x + length * cos(angle), center.y - length * sin(angle))
-    drawLine(JaugePalette.Ink, center, tip, strokeWidth = 4f * unit, cap = StrokeCap.Round)
-    drawCircle(JaugePalette.Ink, radius = 5f * unit, center = center)
+    drawJaugeArc(
+        frame = GaugeFrame(center = center, radius = radius, extent = 6f * unit),
+        score = 22f,
+        strokeWidth = 7f * unit,
+        cursorRadius = 6f * unit,
+        calm = JaugePalette.Mint,
+        disputed = JaugePalette.Amber,
+        crowded = JaugePalette.Coral,
+        contentColor = JaugePalette.Ink,
+        surfaceColor = JaugePalette.Paper,
+        trackColor = JaugePalette.Ink.copy(alpha = 0.08f),
+        showTicks = false,
+    )
 }
 
 private const val VIEW_HEIGHT = 176f

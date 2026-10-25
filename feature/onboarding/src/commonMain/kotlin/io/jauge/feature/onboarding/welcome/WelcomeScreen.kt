@@ -62,19 +62,19 @@ import org.koin.compose.viewmodel.koinViewModel
  * @property titleStart first line of the title.
  * @property titleHighlight coral second line of the title.
  * @property text paragraph under the title.
- * @property needleDegrees angle of the needle of the illustration.
+ * @property score score shown by the gauge of the illustration.
  */
 private data class WelcomePage(
     val titleStart: StringResource,
     val titleHighlight: StringResource,
     val text: StringResource,
-    val needleDegrees: Float,
+    val score: Int,
 )
 
 private val welcomePages = listOf(
-    WelcomePage(Res.string.welcome_page_one_title_start, Res.string.welcome_page_one_title_highlight, Res.string.welcome_page_one_text, 40f),
-    WelcomePage(Res.string.welcome_page_two_title_start, Res.string.welcome_page_two_title_highlight, Res.string.welcome_page_two_text, 92f),
-    WelcomePage(Res.string.welcome_page_three_title_start, Res.string.welcome_page_three_title_highlight, Res.string.welcome_page_three_text, 152f),
+    WelcomePage(Res.string.welcome_page_one_title_start, Res.string.welcome_page_one_title_highlight, Res.string.welcome_page_one_text, 78),
+    WelcomePage(Res.string.welcome_page_two_title_start, Res.string.welcome_page_two_title_highlight, Res.string.welcome_page_two_text, 49),
+    WelcomePage(Res.string.welcome_page_three_title_start, Res.string.welcome_page_three_title_highlight, Res.string.welcome_page_three_text, 16),
 )
 
 /**
@@ -140,7 +140,7 @@ fun WelcomeContent(
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { pageIndex ->
                 val page = welcomePages[pageIndex]
                 Column(modifier = Modifier.fillMaxSize()) {
-                    WelcomeHero(needleDegrees = page.needleDegrees, modifier = Modifier.padding(top = 20.dp))
+                    WelcomeHero(score = page.score, modifier = Modifier.padding(top = 20.dp))
                     Column(modifier = Modifier.padding(horizontal = gutter).padding(top = 6.dp)) {
                         Text(
                             text = buildAnnotatedString {

@@ -327,7 +327,7 @@ private fun TwinOfferCard(offer: TwinOffer, onClick: (() -> Unit)?, modifier: Mo
         contentPadding = PaddingValues(14.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            JaugeGauge(score = offer.score, size = GaugeSize.MINI, needleColor = colors.textPrimary, animate = false)
+            JaugeGauge(score = offer.score, size = GaugeSize.MINI, animate = false)
             Column(Modifier.weight(1f)) {
                 Text(
                     text = offer.jobTitle,
