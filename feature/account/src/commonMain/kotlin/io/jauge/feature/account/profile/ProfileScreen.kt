@@ -1,6 +1,14 @@
 package io.jauge.feature.account.profile
 
 import androidx.compose.foundation.background
+import io.jauge.core.designsystem.component.JaugeButtonSize
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,6 +94,13 @@ import io.jauge.feature.account.resources.profile_manage_subscription
 import io.jauge.feature.account.resources.profile_methodology
 import io.jauge.feature.account.resources.profile_no_account_name
 import io.jauge.feature.account.resources.profile_plus_name
+import io.jauge.feature.account.resources.profile_plus_no_commitment
+import io.jauge.feature.account.resources.profile_plus_resume
+import io.jauge.feature.account.resources.profile_plus_start_trial
+import io.jauge.feature.account.resources.profile_plus_price
+import io.jauge.feature.account.resources.profile_plus_then_price
+import io.jauge.feature.account.resources.profile_plus_trial_badge
+import io.jauge.feature.account.resources.profile_plus_tagline
 import io.jauge.feature.account.resources.profile_privacy
 import io.jauge.feature.account.resources.profile_provider_apple
 import io.jauge.feature.account.resources.profile_provider_email
@@ -394,6 +409,8 @@ private fun SubscriptionCard(
         modifier = modifier
             .fillMaxWidth()
             .background(JaugePalette.Ink, shape)
+            // The ink card sits on an ink background in the dark theme: a thin outline keeps its edges visible.
+            .then(if (JaugeTheme.colors.isDark) Modifier.border(1.dp, JaugePalette.Ink3, shape) else Modifier)
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -427,22 +444,113 @@ private fun SubscriptionCard(
                 modifier = Modifier.padding(top = 6.dp),
             )
         }
-        Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(1.dp).background(JaugePalette.Ink3))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(role = Role.Button, onClick = if (isPlus) onManage else onDiscover)
-                .padding(top = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        if (isPlus) {
+            Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(1.dp).background(JaugePalette.Ink3))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(role = Role.Button, onClick = onManage)
+                    .padding(top = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(Res.string.profile_manage_subscription),
+                    style = JaugeTheme.typography.body.copy(fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold),
+                    color = JaugePalette.Paper,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(JaugeIcons.ChevronRight, contentDescription = null, tint = JaugePalette.Sage2, modifier = Modifier.size(18.dp))
+            }
+        } else {
+            PlusOffer(
+                price = price,
+                offersTrial = status != SubscriptionStatus.EXPIRED,
+                onDiscover = onDiscover,
+                modifier = Modifier.padding(top = 14.dp),
+            )
+        }
+    }
+}
+
+/**
+ * Highlighted Jauge Plus offer of the profile for users without Plus: coral star, promise, "3 jours offerts" and
+ * the monthly price, and a coral call to action that opens the paywall.
+ *
+ * @param price monthly price formatted by the store.
+ * @param offersTrial true to promise the free trial (not after an ended subscription).
+ * @param onDiscover opens the paywall.
+ * @param modifier modifier of the offer.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PlusOffer(price: String, offersTrial: Boolean, onDiscover: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(18.dp)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(
+                Brush.linearGradient(
+                    listOf(JaugePalette.Coral.copy(alpha = 0.24f), JaugePalette.Amber.copy(alpha = 0.06f)),
+                ),
+            )
+            .border(1.dp, JaugePalette.Coral.copy(alpha = 0.45f), shape)
+            .padding(14.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier.size(42.dp).background(JaugePalette.Coral, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(JaugeIcons.StarFilled, contentDescription = null, tint = JaugePalette.White, modifier = Modifier.size(22.dp))
+            }
+            Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
+                Text(
+                    text = stringResource(Res.string.profile_discover_plus),
+                    style = JaugeTheme.typography.sectionTitle.copy(fontSize = 16.5.sp),
+                    color = JaugePalette.Paper,
+                )
+                Text(
+                    text = stringResource(Res.string.profile_plus_tagline),
+                    style = JaugeTheme.typography.label.copy(fontWeight = FontWeight.Normal, lineHeight = 18.sp),
+                    color = JaugePalette.Sage2,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+            }
+        }
+        FlowRow(
+            modifier = Modifier.padding(top = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
         ) {
+            if (offersTrial) {
+                JaugePill(
+                    text = stringResource(Res.string.profile_plus_trial_badge),
+                    containerColor = JaugePalette.Coral,
+                    contentColor = JaugePalette.White,
+                )
+            }
             Text(
-                text = stringResource(if (isPlus) Res.string.profile_manage_subscription else Res.string.profile_discover_plus),
+                text = stringResource(if (offersTrial) Res.string.profile_plus_then_price else Res.string.profile_plus_price, price),
                 style = JaugeTheme.typography.body.copy(fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold),
                 color = JaugePalette.Paper,
-                modifier = Modifier.weight(1f),
             )
-            Icon(JaugeIcons.ChevronRight, contentDescription = null, tint = JaugePalette.Sage2, modifier = Modifier.size(18.dp))
         }
+        JaugeButton(
+            text = stringResource(if (offersTrial) Res.string.profile_plus_start_trial else Res.string.profile_plus_resume),
+            onClick = onDiscover,
+            size = JaugeButtonSize.MEDIUM,
+            trailingIcon = JaugeIcons.ArrowRight,
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        )
+        Text(
+            text = stringResource(Res.string.profile_plus_no_commitment),
+            style = JaugeTheme.typography.caption,
+            color = JaugePalette.Sage2,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
     }
 }
 

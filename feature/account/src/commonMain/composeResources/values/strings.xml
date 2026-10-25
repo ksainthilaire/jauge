@@ -63,6 +63,13 @@
     <string name="profile_expired_text">Ton abonnement est terminé. Tu peux le reprendre quand tu veux.</string>
     <string name="profile_manage_subscription">Gérer ou annuler l'abonnement</string>
     <string name="profile_discover_plus">Découvrir Jauge Plus</string>
+    <string name="profile_plus_tagline">Toutes tes analyses, le vrai salaire et les offres jumelles plus calmes.</string>
+    <string name="profile_plus_trial_badge">3 jours offerts</string>
+    <string name="profile_plus_then_price">puis %1$s par mois</string>
+    <string name="profile_plus_price">%1$s par mois</string>
+    <string name="profile_plus_start_trial">Essayer 3 jours gratuits</string>
+    <string name="profile_plus_resume">Reprendre Jauge Plus</string>
+    <string name="profile_plus_no_commitment">Sans engagement, annulable à tout moment.</string>
     <string name="profile_group_settings">Réglages</string>
     <string name="profile_calm_alerts">Alertes « calme »</string>
     <string name="profile_calm_alerts_on">Activées</string>
