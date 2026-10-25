@@ -64,3 +64,10 @@ skip_nonce_check = false
 enabled = true
 # Called by the database (pg_net) with a shared secret header, not by users: no user JWT to verify.
 verify_jwt = false
+
+[functions.api]
+enabled = true
+# The function checks the Supabase access token itself (JWKS), and also serves the health check, the RevenueCat
+# webhook and the internal routes woken by the database, which carry no user token.
+verify_jwt = false
+import_map = "./functions/api/deno.json"

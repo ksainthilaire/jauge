@@ -17,12 +17,24 @@ tags:
   - name: Alerts
   - name: Shares
   - name: Account
+  - name: Operations
 paths:
   /v1/analyses:
     post:
       tags: [Analyses]
-      summary: Start the analysis of an offer (link, manual entry or image)
+      summary: Start the analysis of an offer (link, manual entry, text read on the phone, or image)
       operationId: createAnalysis
+      description: |
+        Starts the collection and the computation in the work queue and answers at once. An offer analyzed by anyone in
+        the last 7 days (same normalized offer) is answered from the cache, often already `completed` in this answer.
+        The same `Idempotency-Key`, or the same link or manual entry within 10 minutes, gives back the first analysis
+        without using the free analysis again.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: Random value chosen by the app for this tap (8 to 64 letters, digits, `-`, `_`), kept 24 hours.
+          schema: { type: string, pattern: '^[A-Za-z0-9_-]{8,64}$' }
       requestBody:
         required: true
         content:
@@ -42,7 +54,7 @@ paths:
                   type: string
                   enum: [screenshot, photo]
                 areaCity: { type: string, description: City of the search area of the user (never a position). }
-                areaDepartment: { type: string, description: French department of that city (`69`, `2A`, `974`). }
+                areaDepartment: { type: string, description: 'French department of that city (`69`, `2A`, `974`).' }
                 areaRadius: { type: integer, description: Radius of the search area in kilometers. }
       responses:
         '202':
@@ -57,6 +69,7 @@ paths:
         '413': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
         '429': { $ref: '#/components/responses/Error' }
+        '503': { $ref: '#/components/responses/Error' }
     get:
       tags: [Analyses]
       summary: Analyses of the user, newest first
@@ -352,6 +365,17 @@ paths:
       tags: [Account]
       summary: Delete the account and all its data
       operationId: deleteAccount
+      requestBody:
+        required: false
+        description: >-
+          Optional. For accounts signed in with Apple, a fresh authorization code (Sign in with Apple done again on the
+          deletion screen) lets the server revoke the Apple tokens. Without it the deletion goes on.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appleAuthorizationCode: { type: string, pattern: '^[A-Za-z0-9._-]{10,512}$' }
       responses:
         '202': { description: Deletion scheduled; the account is no longer usable. }
         '401': { $ref: '#/components/responses/Error' }
@@ -371,6 +395,57 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Account' }
+  /health:
+    get:
+      tags: [Operations]
+      summary: Health check (database reachable). Details (queue, spending) with the internal secret only.
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Up (`ok` or `degraded`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+        '503':
+          description: Down.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /public/analyses/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AnalysisId'
+    get:
+      tags: [Shares]
+      summary: Public view of a shared analysis (page jauge.io/a/{id}); 404 once every share of it is deleted
+      operationId: getPublicAnalysis
+      security: []
+      responses:
+        '200':
+          description: Shared analysis.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicAnalysis' }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+  /webhooks/revenuecat:
+    post:
+      tags: [Operations]
+      summary: RevenueCat webhook (Authorization header configured in RevenueCat); updates the Jauge Plus mirror
+      operationId: receiveRevenueCatEvent
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [event], properties: { event: { type: object } } }
+      responses:
+        '200':
+          description: Event applied, ignored or already applied.
+          content:
+            application/json:
+              schema: { type: object, properties: { status: { type: string, enum: [applied, duplicate, ignored] } } }
+        '401': { $ref: '#/components/responses/Error' }
   /v1/subscription:
     get:
       tags: [Account]
@@ -435,11 +510,19 @@ components:
     CreateAnalysisRequest:
       type: object
       required: [type]
+      additionalProperties: false
       properties:
-        type: { type: string, enum: [link, manual] }
-        url: { type: string, format: uri, description: Required for `link`. }
-        jobTitle: { type: string, description: Required for `manual`. }
-        city: { type: string, description: Required for `manual`. }
+        type:
+          type: string
+          enum: [link, manual, text]
+          description: >-
+            `text`: text of a screenshot or a photo read on the phone (ML Kit on Android, Vision on iOS). The cheapest
+            and most private way: the image never leaves the phone.
+        url: { type: string, format: uri, maxLength: 2048, description: Required for `link`. }
+        jobTitle: { type: string, maxLength: 200, description: Required for `manual`. }
+        city: { type: string, maxLength: 120, description: Required for `manual`. }
+        text: { type: string, minLength: 40, maxLength: 20000, description: Required for `text`. }
+        origin: { type: string, enum: [screenshot, photo], description: Optional for `text`. }
         area: { $ref: '#/components/schemas/Area' }
     Area:
       type: object
@@ -453,7 +536,7 @@ components:
       type: object
       required: [minimum, maximum]
       properties:
-        minimum: { type: integer, description: Thousands of euros, annual gross. }
+        minimum: { type: integer, description: 'Thousands of euros, annual gross.' }
         maximum: { type: integer }
     Applicants:
       type: object
@@ -502,6 +585,9 @@ components:
             applyBefore: { type: string, enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY] }
             sharePercent: { type: integer }
             withinDays: { type: integer }
+        reputation:
+          oneOf: [ { $ref: '#/components/schemas/Reputation' }, { type: 'null' } ]
+          description: What public posts (Reddit, X) say about the company and the job, summarized by the AI. Null when nothing was found.
     Analysis:
       type: object
       required: [id, status, createdAt]
@@ -608,6 +694,56 @@ components:
         comparableOfferCount: { type: integer }
         regionName: { type: string }
         salarySourceCount: { type: integer }
+    Reputation:
+      type: object
+      required: [summary, tone, mentionCount, sources]
+      properties:
+        summary: { type: string, description: 'Two sentences at most, in the language of the analysis.' }
+        tone: { type: string, enum: [positive, mixed, negative, unknown] }
+        mentionCount: { type: integer }
+        sources: { type: array, items: { type: string, enum: [reddit, x] } }
+    PublicAnalysis:
+      type: object
+      description: What the page https://jauge.io/a/{analysisId} shows. No data about the user.
+      required: [analysisId, jobTitle, place, score, applicants, reliability, regionName, createdAt]
+      properties:
+        analysisId: { type: string }
+        jobTitle: { type: string }
+        company: { type: [string, 'null'], description: Null when the share hides it. }
+        place: { type: string }
+        score: { type: integer }
+        applicants: { $ref: '#/components/schemas/Applicants' }
+        reliability: { type: string, enum: [high, medium, low] }
+        regionName: { type: string }
+        calmTwin:
+          type: [object, 'null']
+          properties:
+            jobTitle: { type: string }
+            place: { type: string }
+            estimatedApplicants: { type: integer }
+            score: { type: integer }
+        createdAt: { type: string, format: date-time }
+    Health:
+      type: object
+      required: [status, version, providers, database, maintenance]
+      properties:
+        status: { type: string, enum: [ok, degraded, down] }
+        version: { type: string }
+        providers: { type: string, enum: [simulated, live] }
+        database: { type: string, enum: [ok, unreachable] }
+        maintenance: { type: boolean }
+        queue:
+          type: object
+          description: Only with the internal secret.
+          properties:
+            due: { type: integer }
+            oldestDueSeconds: { type: [integer, 'null'] }
+        spend:
+          type: object
+          description: Only with the internal secret.
+          properties:
+            todayUsd: { type: number }
+            limitUsd: { type: number }
     Alert:
       type: object
       required: [id, analysisId, threshold]
