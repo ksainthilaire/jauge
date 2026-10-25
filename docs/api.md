@@ -71,7 +71,9 @@ unknown fields, so a cached older answer that still carries it does no harm).
 4. An unreadable image does not use the free analysis of the week (nor an unsupported link, nor a server failure).
 5. Images are read once and deleted at once (24 hours at most); the text read on the phone (`type: "text"`) is better:
    the image never leaves the phone. The app only sends `type: "text"` (ML Kit on Android, Vision on iOS); when the
-   phone reads less than 40 characters it shows the screen 10 without calling the API.
+   phone reads less than 40 characters it shows the screen 10 without calling the API. E-mail addresses, phone
+   numbers and names of recruiters are replaced by `[e-mail retiré]`, `[téléphone retiré]` and `[nom retiré]` on the
+   phone, and again by the API on the `text` and `jobTitle` it receives, before the AI reads them.
 
 ### Search area (location)
 

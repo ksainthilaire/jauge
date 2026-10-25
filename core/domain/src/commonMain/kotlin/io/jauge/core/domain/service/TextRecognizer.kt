@@ -4,7 +4,8 @@ import io.jauge.core.domain.model.Outcome
 
 /**
  * Reads the text of a screenshot or a photo on the phone itself: ML Kit Text Recognition (model bundled with the app)
- * on Android, Apple Vision on iOS. The image never leaves the phone: only the text read here is sent to the API.
+ * on Android, Apple Vision on iOS. The image never leaves the phone: only the text read here is sent to the API, after
+ * [PersonalData.scrub] has removed the e-mail addresses, phone numbers and names of recruiters it may hold.
  *
  * Implementations never throw: a picture that cannot be decoded or read gives a failure, an image without text gives
  * an empty text.

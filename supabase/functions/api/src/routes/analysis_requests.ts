@@ -9,6 +9,7 @@ import {
 } from "../http/validation.ts";
 import type { AnalysisInput } from "../services/analysis_service.ts";
 import { parseAreaObject, parseAreaParts } from "../services/area.ts";
+import { scrubPersonalData } from "../text/personal_data.ts";
 
 /** Largest image accepted (contract: 10 MB). */
 export const MAXIMUM_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -35,7 +36,10 @@ export function detectImageType(bytes: Uint8Array): string | null {
   return null;
 }
 
-/** Reads the JSON body of `POST /v1/analyses` (link, manual entry, or text read on the phone). */
+/**
+ * Reads the JSON body of `POST /v1/analyses` (link, manual entry, or text read on the phone). The personal data of
+ * a text or a job title is removed ([scrubPersonalData]).
+ */
 export function parseJsonAnalysisRequest(body: JsonObject): AnalysisInput {
   const type = requiredChoice(body.type, "type", ["link", "manual", "text"] as const);
   if (type === "link") {
@@ -48,7 +52,7 @@ export function parseJsonAnalysisRequest(body: JsonObject): AnalysisInput {
     rejectUnknownFields(body, ["type", "jobTitle", "city", "area"]);
     return {
       kind: "manual",
-      jobTitle: requiredText(body.jobTitle, "jobTitle", { ...TEXT_RULES, minimumLength: 2 }),
+      jobTitle: scrubPersonalData(requiredText(body.jobTitle, "jobTitle", { ...TEXT_RULES, minimumLength: 2 })),
       city: requiredText(body.city, "city", { maximumLength: 120, pattern: /^[\p{L}\p{M}0-9 '’.()-]+$/u }),
       area: parseAreaObject(body.area),
     };
@@ -59,8 +63,10 @@ export function parseJsonAnalysisRequest(body: JsonObject): AnalysisInput {
   const origin = body.origin === undefined || body.origin === null
     ? null
     : requiredChoice(body.origin, "origin", ["screenshot", "photo"] as const);
+  // The app already removes e-mail addresses, phone numbers and names of recruiters; done again here in defense,
+  // before the text is kept or read by the AI.
   // deno-lint-ignore no-control-regex
-  const text = body.text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ");
+  const text = scrubPersonalData(body.text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " "));
   return { kind: "text", text, origin, area: parseAreaObject(body.area) };
 }
 
