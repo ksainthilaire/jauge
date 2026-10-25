@@ -10,6 +10,8 @@ import io.jauge.core.domain.usecase.CompleteOnboardingStepUseCase
 import io.jauge.core.domain.usecase.ObserveAuthenticationStateUseCase
 import io.jauge.core.domain.usecase.SendMagicLinkUseCase
 import io.jauge.core.domain.usecase.UpdateConsentsUseCase
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +35,7 @@ enum class EmailSignInStep {
  * @property isAddressInvalid true when the address does not look like an email address.
  * @property isLoading true while a request runs.
  * @property linkSentAgain true right after "Renvoyer le lien" succeeded.
+ * @property resendAvailableInSeconds seconds before "Renvoyer le lien" can be used again, 0 when it can.
  * @property error friendly error to show, null when none.
  * @property isDone true once signed in: the screen leaves.
  */
@@ -42,6 +45,7 @@ data class EmailSignInUiState(
     val isAddressInvalid: Boolean = false,
     val isLoading: Boolean = false,
     val linkSentAgain: Boolean = false,
+    val resendAvailableInSeconds: Int = 0,
     val error: JaugeError? = null,
     val isDone: Boolean = false,
 )
@@ -64,6 +68,7 @@ class EmailSignInViewModel(
     private val marketingEmails: Boolean,
 ) : ViewModel() {
     private val state = MutableStateFlow(EmailSignInUiState())
+    private var countdown: Job? = null
 
     /** Observed state of the screen. */
     val uiState: StateFlow<EmailSignInUiState> = state.asStateFlow()
@@ -100,22 +105,25 @@ class EmailSignInViewModel(
         send(again = false)
     }
 
-    /** "Renvoyer le lien". */
+    /** "Renvoyer le lien": ignored while the countdown after the last sending runs. */
     fun resendLink() {
-        if (!state.value.isLoading) send(again = true)
+        val current = state.value
+        if (!current.isLoading && current.resendAvailableInSeconds == 0) send(again = true)
     }
 
     /** "Changer d'adresse": back to the first step. */
     fun changeAddress() {
-        state.update { it.copy(step = EmailSignInStep.ADDRESS, isAddressInvalid = false, error = null, linkSentAgain = false) }
+        countdown?.cancel()
+        state.update { it.copy(step = EmailSignInStep.ADDRESS, isAddressInvalid = false, error = null, linkSentAgain = false, resendAvailableInSeconds = 0) }
     }
 
     private fun send(again: Boolean) {
         viewModelScope.launch {
             state.update { it.copy(isLoading = true, error = null, linkSentAgain = false) }
             when (val outcome = sendMagicLink(state.value.email)) {
-                is Outcome.Success -> state.update {
-                    it.copy(isLoading = false, step = EmailSignInStep.LINK_SENT, linkSentAgain = again)
+                is Outcome.Success -> {
+                    state.update { it.copy(isLoading = false, step = EmailSignInStep.LINK_SENT, linkSentAgain = again) }
+                    startResendCountdown()
                 }
                 is Outcome.Failure -> state.update {
                     it.copy(isLoading = false, error = outcome.error, isAddressInvalid = outcome.error == JaugeError.InvalidEmail)
@@ -124,7 +132,21 @@ class EmailSignInViewModel(
         }
     }
 
+    private fun startResendCountdown() {
+        countdown?.cancel()
+        countdown = viewModelScope.launch {
+            for (seconds in RESEND_DELAY_SECONDS downTo 1) {
+                state.update { it.copy(resendAvailableInSeconds = seconds) }
+                delay(1_000)
+            }
+            state.update { it.copy(resendAvailableInSeconds = 0) }
+        }
+    }
+
     private companion object {
+        /** Seconds to wait before sending the link again. */
+        const val RESEND_DELAY_SECONDS = 60
+
         const val MAXIMUM_EMAIL_LENGTH = 254
     }
 }

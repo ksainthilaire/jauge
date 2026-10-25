@@ -3,6 +3,7 @@ package io.jauge.feature.account.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import platform.Foundation.NSBundle
+import platform.Foundation.NSURL
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIViewController
@@ -22,4 +23,19 @@ actual fun rememberTextSharer(): (title: String, text: String) -> Unit = remembe
 @Composable
 actual fun rememberAppVersion(): String = remember {
     NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
+}
+
+/** iOS: opens Mail with the `message://` scheme; the completion reports when no app could open it. */
+@Composable
+actual fun rememberMailAppOpener(): (onUnavailable: () -> Unit) -> Unit = remember {
+    { onUnavailable ->
+        val mail = NSURL.URLWithString("message://")
+        if (mail == null) {
+            onUnavailable()
+        } else {
+            UIApplication.sharedApplication.openURL(mail, options = emptyMap<Any?, Any?>()) { opened ->
+                if (!opened) onUnavailable()
+            }
+        }
+    }
 }
