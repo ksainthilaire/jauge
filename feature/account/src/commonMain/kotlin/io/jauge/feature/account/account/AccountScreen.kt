@@ -150,15 +150,15 @@ fun AccountContent(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = gutter)
-                    .padding(top = 16.dp, bottom = 16.dp),
+                    .padding(top = 8.dp, bottom = 16.dp),
             ) {
                 BrandHeader()
-                BrandVisual(modifier = Modifier.padding(top = 22.dp))
+                BrandVisual(modifier = Modifier.padding(top = 18.dp))
                 Text(
                     text = stringResource(Res.string.account_headline),
                     style = typography.headline.copy(fontSize = 34.sp, lineHeight = 36.sp),
                     color = colors.textPrimary,
-                    modifier = Modifier.padding(top = 24.dp),
+                    modifier = Modifier.padding(top = 20.dp),
                 )
                 Text(
                     text = stringResource(Res.string.account_text),
@@ -167,7 +167,7 @@ fun AccountContent(
                     modifier = Modifier.padding(top = 10.dp),
                 )
                 state.error?.let { InlineError(error = it, modifier = Modifier.padding(top = 20.dp)) }
-                Column(modifier = Modifier.padding(top = 32.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(modifier = Modifier.padding(top = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     ProviderButton(
                         text = stringResource(Res.string.account_continue_apple),
                         icon = ProviderLogos.Apple,
@@ -200,7 +200,7 @@ fun AccountContent(
                 }
                 Row(
                     modifier = Modifier
-                        .padding(top = 28.dp)
+                        .padding(top = 22.dp)
                         .toggleable(value = state.marketingEmails, role = Role.Checkbox, onValueChange = onMarketingEmailsChange),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -264,18 +264,18 @@ fun AccountContent(
 @Composable
 private fun BrandHeader() {
     val colors = JaugeTheme.colors
-    val logoShape = RoundedCornerShape(15.dp)
+    val logoShape = RoundedCornerShape(13.dp)
     Row(verticalAlignment = Alignment.CenterVertically) {
         // The ink logo sits on the ink background: a thin outline and a soft shadow give it its edges back.
         JaugeLogo(
             modifier = Modifier
-                .size(60.dp)
+                .size(52.dp)
                 .shadow(elevation = 8.dp, shape = logoShape, ambientColor = JaugePalette.Mint, spotColor = JaugePalette.Mint)
                 .border(1.5.dp, colors.outline, logoShape),
         )
         Text(
             text = stringResource(Res.string.account_brand_name),
-            style = JaugeTheme.typography.headline.copy(fontSize = 32.sp, lineHeight = 34.sp),
+            style = JaugeTheme.typography.headline.copy(fontSize = 30.sp, lineHeight = 32.sp),
             color = colors.textPrimary,
             modifier = Modifier.padding(start = 14.dp),
         )
@@ -307,16 +307,16 @@ private fun BrandVisual(modifier: Modifier = Modifier) {
                 )
             }
             .border(1.dp, colors.outline, shape)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         JaugeGauge(
             score = BRAND_VISUAL_SCORE,
             size = GaugeSize.MEDIUM,
             needleColor = colors.textPrimary,
-            modifier = Modifier.size(width = 176.dp, height = 88.dp),
+            modifier = Modifier.size(width = 152.dp, height = 76.dp),
         )
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             LevelPill(level = GaugeLevel.CALM, showDot = true)
             LevelPill(level = GaugeLevel.DISPUTED, showDot = true)
             LevelPill(level = GaugeLevel.CROWDED, showDot = true)
