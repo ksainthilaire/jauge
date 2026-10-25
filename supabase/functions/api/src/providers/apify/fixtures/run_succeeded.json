@@ -1,0 +1,29 @@
+{
+  "data": {
+    "id": "HG7ML7M8z78YcAPEB",
+    "actId": "hKByXkMQaC5Qt9UMN",
+    "startedAt": "2026-10-25T09:00:00.000Z",
+    "finishedAt": "2026-10-25T09:01:12.000Z",
+    "status": "SUCCEEDED",
+    "statusMessage": "Finished! Total 6 requests: 6 succeeded, 0 failed.",
+    "defaultDatasetId": "wmKPijuyDnPZAPRMk",
+    "chargedEventCounts": { "apify-actor-start": 1, "apify-default-dataset-item": 6 },
+    "pricingInfo": {
+      "pricingModel": "PAY_PER_EVENT",
+      "pricingPerEvent": {
+        "actorChargeEvents": {
+          "apify-default-dataset-item": {
+            "eventTitle": "result",
+            "eventTieredPricingUsd": {
+              "FREE": { "tieredEventPriceUsd": 0.002 },
+              "BRONZE": { "tieredEventPriceUsd": 0.001 },
+              "SILVER": { "tieredEventPriceUsd": 0.001 }
+            }
+          },
+          "apify-actor-start": { "eventTitle": "Actor Start", "eventPriceUsd": 0.00005 }
+        }
+      }
+    },
+    "usageTotalUsd": 0.0123
+  }
+}

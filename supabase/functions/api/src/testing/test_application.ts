@@ -68,6 +68,7 @@ export async function createTestApplication(options: {
       snapshotWaitSeconds: 0,
       offersPerSource: 60,
       computeMarginSeconds: 15,
+      thinMarketOffers: 25,
       ...options.pipelineSettings,
     },
     workerSettings: {

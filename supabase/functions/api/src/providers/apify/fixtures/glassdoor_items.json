@@ -1,0 +1,41 @@
+[
+  {
+    "listing_id": 1009740741115,
+    "time_on_platform": 3,
+    "job_title": "Chargé de marketing digital",
+    "job_positioning": "marketing digital",
+    "employer_name": null,
+    "employerNameFromSearch": "Atelier Sorel",
+    "location": "Lyon",
+    "pay_period": "ANNUAL",
+    "pay_periodAdjustedPay": { "p10": 34000, "p50": 38000, "p90": 43000 },
+    "pay_currency": "EUR",
+    "rating": 4.2,
+    "salary_source": "EMPLOYER_PROVIDED",
+    "is_sponsored": false,
+    "job_url": "https://www.glassdoor.fr/job-listing/?jl=1009740741115"
+  },
+  {
+    "listing_id": 1009740487948,
+    "time_on_platform": 0,
+    "job_title": "Digital marketing lead",
+    "employerNameFromSearch": "SM2 Dev LLC",
+    "location": "Remote",
+    "pay_period": "ANNUAL",
+    "pay_periodAdjustedPay": { "p10": 135000, "p50": 145000, "p90": 155000 },
+    "pay_currency": "USD",
+    "salary_source": "EMPLOYER_PROVIDED",
+    "job_url": "https://www.glassdoor.com/job-listing/?jl=1009740487948"
+  },
+  {
+    "listing_id": 1009740487949,
+    "job_title": "Marketing manager",
+    "employerNameFromSearch": "Lumio",
+    "location": "Villeurbanne",
+    "pay_period": "MONTHLY",
+    "pay_periodAdjustedPay": { "p10": 2800, "p50": 3100, "p90": 3400 },
+    "pay_currency": "EUR",
+    "salary_source": "ESTIMATED",
+    "job_url": "https://www.glassdoor.fr/job-listing/?jl=1009740487949"
+  }
+]

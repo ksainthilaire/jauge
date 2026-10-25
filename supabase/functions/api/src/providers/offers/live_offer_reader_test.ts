@@ -46,6 +46,7 @@ const notConnectedAi = {
   extractOfferFromText: () => Promise.reject(new ProviderError("ai", "not_configured", false)),
   extractOfferFromImage: () => Promise.reject(new ProviderError("ai", "not_configured", false)),
   summarizeReputation: () => Promise.reject(new ProviderError("ai", "not_configured", false)),
+  writeAdvice: () => Promise.reject(new ProviderError("ai", "not_configured", false)),
 } satisfies AiProvider;
 
 async function setup(ai: AiProvider = new RecordingAi()) {

@@ -1,0 +1,40 @@
+[
+  {
+    "positionName": "Chargé de marketing digital H/F",
+    "salary": "36 000 € - 40 000 € par an",
+    "jobType": ["CDI", "Temps plein"],
+    "jobSetting": ["Télétravail hybride"],
+    "company": "ATELIER SOREL SAS",
+    "location": "69003 Lyon",
+    "rating": 4.1,
+    "reviewsCount": 12,
+    "url": "https://fr.indeed.com/viewjob?jk=a1b2c3d4e5f60718",
+    "id": "a1b2c3d4e5f60718",
+    "postedAt": "il y a 5 jours",
+    "postingDateParsed": "2026-10-19T08:00:00.000Z",
+    "scrapedAt": "2026-10-25T09:00:00.000Z",
+    "description": "Vous gérez le référencement naturel (SEO) et les campagnes Google Ads. Maîtrise de WordPress.",
+    "externalApplyLink": null
+  },
+  {
+    "positionName": "Assistant marketing en alternance",
+    "salary": "De 1 100 € à 1 400 € par mois",
+    "jobType": ["Alternance"],
+    "company": "Maison Brunet",
+    "location": "Vénissieux (69)",
+    "url": "https://fr.indeed.com/viewjob?jk=0f0e0d0c0b0a0908",
+    "id": "0f0e0d0c0b0a0908",
+    "postedAt": "Publiée il y a 30+ jours",
+    "description": "<p>Alternance de 12 mois. <b>Canva</b>, réseaux sociaux.</p>"
+  },
+  {
+    "positionName": "Traffic manager",
+    "salary": "15 € par heure",
+    "company": "Studio Pivot",
+    "location": "Télétravail à Lyon (69)",
+    "url": "https://fr.indeed.com/viewjob?jk=1122334455667788",
+    "id": "1122334455667788",
+    "postedAt": "Aujourd'hui",
+    "description": "Mission d'intérim de 3 mois."
+  }
+]

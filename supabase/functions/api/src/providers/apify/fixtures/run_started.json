@@ -1,0 +1,41 @@
+{
+  "data": {
+    "id": "HG7ML7M8z78YcAPEB",
+    "actId": "hKByXkMQaC5Qt9UMN",
+    "userId": "7sT5jcggjjA9fNcxF",
+    "startedAt": "2026-10-25T09:00:00.000Z",
+    "finishedAt": null,
+    "status": "RUNNING",
+    "meta": { "origin": "API" },
+    "stats": { "inputBodyLen": 240 },
+    "options": {
+      "build": "latest",
+      "timeoutSecs": 240,
+      "memoryMbytes": 1024,
+      "maxItems": 60,
+      "maxTotalChargeUsd": 0.06005
+    },
+    "buildId": "cyeFbgtjjz0fqI55Q",
+    "defaultKeyValueStoreId": "eJNzqsbPiopwJcgGQ",
+    "defaultDatasetId": "wmKPijuyDnPZAPRMk",
+    "defaultRequestQueueId": "FL35cSF7jrxr3BY39",
+    "chargedEventCounts": { "apify-actor-start": 1 },
+    "pricingInfo": {
+      "pricingModel": "PAY_PER_EVENT",
+      "pricingPerEvent": {
+        "actorChargeEvents": {
+          "apify-default-dataset-item": {
+            "eventTitle": "result",
+            "eventTieredPricingUsd": {
+              "FREE": { "tieredEventPriceUsd": 0.002 },
+              "BRONZE": { "tieredEventPriceUsd": 0.001 },
+              "SILVER": { "tieredEventPriceUsd": 0.001 }
+            }
+          },
+          "apify-actor-start": { "eventTitle": "Actor Start", "eventPriceUsd": 0.00005 }
+        }
+      }
+    },
+    "usageTotalUsd": 0
+  }
+}

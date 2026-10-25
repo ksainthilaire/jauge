@@ -3,8 +3,13 @@ import { LanguageModelAiProvider } from "../ai/language_model_ai_provider.ts";
 import { MISTRAL_PRICES, MistralClient } from "../ai/mistral_client.ts";
 import type { ModelClient, ModelPricing } from "../ai/model_client.ts";
 import type { Configuration } from "../configuration.ts";
+import { utcDay } from "../operations/clock.ts";
 import type { Logger } from "../operations/logger.ts";
 import { ApifySocialSearch, redditActor, type SocialActor, xActor } from "../social/apify_social_search.ts";
+import { MARKET_ACTORS, OFFER_ACTORS } from "./apify/actor_catalog.ts";
+import { ApifyClient } from "./apify/apify_client.ts";
+import { ApifyOfferActorReader, ApifyOfferSource } from "./apify/apify_offer_source.ts";
+import { LiveOfferReader } from "./offers/live_offer_reader.ts";
 import {
   AppleSignInRevoker,
   type FetchFunction,
@@ -26,7 +31,7 @@ import { ProviderError } from "./provider_types.ts";
 import { createSimulatedProviders, RecordingAccountServices } from "./simulated_providers.ts";
 
 /**
- * Placeholder of a live provider that is not connected yet (phase 2: Apify connectors, AI, social search). Every call
+ * Placeholder of a live provider that is not connected (its key is missing). Every call
  * fails with `not_configured`, which the pipeline handles like an unavailable provider.
  */
 class NotConnectedProvider implements OfferReader, SocialSearch, AiProvider {
@@ -124,20 +129,68 @@ export interface LiveConnectors {
 }
 
 /**
+ * The offer connectors built from the configuration: the reader of links (page and JSON-LD, Apify actor of the site,
+ * AI) and the Apify market sources (main ones, then complementary ones for thin markets). Without `APIFY_TOKEN` the
+ * reader still reads pages (free) and there is no market source.
+ *
+ * @param configuration configuration.
+ * @param ai AI provider used by the reader for pages without structured data.
+ * @param fetcher fetch function.
+ * @param sleep waits between retries of the Apify client.
+ */
+export function createOfferConnectors(
+  configuration: Configuration,
+  ai: AiProvider,
+  fetcher: FetchFunction = fetch,
+  sleep?: (milliseconds: number) => Promise<void>,
+): { offerReader: OfferReader; offerSources: OfferSource[] } {
+  const { apify } = configuration;
+  const client = apify.token ? new ApifyClient(apify.token, fetcher, {}, sleep) : null;
+  const webhook = apify.webhookUrl && apify.webhookSecret
+    ? { url: apify.webhookUrl, secret: apify.webhookSecret }
+    : null;
+  const settings = { tier: apify.pricingTier, webhook, today: () => utcDay(new Date()) };
+  const offerSources = client
+    ? [
+      ...apify.sources.map((name) => new ApifyOfferSource(MARKET_ACTORS[name], client, settings, false)),
+      ...apify.complementarySources.map((name) => new ApifyOfferSource(MARKET_ACTORS[name], client, settings, true)),
+    ]
+    : [];
+  const actorReaders = client
+    ? Object.fromEntries(
+      Object.entries(OFFER_ACTORS).map(([site, actor]) => [
+        site,
+        new ApifyOfferActorReader(actor, client, apify.pricingTier),
+      ]),
+    )
+    : {};
+  const offerReader = new LiveOfferReader(
+    ai,
+    actorReaders,
+    fetcher,
+    apify.pageUserAgent ? { userAgent: apify.pageUserAgent } : {},
+  );
+  return { offerReader, offerSources };
+}
+
+/**
  * Builds the providers from the configuration. In `simulated` mode the market, AI and social providers are the
  * deterministic fakes; the account services (RevenueCat, Apple, Supabase Auth) are live as soon as their secrets
- * exist, and simulated otherwise. In `live` mode, connectors that are not given stay "not connected".
+ * exist, and simulated otherwise. In `live` mode, the offer reader and the Apify sources come from the configuration
+ * (`createOfferConnectors`) unless given; the other connectors that are not given stay "not connected".
  *
  * @param configuration configuration.
  * @param connectors live connectors (phase 2).
  * @param fetcher fetch function.
  * @param logger structured logger of the live connectors.
+ * @param sleep waits between retries of the connectors (tests).
  */
 export function createProviders(
   configuration: Configuration,
   connectors: LiveConnectors = {},
   fetcher: FetchFunction = fetch,
   logger: Logger = SILENT_LOGGER,
+  sleep?: (milliseconds: number) => Promise<void>,
 ): Providers {
   const recording = new RecordingAccountServices();
   const subscriptionStore: SubscriptionStore = configuration.revenueCatSecretApiKey
@@ -156,13 +209,15 @@ export function createProviders(
   if (configuration.providerMode === "simulated") {
     return { ...createSimulatedProviders(recording), ...accountServices };
   }
+  const ai = connectors.ai ?? createLiveAi(configuration, fetcher, logger) ?? new NotConnectedProvider("ai");
+  const offers = createOfferConnectors(configuration, ai, fetcher, sleep);
   return {
     mode: "live",
-    offerReader: connectors.offerReader ?? new NotConnectedProvider("offer_reader"),
-    offerSources: connectors.offerSources ?? [],
+    offerReader: connectors.offerReader ?? offers.offerReader,
+    offerSources: connectors.offerSources ?? offers.offerSources,
     socialSearch: connectors.socialSearch ?? createLiveSocialSearch(configuration, fetcher, logger) ??
       new NotConnectedProvider("social_search"),
-    ai: connectors.ai ?? createLiveAi(configuration, fetcher, logger) ?? new NotConnectedProvider("ai"),
+    ai,
     ...accountServices,
   };
 }

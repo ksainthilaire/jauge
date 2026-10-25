@@ -19,8 +19,13 @@ export interface Configuration {
   readonly proxySecret: string | null;
   /** Salt of the hashes of IP addresses used by the rate limits. */
   readonly ipHashSalt: string;
-  /** `simulated` (deterministic fake providers) or `live` (Apify, AI, social search). */
+  /**
+   * `simulated` (deterministic fake providers, the default) or `live` (Apify, AI, social search). Only
+   * `JAUGE_PROVIDER_MODE=live` turns the live providers on: keys alone never do.
+   */
   readonly providerMode: "simulated" | "live";
+  /** Apify: token, sources, pricing tier, webhook (docs/backend/sources.md). */
+  readonly apify: ApifyConfiguration;
   /** Money the paid providers may spend per UTC day, in US dollars. Over it, only the cache and the database serve. */
   readonly dailySpendLimitUsd: number;
   /** Share of the daily limit at which a warning is sent. */
@@ -75,6 +80,43 @@ export interface Configuration {
   readonly version: string;
 }
 
+/** Names of the market sources that Apify can collect. */
+export const APIFY_SOURCE_NAMES = ["linkedin", "hellowork", "indeed", "glassdoor", "welcome_to_the_jungle"] as const;
+
+/** A market source of Apify. */
+export type ApifySourceName = (typeof APIFY_SOURCE_NAMES)[number];
+
+/** Settings of the Apify connectors. */
+export interface ApifyConfiguration {
+  /** API token of the Apify account (`APIFY_TOKEN`), null to disable every Apify call. */
+  readonly token: string | null;
+  /** Main market sources, started for every new market (`JAUGE_APIFY_SOURCES`, default `linkedin,hellowork`). */
+  readonly sources: readonly ApifySourceName[];
+  /**
+   * Complementary sources, started only when the main ones found a thin market (`JAUGE_APIFY_COMPLEMENTARY_SOURCES`,
+   * default `indeed`).
+   */
+  readonly complementarySources: readonly ApifySourceName[];
+  /** Discount tier of the account: FREE (free plan), BRONZE (Starter, default), SILVER (Scale), GOLD (Business). */
+  readonly pricingTier: "FREE" | "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" | "DIAMOND";
+  /** Results asked to each source per market (`JAUGE_APIFY_OFFERS_PER_SOURCE`, 60 by default, 10 to 100). */
+  readonly offersPerSource: number;
+  /** Public URL of `/webhooks/apify` (`APIFY_WEBHOOK_URL`), null to rely on polling only. */
+  readonly webhookUrl: string | null;
+  /** Secret header of the Apify webhook (`APIFY_WEBHOOK_SECRET`, 32 characters at least). */
+  readonly webhookSecret: string | null;
+  /** User agent of the direct reading of offer pages (`JAUGE_PAGE_USER_AGENT`). */
+  readonly pageUserAgent: string | null;
+}
+
+function sourceList(value: string | null, defaultValue: readonly ApifySourceName[]): ApifySourceName[] {
+  if (value === null) return [...defaultValue];
+  const names = value.split(",").map((name) => name.trim().toLowerCase()).filter(Boolean);
+  return [...new Set(names)].filter((name): name is ApifySourceName =>
+    (APIFY_SOURCE_NAMES as readonly string[]).includes(name)
+  );
+}
+
 /** Reads environment variables (injected so that tests do not depend on the process). */
 export type EnvironmentReader = (name: string) => string | undefined;
 
@@ -101,6 +143,13 @@ export function loadConfiguration(read: EnvironmentReader): Configuration {
   const environmentName = text("JAUGE_ENVIRONMENT");
   const environment = environmentName === "development" || environmentName === "test" ? environmentName : "production";
   const webhookSecret = text("JAUGE_WEBHOOK_SECRET");
+  const apifyToken = text("APIFY_TOKEN");
+  const modeName = text("JAUGE_PROVIDER_MODE");
+  const apifyWebhookSecret = text("APIFY_WEBHOOK_SECRET");
+  const tierName = text("APIFY_PRICING_TIER")?.toUpperCase();
+  const sources = sourceList(text("JAUGE_APIFY_SOURCES"), ["linkedin", "hellowork"]);
+  const complementarySources = sourceList(text("JAUGE_APIFY_COMPLEMENTARY_SOURCES"), ["indeed"])
+    .filter((name) => !sources.includes(name));
   return {
     environment,
     supabaseUrl: text("SUPABASE_URL"),
@@ -110,7 +159,20 @@ export function loadConfiguration(read: EnvironmentReader): Configuration {
     webhookSecret: webhookSecret && webhookSecret.length >= 32 ? webhookSecret : null,
     proxySecret: text("JAUGE_PROXY_SECRET"),
     ipHashSalt: text("JAUGE_IP_HASH_SALT") ?? "",
-    providerMode: text("JAUGE_PROVIDER_MODE") === "live" ? "live" : "simulated",
+    providerMode: modeName === "live" ? "live" : "simulated",
+    apify: {
+      token: apifyToken,
+      sources,
+      complementarySources,
+      pricingTier: tierName === "FREE" || tierName === "SILVER" || tierName === "GOLD" || tierName === "PLATINUM" ||
+          tierName === "DIAMOND"
+        ? tierName
+        : "BRONZE",
+      offersPerSource: Math.round(number("JAUGE_APIFY_OFFERS_PER_SOURCE", 60, 10, 100)),
+      webhookUrl: text("APIFY_WEBHOOK_URL")?.startsWith("https://") ? text("APIFY_WEBHOOK_URL") : null,
+      webhookSecret: apifyWebhookSecret && apifyWebhookSecret.length >= 32 ? apifyWebhookSecret : null,
+      pageUserAgent: text("JAUGE_PAGE_USER_AGENT"),
+    },
     dailySpendLimitUsd: number("JAUGE_DAILY_SPEND_LIMIT_USD", 3, 0, 1000),
     spendWarningRatio: number("JAUGE_SPEND_WARNING_RATIO", 0.8, 0.1, 1),
     freeAnalysesPerWeek: Math.round(number("JAUGE_FREE_ANALYSES_PER_WEEK", 1, 0, 100)),

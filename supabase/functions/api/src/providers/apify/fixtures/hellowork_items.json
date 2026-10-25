@@ -1,0 +1,50 @@
+[
+  {
+    "job_id": "62810499",
+    "job_title": "Chargé de Marketing Digital H/F",
+    "company": "Coopérative Vercors",
+    "company_id": "123456",
+    "location": "Lyon - 69",
+    "city": "Lyon - 69",
+    "department": "69",
+    "state": "Auvergne-Rhône-Alpes",
+    "country": "",
+    "contract": "CDI",
+    "employment_type": "Temps plein",
+    "salary": "35 000 - 39 000 € / an",
+    "time": "il y a 3 jours",
+    "publication_date": "2026-10-22T07:12:00.000Z",
+    "link": "https://www.hellowork.com/fr-fr/emplois/62810499.html",
+    "remote": "Télétravail partiel",
+    "description": "<h2>Présentation du poste</h2><p>SEO, SEA, emailing et CRM. Anglais professionnel.</p>",
+    "is_agency": false,
+    "list_tags": "Bac +3, Bac +5",
+    "experiences": "Exp. 1 à 7 ans",
+    "educations": "Bac +3, Bac +5",
+    "industries": "Services aux Entreprises"
+  },
+  {
+    "job_id": "62810500",
+    "job_title": "Chargé de communication digitale H/F",
+    "company": "Nexa Santé",
+    "location": "Bron - 69",
+    "city": "Bron - 69",
+    "department": "69",
+    "contract": "CDD",
+    "salary": "11,91 - 12,35 € / heure",
+    "time": "il y a 1 heure",
+    "link": "https://www.hellowork.com/fr-fr/emplois/62810500.html",
+    "remote": "Pas de télétravail",
+    "description": "<p>Contrat de 18 mois.</p>"
+  },
+  {
+    "job_id": "62810501",
+    "job_title": "Marketing digital",
+    "company": "Okapi",
+    "location": "Bruxelles",
+    "city": "Bruxelles",
+    "country": "Belgique",
+    "contract": "CDI",
+    "link": "https://www.hellowork.com/fr-fr/emplois/62810501.html"
+  }
+]

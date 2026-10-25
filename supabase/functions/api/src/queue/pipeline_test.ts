@@ -166,9 +166,11 @@ Deno.test("two users asking for the same offer at the same time share one collec
   }
 });
 
-Deno.test("live mode without connectors suggests another way (screenshot) instead of failing badly", async () => {
+Deno.test("live mode, site refusing direct reading and no Apify token: another way (screenshot) is suggested", async () => {
   const live = createProviders(
     loadConfiguration((name) => ({ JAUGE_PROVIDER_MODE: "live" } as Record<string, string>)[name]),
+    {},
+    () => Promise.resolve(new Response("", { status: 403 })),
   );
   const api = await createTestApplication({ providers: () => live });
   try {

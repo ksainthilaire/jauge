@@ -54,6 +54,8 @@ export interface PipelineSettings {
   readonly offersPerSource: number;
   /** Seconds before the deadline at which the analysis stops waiting for sources and computes with what it has. */
   readonly computeMarginSeconds: number;
+  /** Below this number of offers from the main sources, the complementary sources (Indeed) are started too. */
+  readonly thinMarketOffers: number;
 }
 
 /** Default settings. */
@@ -62,6 +64,7 @@ export const DEFAULT_PIPELINE_SETTINGS: PipelineSettings = {
   snapshotWaitSeconds: 2,
   offersPerSource: 60,
   computeMarginSeconds: 15,
+  thinMarketOffers: 25,
 };
 
 /** Stages of an analysis job, in order. */
@@ -183,7 +186,13 @@ export class AnalysisPipeline implements JobHandler {
           "read_link",
           this.providers.offerReader.name,
           this.providers.offerReader.estimateCostMicroUsd(),
-          () => this.providers.offerReader.readLink(link.url, link.site, today),
+          () =>
+            this.providers.offerReader.readLink(
+              link.url,
+              link.site,
+              today,
+              (estimate) => this.spendGuard.allows(estimate),
+            ),
         );
         if (outcome.kind === "unsupported") return await this.fail(analysis, "unsupported_link", null, "unsupported");
         if (outcome.kind === "unreadable") {
@@ -225,6 +234,8 @@ export class AnalysisPipeline implements JobHandler {
               input.mime_type ?? "image/jpeg",
               today,
             )
+            : this.providers.offerReader.readText
+            ? this.providers.offerReader.readText(input.text_content ?? "", today)
             : this.providers.ai.extractOfferFromText(input.text_content ?? "", today),
       );
       // The image or the text is not needed any more: deleted at once (24 hours at most otherwise).
@@ -469,7 +480,7 @@ export class AnalysisPipeline implements JobHandler {
       today: utcDay(now),
     };
     let partial = false;
-    for (const source of this.providers.offerSources) {
+    for (const source of this.providers.offerSources.filter((candidate) => !candidate.complementary)) {
       const started = await this.startCollection(sliceId, source, request);
       if (!started) partial = true;
     }
@@ -492,7 +503,7 @@ export class AnalysisPipeline implements JobHandler {
     try {
       const start = await source.start(request);
       if (start.kind === "finished") {
-        await this.storeOffers(request, start.offers);
+        await this.storeOffers(request.jobFamily, request.departmentCode, start.offers);
         await this.spendGuard.record({
           provider: source.name,
           operation: "collect",
@@ -506,7 +517,12 @@ export class AnalysisPipeline implements JobHandler {
           costMicroUsd: start.costMicroUsd,
         });
       } else {
-        await this.saveCollection(sliceId, source.name, { status: "running", runId: start.runId });
+        // The estimate is reserved until the run ends, so that parallel runs cannot overshoot the daily limit.
+        await this.saveCollection(sliceId, source.name, {
+          status: "running",
+          runId: start.runId,
+          reservedMicroUsd: source.paid ? estimate : 0,
+        });
       }
       return true;
     } catch (error) {
@@ -520,16 +536,25 @@ export class AnalysisPipeline implements JobHandler {
   private async saveCollection(
     sliceId: string,
     provider: string,
-    values: { status: string; runId?: string; itemCount?: number; costMicroUsd?: number; errorCode?: string },
+    values: {
+      status: string;
+      runId?: string;
+      itemCount?: number;
+      costMicroUsd?: number;
+      errorCode?: string;
+      reservedMicroUsd?: number;
+    },
   ): Promise<void> {
     await this.database.query(
       `insert into public.source_collections (slice_id, provider, status, external_run_id, item_count, cost_micro_usd,
-                                              error_code, attempts, started_at, finished_at)
-       values ($1::uuid, $2, $3, $4, $5, $6, $7, 1, now(), case when $3 in ('succeeded', 'failed', 'skipped') then now() end)
+                                              error_code, attempts, started_at, finished_at, reserved_micro_usd)
+       values ($1::uuid, $2, $3, $4, $5, $6, $7, 1, now(), case when $3 in ('succeeded', 'failed', 'skipped') then now() end,
+               case when $3 = 'running' then $8 else 0 end)
        on conflict (slice_id, provider) do update set
          status = excluded.status, external_run_id = coalesce(excluded.external_run_id, source_collections.external_run_id),
          item_count = excluded.item_count, cost_micro_usd = source_collections.cost_micro_usd + excluded.cost_micro_usd,
-         error_code = excluded.error_code, attempts = source_collections.attempts + 1, finished_at = excluded.finished_at`,
+         error_code = excluded.error_code, attempts = source_collections.attempts + 1, finished_at = excluded.finished_at,
+         reserved_micro_usd = excluded.reserved_micro_usd`,
       [
         sliceId,
         provider,
@@ -538,11 +563,16 @@ export class AnalysisPipeline implements JobHandler {
         values.itemCount ?? 0,
         Math.round(values.costMicroUsd ?? 0),
         values.errorCode ?? null,
+        Math.round(values.reservedMicroUsd ?? 0),
       ],
     );
   }
 
-  private async storeOffers(request: CollectionRequest, offers: readonly CollectedOfferInput[]): Promise<void> {
+  private async storeOffers(
+    family: string,
+    searchDepartment: string,
+    offers: readonly CollectedOfferInput[],
+  ): Promise<void> {
     const observedAt = this.clock.now().toISOString();
     const rows = offers.slice(0, 500).flatMap((offer) => {
       const title = offer.jobTitle?.trim().slice(0, 200);
@@ -550,7 +580,7 @@ export class AnalysisPipeline implements JobHandler {
       if (!title || !externalId) return [];
       const department = offer.departmentCode && /^([0-9]{2}|2[AB]|9[78][0-9])$/.test(offer.departmentCode)
         ? offer.departmentCode
-        : findCity(offer.city)?.departmentCode ?? request.departmentCode;
+        : findCity(offer.city)?.departmentCode ?? searchDepartment;
       const city = findCity(offer.city, department) ?? findCity(offer.city);
       const salary = offer.salary && offer.salary.minimum >= 1 && offer.salary.maximum <= 1000 &&
           offer.salary.minimum <= offer.salary.maximum
@@ -561,7 +591,7 @@ export class AnalysisPipeline implements JobHandler {
         external_id: externalId,
         job_title: title,
         // The family of the search, not of the title: the sources answer with close titles of the same job.
-        job_family: request.jobFamily,
+        job_family: family,
         company: offer.company?.slice(0, 200) ?? null,
         city: offer.city?.slice(0, 120) ?? null,
         department_code: department,
@@ -608,51 +638,30 @@ export class AnalysisPipeline implements JobHandler {
   private async marketWait(job: Job, analysis: AnalysisRecord): Promise<StageOutcome> {
     const sliceId = String(job.payload.sliceId);
     const request = job.payload.collectionRequest as CollectionRequest;
-    const running = await this.database.query<{ provider: string; external_run_id: string }>(
-      `select provider, external_run_id from public.source_collections where slice_id = $1::uuid and status = 'running'`,
-      [sliceId],
-    );
-    let partial = job.payload.partial === true;
-    let stillRunning = 0;
-    for (const collection of running) {
-      const source = this.providers.offerSources.find((candidate) => candidate.name === collection.provider);
-      if (!source) {
-        await this.saveCollection(sliceId, collection.provider, { status: "failed", errorCode: "unknown_source" });
-        partial = true;
-        continue;
-      }
-      const poll = await source.poll(collection.external_run_id);
-      if (poll.kind === "running") {
-        stillRunning += 1;
-      } else if (poll.kind === "finished") {
-        await this.storeOffers(request, poll.offers);
-        await this.spendGuard.record({
-          provider: source.name,
-          operation: "collect",
-          costMicroUsd: poll.costMicroUsd,
-          units: poll.offers.length,
-          sliceId,
-        });
-        await this.saveCollection(sliceId, source.name, {
-          status: "succeeded",
-          itemCount: poll.offers.length,
-          costMicroUsd: poll.costMicroUsd,
-        });
-      } else {
-        await this.spendGuard.record({
-          provider: source.name,
-          operation: "collect_failed",
-          costMicroUsd: poll.costMicroUsd,
-          sliceId,
-        });
-        await this.saveCollection(sliceId, source.name, {
-          status: "failed",
-          errorCode: poll.code.slice(0, 60),
-          costMicroUsd: poll.costMicroUsd,
-        });
-        partial = true;
+    const polled = await this.pollRunningCollections(sliceId, request.jobFamily, request.departmentCode);
+    let partial = job.payload.partial === true || polled.failed;
+    const stillRunning = polled.stillRunning;
+
+    // Thin market: the complementary sources (Indeed) are started once the main ones are done.
+    const complements = this.providers.offerSources.filter((source) => source.complementary);
+    if (
+      stillRunning === 0 && complements.length > 0 && job.payload.complementsStarted !== true && !this.nearDeadline(job)
+    ) {
+      const found = await queryOne<{ count: number }>(
+        this.database,
+        `select coalesce(sum(item_count), 0)::integer as count from public.source_collections
+         where slice_id = $1::uuid and status = 'succeeded'`,
+        [sliceId],
+      );
+      if ((found?.count ?? 0) < this.settings.thinMarketOffers) {
+        for (const source of complements) {
+          if (!(await this.startCollection(sliceId, source, request))) partial = true;
+        }
+        this.logger.log("info", "complementary_sources_started", { offers: found?.count ?? 0 });
+        return { kind: "next", stage: "market_wait", payload: { ...job.payload, partial, complementsStarted: true } };
       }
     }
+
     if (stillRunning > 0 && !this.nearDeadline(job)) {
       const total = Math.max(1, this.providers.offerSources.length);
       await this.setProgress(analysis, 45 + Math.round((25 * (total - stillRunning)) / total), {});
@@ -663,6 +672,7 @@ export class AnalysisPipeline implements JobHandler {
         payload: { ...job.payload, partial },
       };
     }
+    // Runs still going on are not lost: the Apify webhook or the maintenance stores their results later.
     if (stillRunning > 0) partial = true;
     // A partial slice is kept one day only, so that the market is collected again soon.
     const lifetimeDays = partial ? 1 : this.configuration.cacheDays;
@@ -676,6 +686,141 @@ export class AnalysisPipeline implements JobHandler {
       ],
     );
     return { kind: "next", stage: "social", payload: { ...job.payload, partial } };
+  }
+
+  /** Polls the running collections of a slice once; stores the finished ones. */
+  private async pollRunningCollections(
+    sliceId: string,
+    family: string,
+    department: string,
+    onlyRunId: string | null = null,
+  ): Promise<{ stillRunning: number; failed: boolean; startedAt: Map<string, string> }> {
+    const running = await this.database.query<{ provider: string; external_run_id: string; started_at: unknown }>(
+      `select provider, external_run_id, started_at from public.source_collections
+       where slice_id = $1::uuid and status = 'running' and ($2::text is null or external_run_id = $2)`,
+      [sliceId, onlyRunId],
+    );
+    let stillRunning = 0;
+    let failed = false;
+    const startedAt = new Map<string, string>();
+    for (const collection of running) {
+      const source = this.providers.offerSources.find((candidate) => candidate.name === collection.provider);
+      if (!source) {
+        await this.completeCollection(sliceId, collection.provider, { status: "failed", errorCode: "unknown_source" });
+        failed = true;
+        continue;
+      }
+      const poll = await source.poll(collection.external_run_id);
+      if (poll.kind === "running") {
+        stillRunning += 1;
+        startedAt.set(collection.provider, toIsoTimestamp(collection.started_at));
+        continue;
+      }
+      // Only one worker (the pipeline, the webhook or the maintenance) stores a finished run.
+      const claimed = await this.completeCollection(sliceId, source.name, {
+        status: poll.kind === "finished" ? "succeeded" : "failed",
+        itemCount: poll.kind === "finished" ? poll.offers.length : 0,
+        costMicroUsd: poll.costMicroUsd,
+        errorCode: poll.kind === "failed" ? poll.code.slice(0, 60) : null,
+      });
+      if (!claimed) continue;
+      await this.spendGuard.record({
+        provider: source.name,
+        operation: poll.kind === "finished" ? "collect" : "collect_failed",
+        costMicroUsd: poll.costMicroUsd,
+        units: poll.kind === "finished" ? poll.offers.length : 1,
+        sliceId,
+      });
+      if (poll.kind === "finished") {
+        await this.storeOffers(family, department, poll.offers);
+      } else {
+        failed = true;
+      }
+    }
+    return { stillRunning, failed, startedAt };
+  }
+
+  /** Ends a running collection. Returns false when another worker already ended it. */
+  private async completeCollection(
+    sliceId: string,
+    provider: string,
+    values: { status: "succeeded" | "failed"; itemCount?: number; costMicroUsd?: number; errorCode?: string | null },
+  ): Promise<boolean> {
+    const updated = await this.database.query(
+      `update public.source_collections
+       set status = $3, item_count = $4, cost_micro_usd = cost_micro_usd + $5, error_code = $6, finished_at = now(),
+           reserved_micro_usd = 0
+       where slice_id = $1::uuid and provider = $2 and status = 'running'
+       returning id`,
+      [
+        sliceId,
+        provider,
+        values.status,
+        values.itemCount ?? 0,
+        Math.round(values.costMicroUsd ?? 0),
+        values.errorCode ?? null,
+      ],
+    );
+    return updated.length > 0;
+  }
+
+  /**
+   * Wakes the analyses waiting for an Apify run (called by the Apify webhook at the end of the run).
+   *
+   * @param runId identifier of the run.
+   * @returns number of analyses woken.
+   */
+  async wakeForRun(runId: string): Promise<number> {
+    const woken = await this.database.query(
+      `update public.jobs as job set run_after = now(), updated_at = now()
+       from public.source_collections as collection
+       where collection.external_run_id = $1 and collection.status = 'running'
+         and job.status = 'queued' and job.stage = 'market_wait'
+         and job.payload->>'sliceId' = collection.slice_id::text
+       returning job.id`,
+      [runId],
+    );
+    return woken.length;
+  }
+
+  /**
+   * Stores the runs that no analysis waits for any more (an analysis stops waiting near its deadline): their results
+   * are paid, so they serve the next analyses of the market. Runs older than an hour that never ended are released.
+   * Called by the Apify webhook (one run) and by the daily maintenance (all of them).
+   *
+   * @param runId one run, or null for every abandoned run.
+   */
+  async harvestCollections(runId: string | null = null): Promise<{ harvested: number; released: number }> {
+    const slices = await this.database.query<{ slice_id: string; job_family: string; department_code: string }>(
+      `select distinct collection.slice_id::text as slice_id, slice.job_family, slice.department_code
+       from public.source_collections as collection
+       join public.market_slices as slice on slice.id = collection.slice_id
+       where collection.status = 'running' and slice.status <> 'collecting'
+         and ($1::text is null or collection.external_run_id = $1)
+       limit 50`,
+      [runId],
+    );
+    let harvested = 0;
+    let released = 0;
+    for (const slice of slices) {
+      const before = await queryOne<{ count: number }>(
+        this.database,
+        `select count(*)::integer as count from public.source_collections where slice_id = $1::uuid and status = 'running'
+           and ($2::text is null or external_run_id = $2)`,
+        [slice.slice_id, runId],
+      );
+      const polled = await this.pollRunningCollections(slice.slice_id, slice.job_family, slice.department_code, runId);
+      harvested += (before?.count ?? 0) - polled.stillRunning;
+      for (const [provider, startedAt] of polled.startedAt) {
+        if (this.clock.now().getTime() - Date.parse(startedAt) > 3_600_000) {
+          if (await this.completeCollection(slice.slice_id, provider, { status: "failed", errorCode: "abandoned" })) {
+            released += 1;
+          }
+        }
+      }
+    }
+    if (harvested > 0 || released > 0) this.logger.log("info", "collections_harvested", { harvested, released });
+    return { harvested, released };
   }
 
   // Stage: social posts and AI summary ------------------------------------------------------------------------------
