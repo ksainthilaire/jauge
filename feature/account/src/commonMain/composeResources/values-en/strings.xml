@@ -10,6 +10,7 @@
     <string name="about_title">About</string>
     <string name="account_back">Back</string>
     <string name="account_logo_description">Jauge logo</string>
+    <string name="account_brand_name">Jauge</string>
     <string name="account_headline">Keep your analyses.</string>
     <string name="account_text">An account to find your analyzed offers and your alerts on all your devices.</string>
     <string name="account_continue_apple">Continue with Apple</string>

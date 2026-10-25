@@ -62,6 +62,19 @@ import io.jauge.feature.account.resources.account_privacy_promise
 import io.jauge.feature.account.resources.account_text
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import io.jauge.core.designsystem.component.GaugeLevel
+import io.jauge.core.designsystem.component.GaugeSize
+import io.jauge.core.designsystem.component.JaugeGauge
+import io.jauge.core.designsystem.component.LevelPill
+import io.jauge.feature.account.resources.account_brand_name
 
 /**
  * Account and consents screen (mockup 11), always dark: sign in with Apple, Google or an email code, or continue
@@ -137,14 +150,15 @@ fun AccountContent(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = gutter)
-                    .padding(top = 34.dp, bottom = 16.dp),
+                    .padding(top = 16.dp, bottom = 16.dp),
             ) {
-                JaugeLogo(modifier = Modifier.size(60.dp))
+                BrandHeader()
+                BrandVisual(modifier = Modifier.padding(top = 22.dp))
                 Text(
                     text = stringResource(Res.string.account_headline),
                     style = typography.headline.copy(fontSize = 34.sp, lineHeight = 36.sp),
                     color = colors.textPrimary,
-                    modifier = Modifier.padding(top = 22.dp),
+                    modifier = Modifier.padding(top = 24.dp),
                 )
                 Text(
                     text = stringResource(Res.string.account_text),
@@ -245,3 +259,70 @@ fun AccountContent(
         }
     }
 }
+
+/** Logo and word mark "Jauge" at the top of the account screen. */
+@Composable
+private fun BrandHeader() {
+    val colors = JaugeTheme.colors
+    val logoShape = RoundedCornerShape(15.dp)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // The ink logo sits on the ink background: a thin outline and a soft shadow give it its edges back.
+        JaugeLogo(
+            modifier = Modifier
+                .size(60.dp)
+                .shadow(elevation = 8.dp, shape = logoShape, ambientColor = JaugePalette.Mint, spotColor = JaugePalette.Mint)
+                .border(1.5.dp, colors.outline, logoShape),
+        )
+        Text(
+            text = stringResource(Res.string.account_brand_name),
+            style = JaugeTheme.typography.headline.copy(fontSize = 32.sp, lineHeight = 34.sp),
+            color = colors.textPrimary,
+            modifier = Modifier.padding(start = 14.dp),
+        )
+    }
+}
+
+/**
+ * Brand visual of the account screen: a large gauge in a glowing card with the three level words, what the account
+ * keeps for the user.
+ */
+@Composable
+private fun BrandVisual(modifier: Modifier = Modifier) {
+    val colors = JaugeTheme.colors
+    val shape = JaugeTheme.radii.cardShape
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(colors.surface)
+            .drawBehind {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(JaugePalette.Mint.copy(alpha = 0.22f), Color.Transparent),
+                        center = Offset(size.width / 2f, size.height * 0.45f),
+                        radius = size.height * 0.85f,
+                    ),
+                    radius = size.height * 0.85f,
+                    center = Offset(size.width / 2f, size.height * 0.45f),
+                )
+            }
+            .border(1.dp, colors.outline, shape)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        JaugeGauge(
+            score = BRAND_VISUAL_SCORE,
+            size = GaugeSize.MEDIUM,
+            needleColor = colors.textPrimary,
+            modifier = Modifier.size(width = 176.dp, height = 88.dp),
+        )
+        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            LevelPill(level = GaugeLevel.CALM, showDot = true)
+            LevelPill(level = GaugeLevel.DISPUTED, showDot = true)
+            LevelPill(level = GaugeLevel.CROWDED, showDot = true)
+        }
+    }
+}
+
+/** Score shown by the brand visual: calm, the promise of the app. */
+private const val BRAND_VISUAL_SCORE = 22

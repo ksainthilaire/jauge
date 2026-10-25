@@ -54,6 +54,15 @@ class AccountScreenshotTest {
         AccountContent(AccountUiState(), {}, {}, {}, {}, {}, {}, {})
     }
 
+    /** Mockup 11 with a large system text size. */
+    @Test
+    fun accountLargeText() = capture("11-compte-et-accords-texte-grand") {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, 1.3f)) {
+            AccountContent(AccountUiState(), {}, {}, {}, {}, {}, {}, {})
+        }
+    }
+
     /** Email link step of mockup 11. */
     @Test
     fun emailLink() = capture("11b-lien-par-email") {
