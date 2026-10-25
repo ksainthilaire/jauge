@@ -43,10 +43,11 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val resolved = values.get()
-        val apiBaseUrl = resolved[API_BASE_URL].orEmpty().ifBlank { DEFAULT_API_BASE_URL }
-        val offlineModeValue = resolved[API_OFFLINE_MODE].orEmpty().trim().lowercase()
         val isRelease = releaseBuild.getOrElse(false)
-        val offlineMode = offlineModeValue != "false" && !isRelease
+        // Release builds always call https://api.jauge.io/ (AppEnvironment) and never start offline: the configured
+        // URL and the offline setting are debug tools, left out of an iOS release binary.
+        val apiBaseUrl = if (isRelease) "" else resolved[API_BASE_URL].orEmpty().trim()
+        val offlineModeSetting = if (isRelease) "false" else resolved[API_OFFLINE_MODE].orEmpty().trim().lowercase()
         val supabaseUrl = resolved[SUPABASE_URL].orEmpty().trim()
         val supabaseKey = resolved[SUPABASE_PUBLISHABLE_KEY].orEmpty().trim()
         val revenueCatGoogle = resolved[REVENUECAT_GOOGLE_API_KEY].orEmpty().trim()
@@ -76,11 +77,17 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
             | * (or from environment variables). It never contains a secret key.
             | */
             |public object BuildConfiguration {
-            |    /** Base URL of the Jauge API, always ending with a slash. */
-            |    public const val API_BASE_URL: String = "${apiBaseUrl.ensureTrailingSlash().escape()}"
+            |    /**
+            |     * Base URL of the Jauge API configured for debug builds (`jauge.api.baseUrl`), ending with a slash, empty
+            |     * when none is configured. Release builds always use `https://api.jauge.io/`.
+            |     */
+            |    public const val API_BASE_URL: String = "${apiBaseUrl.takeIf { it.isNotEmpty() }?.ensureTrailingSlash().orEmpty().escape()}"
             |
-            |    /** True when the app must use the built in offline data instead of the real API. */
-            |    public const val OFFLINE_MODE: Boolean = $offlineMode
+            |    /**
+            |     * Offline mode setting (`jauge.api.offlineMode`): `true`, `false`, or empty when not set (then the app calls
+            |     * the API when [API_BASE_URL] is configured, see `AppEnvironment.selectOfflineMode`).
+            |     */
+            |    public const val OFFLINE_MODE_SETTING: String = "${offlineModeSetting.escape()}"
             |
             |    /** URL of the Supabase project, empty when not configured. */
             |    public const val SUPABASE_URL: String = "${supabaseUrl.escape()}"
@@ -127,7 +134,10 @@ abstract class GenerateBuildConfigurationTask : DefaultTask() {
         /** Base URL of the API. */
         const val API_BASE_URL = "jauge.api.baseUrl"
 
-        /** `false` to call the real API, anything else (or nothing) keeps the offline mode. */
+        /**
+         * `true` keeps the offline mode, `false` calls the API; when not set, the API is called as soon as
+         * [API_BASE_URL] is configured (debug builds only, release builds always call the API).
+         */
         const val API_OFFLINE_MODE = "jauge.api.offlineMode"
 
         /** Supabase project URL. */

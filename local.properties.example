@@ -1,15 +1,19 @@
 # Copy this file to local.properties (ignored by git) and fill in the values you have.
-# Every value is optional: without them the app starts in offline mode (sample data, no network)
+# Every value is optional: without them debug builds start in offline mode (sample data, no network)
 # and purchases are disabled. Environment variables override these values (see docs/ARCHITECTURE.md).
 # NEVER put a secret key here: the build fails on RevenueCat "sk_" keys and Supabase secret keys.
 
 # Android SDK location (written by Android Studio).
 sdk.dir=/path/to/Android/sdk
 
-# Jauge API. The API does not exist yet: keep offline mode until it is deployed.
-jauge.api.baseUrl=https://api.jauge.io/
-# "false" calls the real API. Any other value, or no value, keeps the offline mode.
-jauge.api.offlineMode=true
+# Jauge API. Release builds ALWAYS call https://api.jauge.io/ and never use the offline mode.
+# Debug builds call the URL below, for example the Supabase function while api.jauge.io is not set up:
+#   jauge.api.baseUrl=https://ynvaaswsenerrummanrs.supabase.co/functions/v1/api/
+# Empty: debug builds start in offline mode (sample data from the mockups).
+jauge.api.baseUrl=
+# Optional, debug builds only: "true" forces the offline mode, "false" forces the API.
+# Empty: the API is called as soon as jauge.api.baseUrl is set. The hidden switch (long press on "Profil") stays.
+jauge.api.offlineMode=
 
 # Supabase (notifications): project URL and PUBLISHABLE key only (sb_publishable_...).
 supabase.url=

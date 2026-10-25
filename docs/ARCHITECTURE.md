@@ -209,8 +209,8 @@ generated into `io.jauge.core.common.configuration.BuildConfiguration`. Environm
 
 | Property | Environment variable | Use |
 |---|---|---|
-| `jauge.api.baseUrl` | `JAUGE_API_BASE_URL` | API base URL (default `https://api.jauge.io/`) |
-| `jauge.api.offlineMode` | `JAUGE_API_OFFLINE_MODE` | `false` calls the real API, anything else keeps the offline mode |
+| `jauge.api.baseUrl` | `JAUGE_API_BASE_URL` | API base URL of **debug** builds (for example `https://<project>.supabase.co/functions/v1/api/`); release builds always use `https://api.jauge.io/` |
+| `jauge.api.offlineMode` | `JAUGE_API_OFFLINE_MODE` | Debug builds: `true` forces the offline mode, `false` the API; empty: the API as soon as `jauge.api.baseUrl` is set, the offline mode otherwise |
 | `supabase.url` | `JAUGE_SUPABASE_URL` | Supabase project URL |
 | `supabase.publishableKey` | `JAUGE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key only |
 | `revenuecat.testStoreApiKey` | `JAUGE_REVENUECAT_TEST_STORE_API_KEY` | RevenueCat Test Store key, used by debug builds |
@@ -231,7 +231,8 @@ offline mode and purchases disabled (`UnavailableBillingClient`), without crash.
 `OfflineJaugeApi` (core:data), which serves data from the mockups with a simulated latency. An indicator
 ("Données d'exemple", debug builds only) is shown at the top of the app while it is on.
 
-- Build setting: `jauge.api.offlineMode` (on by default while the API does not exist). **Debug builds only**: release
+- Build setting: `jauge.api.offlineMode`, see the table above (`AppEnvironment.selectOfflineMode`): a configured API
+  URL turns the offline mode off by default. **Debug builds only**: release
   builds always call the real API, never sign in with `SimulatedAuthenticationRepository` (they use
   `UnavailableAuthenticationRepository` when Supabase is not configured) and an iOS Release framework never embeds the
   Test Store key (see `docs/audit/securite.md`).
