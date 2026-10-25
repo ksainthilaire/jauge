@@ -19,6 +19,15 @@ sealed interface OfferSource {
     class Image(val bytes: ByteArray, val mimeType: String, val origin: ImageOrigin) : OfferSource
 
     /**
+     * Text of a screenshot or a photo, read on the phone by `TextRecognizer`. This is what is sent to the API for
+     * an [Image]: the image itself never leaves the phone.
+     *
+     * @property text the text read, already cleaned.
+     * @property origin screenshot or photo.
+     */
+    data class Text(val text: String, val origin: ImageOrigin) : OfferSource
+
+    /**
      * Job title and city typed by the user when the offer could not be read (mockup 10).
      *
      * @property jobTitle the job title.

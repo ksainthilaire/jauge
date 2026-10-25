@@ -18,7 +18,7 @@
     <string name="account_continue_email">Continuer avec un e-mail</string>
     <string name="account_marketing_consent">M'envoyer des conseils de recherche par e-mail (1\u00A0par\u00A0mois).</string>
     <string name="account_marketing_optional">Facultatif.</string>
-    <string name="account_privacy_promise">Tes captures servent à lire l'offre, puis sont effacées. Ton nom n'est jamais montré aux employeurs.</string>
+    <string name="account_privacy_promise">Tes captures sont lues sur ton téléphone et ne le quittent jamais. Ton nom n'est jamais montré aux employeurs.</string>
     <string name="account_continue_without">Continuer sans compte</string>
     <string name="account_legal_start">En continuant, tu acceptes les </string>
     <string name="account_legal_terms">Conditions d'utilisation</string>
@@ -138,7 +138,7 @@
     <string name="delete_headline">Supprimer ton compte</string>
     <string name="delete_text">Tu peux supprimer ton compte et tes données à tout moment, sans justification.</string>
     <string name="delete_what_title">Ce qui sera effacé</string>
-    <string name="delete_what_analyses">Tes offres jaugées et les captures encore conservées</string>
+    <string name="delete_what_analyses">Tes offres jaugées et le texte lu sur tes captures</string>
     <string name="delete_what_alerts">Tes alertes « calme » et tes notifications</string>
     <string name="delete_what_shares">Tes liens de partage : ils cesseront de fonctionner</string>
     <string name="delete_what_account">Ton compte, ton adresse e-mail et tes accords</string>

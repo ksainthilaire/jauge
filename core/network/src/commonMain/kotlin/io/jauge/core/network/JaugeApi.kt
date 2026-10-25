@@ -29,21 +29,12 @@ import io.jauge.core.network.payload.TwinOffersPayload
  */
 interface JaugeApi {
     /**
-     * `POST /v1/analyses` with JSON: analysis of a link or of a manual entry.
+     * `POST /v1/analyses` with JSON: analysis of a link, of a manual entry or of the text of a capture read on the
+     * phone. Images are never sent.
      *
-     * @param request link or manual entry.
+     * @param request link, manual entry or text.
      */
     suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload
-
-    /**
-     * `POST /v1/analyses` with multipart: analysis of a screenshot or a photo.
-     *
-     * @param image encoded image.
-     * @param mimeType type of the image.
-     * @param origin `screenshot` or `photo`.
-     * @param area search area of the user (parts `areaCity`, `areaDepartment`, `areaRadius`), null to send none.
-     */
-    suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload
 
     /**
      * `GET /v1/analyses?cursor=&limit=&query=`: analyses of the user, newest first.

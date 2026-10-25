@@ -76,16 +76,14 @@ class OfflineJaugeApi(
                     sourceUrl = null,
                 ),
             )
+            CreateAnalysisRequestPayload.TYPE_TEXT -> base
             else -> base.copy(offer = base.offer?.copy(sourceUrl = request.url))
         }
-        startAnalysis(completed.withArea(request.area), unreadable = false)
+        // Like the real API, only a capture (text read on the phone) can be unreadable.
+        val unreadable = request.type == CreateAnalysisRequestPayload.TYPE_TEXT &&
+            scenarios.scenario.value == OfflineScenario.UNREADABLE_OFFER
+        startAnalysis(completed.withArea(request.area), unreadable = unreadable)
     }
-
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload =
-        simulate(isAnalysisCreation = true) {
-            val completed = dataset.marketingAnalysis(id = nextId(), createdHoursAgo = 0).withArea(area)
-            startAnalysis(completed, unreadable = scenarios.scenario.value == OfflineScenario.UNREADABLE_OFFER)
-        }
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload = simulate {
         if (isEmptyScenario()) return@simulate AnalysisPagePayload(emptyList())

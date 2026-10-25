@@ -18,7 +18,7 @@
     <string name="account_continue_email">Continue with an email</string>
     <string name="account_marketing_consent">Send me job search tips by email (once a month).</string>
     <string name="account_marketing_optional">Optional.</string>
-    <string name="account_privacy_promise">Your screenshots are used to read the offer, then deleted. Your name is never shown to employers.</string>
+    <string name="account_privacy_promise">Your screenshots are read on your phone and never leave it. Your name is never shown to employers.</string>
     <string name="account_continue_without">Continue without an account</string>
     <string name="account_legal_start">By continuing, you accept the </string>
     <string name="account_legal_terms">Terms of use</string>
@@ -138,7 +138,7 @@
     <string name="delete_headline">Delete your account</string>
     <string name="delete_text">You can delete your account and your data at any time, without giving a reason.</string>
     <string name="delete_what_title">What will be deleted</string>
-    <string name="delete_what_analyses">Your gauged offers and the screenshots still kept</string>
+    <string name="delete_what_analyses">Your gauged offers and the text read from your screenshots</string>
     <string name="delete_what_alerts">Your "calm" alerts and your notifications</string>
     <string name="delete_what_shares">Your share links: they will stop working</string>
     <string name="delete_what_account">Your account, your email address and your consents</string>

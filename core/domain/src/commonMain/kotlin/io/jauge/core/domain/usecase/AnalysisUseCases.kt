@@ -4,11 +4,16 @@ import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Analysis
 import io.jauge.core.domain.model.AnalysisProgress
 import io.jauge.core.domain.model.AnalysisSummary
+import io.jauge.core.domain.model.ImageOrigin
 import io.jauge.core.domain.model.OfferSource
 import io.jauge.core.domain.model.Outcome
 import io.jauge.core.domain.repository.AnalysisRepository
+import io.jauge.core.domain.service.RecognizedText
+import io.jauge.core.domain.service.TextRecognizer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
@@ -16,14 +21,22 @@ import kotlinx.coroutines.flow.map
  * Analyzes an offer (mockups 02 and 03). Checks the input first: a pasted text that is not a web link, or an empty
  * manual entry, fails at once without calling the server.
  *
+ * A screenshot or a photo is read on the phone by [textRecognizer] and only its text is sent
+ * ([OfferSource.Text]): the image never leaves the phone. When nothing usable is read, the analysis fails with
+ * [JaugeError.UnreadableOffer] (mockup 10) without calling the server, so the free analysis of the week is kept.
+ *
  * @param repository analyses repository.
+ * @param textRecognizer reads the text of images on the phone.
  */
-class AnalyzeOfferUseCase(private val repository: AnalysisRepository) {
+class AnalyzeOfferUseCase(
+    private val repository: AnalysisRepository,
+    private val textRecognizer: TextRecognizer,
+) {
 
     /**
      * Starts the analysis.
      *
-     * @param source link, image or manual entry.
+     * @param source link, image, text or manual entry.
      * @return the progress, ending with [AnalysisProgress.Completed] or [AnalysisProgress.Failed].
      */
     operator fun invoke(source: OfferSource): Flow<AnalysisProgress> = when (source) {
@@ -38,20 +51,35 @@ class AnalyzeOfferUseCase(private val repository: AnalysisRepository) {
                 repository.analyze(OfferSource.Manual(source.jobTitle.trim(), source.city.trim()))
             }
         }
+        is OfferSource.Text -> analyzeText(source.text, source.origin)
         is OfferSource.Image -> {
             if (source.bytes.isEmpty()) {
                 flowOf(AnalysisProgress.Failed(JaugeError.UnreadableOffer()))
             } else if (source.bytes.size > MAXIMUM_IMAGE_BYTES) {
                 flowOf(AnalysisProgress.Failed(JaugeError.ImageTooLarge))
             } else {
-                repository.analyze(source)
+                flow {
+                    when (val recognized = textRecognizer.recognize(source.bytes, source.mimeType)) {
+                        is Outcome.Failure -> emit(AnalysisProgress.Failed(JaugeError.UnreadableOffer()))
+                        is Outcome.Success -> emitAll(analyzeText(recognized.value, source.origin))
+                    }
+                }
             }
+        }
+    }
+
+    private fun analyzeText(text: String, origin: ImageOrigin): Flow<AnalysisProgress> {
+        val cleaned = RecognizedText.clean(text)
+        return if (RecognizedText.isReadable(cleaned)) {
+            repository.analyze(OfferSource.Text(cleaned, origin))
+        } else {
+            flowOf(AnalysisProgress.Failed(JaugeError.UnreadableOffer()))
         }
     }
 
     /** Limits and helpers. */
     companion object {
-        /** Largest image accepted by the API: 10 MB. */
+        /** Largest image read on the phone: 10 MB (the pickers reduce images to about 2048 pixels). */
         const val MAXIMUM_IMAGE_BYTES = 10 * 1024 * 1024
 
         private val webAddress = Regex("""^(https?://)?([\p{L}\p{N}-]+\.)+\p{L}{2,}(/\S*)?$""", RegexOption.IGNORE_CASE)

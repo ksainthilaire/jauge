@@ -15,6 +15,7 @@ import io.jauge.core.domain.model.TwinOffer
 import io.jauge.core.domain.model.TwinOffers
 import io.jauge.core.domain.model.TwinSort
 import io.jauge.core.domain.model.getOrNull
+import io.jauge.core.domain.service.TextRecognizer
 import io.jauge.core.domain.usecase.AnalyzeOfferUseCase
 import io.jauge.core.domain.usecase.ComputeTrialTimelineUseCase
 import io.jauge.core.domain.usecase.CreateCalmAlertUseCase
@@ -54,7 +55,7 @@ class UseCaseTest {
     @Test
     fun invalidLinkFailsWithoutCallingTheServer() = runTest {
         val repository = FakeAnalysisRepository()
-        val progress = AnalyzeOfferUseCase(repository)(OfferSource.Link("pas un lien")).first()
+        val progress = AnalyzeOfferUseCase(repository, TextRecognizer { _, _ -> Outcome.Success(SAMPLE_OFFER_TEXT) })(OfferSource.Link("pas un lien")).first()
         assertEquals(AnalysisProgress.Failed(JaugeError.InvalidLink), progress)
         assertTrue(repository.receivedSources.isEmpty())
     }
@@ -62,14 +63,14 @@ class UseCaseTest {
     @Test
     fun validLinkIsSentNormalized() = runTest {
         val repository = FakeAnalysisRepository()
-        AnalyzeOfferUseCase(repository)(OfferSource.Link("jobs.example.com/42")).first()
+        AnalyzeOfferUseCase(repository, TextRecognizer { _, _ -> Outcome.Success(SAMPLE_OFFER_TEXT) })(OfferSource.Link("jobs.example.com/42")).first()
         assertEquals(OfferSource.Link("https://jobs.example.com/42"), repository.receivedSources.single())
     }
 
     @Test
     fun emptyManualEntryAndTooLargeImagesAreRefused() = runTest {
         val repository = FakeAnalysisRepository()
-        val useCase = AnalyzeOfferUseCase(repository)
+        val useCase = AnalyzeOfferUseCase(repository, TextRecognizer { _, _ -> Outcome.Success(SAMPLE_OFFER_TEXT) })
         assertEquals(AnalysisProgress.Failed(JaugeError.InvalidData), useCase(OfferSource.Manual(" ", "Lyon")).first())
         val huge = OfferSource.Image(ByteArray(AnalyzeOfferUseCase.MAXIMUM_IMAGE_BYTES + 1), "image/jpeg", ImageOrigin.PHOTO)
         assertEquals(AnalysisProgress.Failed(JaugeError.ImageTooLarge), useCase(huge).first())

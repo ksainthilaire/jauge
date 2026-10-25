@@ -21,6 +21,8 @@ import io.jauge.core.domain.usecase.PurchaseSubscriptionUseCase
 import io.jauge.core.network.JaugeApi
 import io.jauge.core.network.networkModule
 import io.jauge.core.notifications.notificationsModule
+import io.jauge.core.textrecognition.textRecognitionModule
+import io.jauge.core.domain.service.TextRecognizer
 import io.jauge.core.domain.repository.AuthenticationRepository
 import io.jauge.core.domain.repository.NotificationRepository
 import io.jauge.core.domain.usecase.SignOutUseCase
@@ -47,7 +49,7 @@ class KoinGraphTest {
             revenueCatApiKey = "",
         )
         val koin = koinApplication {
-            modules(module { single { environment } }, commonModule, networkModule, billingModule, authenticationModule, notificationsModule, dataModule, domainModule, appModule)
+            modules(module { single { environment } }, commonModule, networkModule, billingModule, authenticationModule, notificationsModule, textRecognitionModule, dataModule, domainModule, appModule)
             modules(module { single<KeyValueStore> { InMemoryKeyValueStore() } })
             modules(module { single<LocationRepository> { UnavailableLocationRepository() } })
             modules(featureModules)
@@ -55,6 +57,7 @@ class KoinGraphTest {
         koin.get<JaugeApi>()
         koin.get<AnalysisRepository>()
         koin.get<SubscriptionRepository>()
+        koin.get<TextRecognizer>()
         koin.get<AnalyzeOfferUseCase>()
         koin.get<PurchaseSubscriptionUseCase>()
         koin.get<AppViewModel>()
