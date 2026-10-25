@@ -1,0 +1,11 @@
+# Cloudflare Worker "jauge-api-proxy": https://api.jauge.io/* -> Edge Function "api" of Supabase.
+# Deployment: docs/backend/DEPLOIEMENT.md. The secret is set with `npx wrangler secret put JAUGE_PROXY_SECRET`.
+name = "jauge-api-proxy"
+main = "src/proxy.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [{ pattern = "api.jauge.io", custom_domain = true }]
+
+[vars]
+# Replace <project-ref> by the reference of the Supabase project (ynvaaswsenerrummanrs).
+SUPABASE_FUNCTION_URL = "https://<project-ref>.supabase.co/functions/v1/api"
