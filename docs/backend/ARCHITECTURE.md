@@ -72,11 +72,13 @@ worker (POST /internal/worker, answers 202 at once and works up to 50 s in the b
                 otherwise start every source (Apify actors) under the daily spending limit
   market_wait   poll the runs every 5 s; store the offers (collected_offers, upsert); stop waiting 15 s before
                 the deadline and go on with the data at hand (partial: lower reliability, slice kept 1 day)
-  social        social search (Reddit, X) + AI summary -> reputation (never blocks the analysis)
+  social        reputation of the company: 30 day cache per company, else social search (Reddit, X through Apify)
+                + AI summary in French and English (never blocks the analysis, docs/backend/ia.md)
   compute       comparables (same family and department, 12 months) + market_statistics history
                 -> score, applicants, reliability, salary scale, probable salary, trend, skills, timing, twins
                 -> offer_snapshots ready (7 days, 1 day when partial), snapshot_twins, market_statistics
-  finalize      analysis_results (offer + result frozen for the history, twins counted in the user's radius),
+  finalize      analysis_results (offer + result frozen for the history, twins counted in the user's radius,
+                reputation in the user's language, advice written by the AI from the computed facts),
                 status completed, progress 100, search_text for the list search
 errors          retryable (network, 5xx, database) -> backoff 2^attempt s (max 60 s), up to 6 attempts and the
                 deadline; then giveUp: analysis failed "internal", free analysis given back, snapshot released
@@ -139,8 +141,8 @@ from the cache and the market data already in the database, with a lower reliabi
 |---|---|---|
 | `OfferReader.readLink` | mockup offer, `unreadable` / `unsupported` in the URL simulate failures | JSON-LD `JobPosting` of the page when allowed, Apify actor of the site otherwise |
 | `OfferSource` (start, poll) | LinkedIn (asynchronous run, shows applicants), Hellowork | Apify actors: LinkedIn Jobs Scraper (applicant counts, the anchors), Hellowork, Indeed when the market is thin, Glassdoor; Welcome to the Jungle off (70 USD rental) |
-| `SocialSearch` | a few posts per company | Reddit and X (Apify scrapers or search grounding) |
-| `AiProvider` | rules and templates | Gemini 2.5 Flash-Lite (cheapest that reads offers and images well) or Mistral Small (EU) |
+| `SocialSearch` | a few posts per company | `ApifySocialSearch`: Reddit (`trudax/reddit-scraper-lite`) and X (Apify pay per result actor), see `docs/backend/ia.md` |
+| `AiProvider` | rules and templates | `LanguageModelAiProvider` on Gemini 3.1 Flash-Lite (default) or Mistral Small 4 (EU), `AI_PROVIDER` |
 | `SubscriptionStore`, `AppleTokenRevoker`, `AuthAdministration`, `OperationsAlerter` | recording fakes | already implemented (`live_account_services.ts`), on as soon as their secrets exist |
 
 Connecting a live provider is one line in `createProviders` (`src/providers/provider_registry.ts`, `LiveConnectors`).
@@ -150,8 +152,8 @@ for configuration errors; report the real cost of each call in micro dollars; ne
 ## Costs
 
 Prices to check when connecting (October 2026 public prices, may change): Apify pay per result actors about 1 USD per
-1 000 LinkedIn offers and 3 USD per 1 000 Indeed offers; Gemini 2.5 Flash-Lite 0.10 USD per million input tokens and
-0.40 USD per million output tokens.
+1 000 LinkedIn offers and 3 USD per 1 000 Indeed offers; Gemini 3.1 Flash-Lite 0.25 USD per million input tokens and
+1.50 USD per million output tokens (checked 25/10/2026, details in `docs/backend/ia.md`).
 
 Per analysis:
 
@@ -167,8 +169,8 @@ Per month for 1 000 users (assumptions: 40 % active each week, 1.5 analyses per 
 | Item | Estimate per month |
 |---|---|
 | Market collections (Apify) | 60 to 180 USD, capped by the daily limit (3 USD per day = 90 USD per month by default) |
-| AI (extraction, reputation) | 2 to 5 USD |
-| Social search | 10 to 40 USD (cache per company for 30 days in phase 2 to lower it) |
+| AI (extraction, advice, reputation) | 3 to 5 USD |
+| Social search | 20 to 40 USD (one search per company every 30 days; under 5 USD with X only) |
 | Supabase | 0 USD (free) then 25 USD (Pro, recommended at launch for backups and 8 GB) |
 | Cloudflare Worker, pg_cron, pg_net | 0 USD |
 | Apify plan | Starter 39 USD per month includes 39 USD of usage |

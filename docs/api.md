@@ -51,7 +51,11 @@ yet, so the app still runs in **offline mode** by default (see the end of this d
 
 `DELETE /v1/account` accepts an optional body `{appleAuthorizationCode}`: a fresh Sign in with Apple code that lets the
 server revoke the Apple tokens. Calm alerts (`POST /v1/alerts`) are a Jauge Plus feature: free users get `402
-quota_reached`. `result.reputation` (optional) sums up what public Reddit and X posts say about the company.
+quota_reached`. `result.reputation` (optional) sums up what public Reddit and X posts say about the company, with
+`links` to the posts it relies on (no usernames). `result.advice` (optional, null when unavailable) is the advice of
+the verdict written by the AI in the language of the analysis: `text` ("Postule avant jeudi..."), `negotiationArgument`
+and `missingSkills`; every number in it comes from the result, never from the AI (`docs/backend/ia.md`). Both fields
+are additions: older apps ignore them.
 
 ### Analysis lifecycle
 

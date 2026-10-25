@@ -14,6 +14,7 @@ import { utcDay } from "../operations/clock.ts";
 import type { Logger } from "../operations/logger.ts";
 import type { SpendGuard } from "../operations/spend_guard.ts";
 import type {
+  Advice,
   CollectedOfferInput,
   CollectionRequest,
   ExtractedOffer,
@@ -23,6 +24,7 @@ import type {
   Reputation,
 } from "../providers/provider_types.ts";
 import { ProviderError } from "../providers/provider_types.ts";
+import type { SalaryScale } from "../scoring/estimation.ts";
 import {
   daysBetweenDates,
   estimateCompetition,
@@ -37,6 +39,8 @@ import { normalizeSearchText } from "../text/search_text.ts";
 import { type AnalysisRecord, findAnalysis, type ReadingStep, type StepKind } from "../services/analysis_records.ts";
 import { loadComparables, loadHistory, upsertMarketStatistics } from "../services/market_data.ts";
 import type { SubscriptionService } from "../services/subscription_service.ts";
+import { ReputationService } from "../services/reputation_service.ts";
+import { buildAdviceFacts } from "../services/advice_facts.ts";
 import { DEFAULT_RADIUS_KILOMETERS } from "../services/area.ts";
 import type { Job, JobHandler, StageOutcome } from "./job_types.ts";
 
@@ -81,6 +85,8 @@ function formatNumber(value: number, language: "fr" | "en"): string {
  * social (social search and AI summary), compute (score, salary, trend, twins), finalize.
  */
 export class AnalysisPipeline implements JobHandler {
+  private readonly reputations: ReputationService;
+
   /**
    * @param database database.
    * @param providers outside services.
@@ -100,7 +106,16 @@ export class AnalysisPipeline implements JobHandler {
     private readonly clock: Clock,
     private readonly logger: Logger,
     private readonly settings: PipelineSettings = DEFAULT_PIPELINE_SETTINGS,
-  ) {}
+  ) {
+    this.reputations = new ReputationService(
+      database,
+      providers,
+      spendGuard,
+      clock,
+      logger,
+      configuration.reputationCacheDays,
+    );
+  }
 
   /** @inheritdoc */
   async runStage(job: Job): Promise<StageOutcome> {
@@ -314,7 +329,7 @@ export class AnalysisPipeline implements JobHandler {
       if (error instanceof ProviderError && !error.retryable) return { kind: "unsupported", costMicroUsd: 0 };
       throw error;
     }
-    await this.spendGuard.record({ provider, operation, costMicroUsd: outcome.costMicroUsd });
+    await this.spendGuard.record({ provider, operation, costMicroUsd: outcome.costMicroUsd, usage: outcome.usage });
     return outcome;
   }
 
@@ -667,47 +682,24 @@ export class AnalysisPipeline implements JobHandler {
 
   private async social(job: Job, analysis: AnalysisRecord): Promise<StageOutcome> {
     const offer = await this.offerOf(analysis);
-    let reputation: Reputation | null = null;
     try {
-      const search = this.providers.socialSearch;
-      if (!search.paid || (await this.spendGuard.allows(search.estimateCostMicroUsd()))) {
-        const found = await search.search({
+      // Fills the 30 day cache of the company (search and AI summary); finalize reads it in the user's language.
+      await this.reputations.reputationFor(
+        {
           company: (offer.company as string | null) ?? null,
           jobTitle: String(offer.job_title),
           city: (offer.city as string | null) ?? null,
-        });
-        await this.spendGuard.record({
-          provider: search.name,
-          operation: "social_search",
-          costMicroUsd: found.costMicroUsd,
-          snapshotId: String(job.payload.snapshotId),
-        });
-        if (
-          found.mentions.length > 0 &&
-          (await this.spendGuard.allows(this.providers.ai.estimateCostMicroUsd("reputation")))
-        ) {
-          const summary = await this.providers.ai.summarizeReputation({
-            company: (offer.company as string | null) ?? null,
-            jobTitle: String(offer.job_title),
-            mentions: found.mentions.slice(0, 40),
-            language: analysis.language,
-          });
-          await this.spendGuard.record({
-            provider: this.providers.ai.name,
-            operation: "reputation",
-            costMicroUsd: summary.costMicroUsd,
-            snapshotId: String(job.payload.snapshotId),
-          });
-          reputation = summary.reputation;
-        }
-      }
+        },
+        analysis.language,
+        String(job.payload.snapshotId),
+      );
     } catch (error) {
       // The reputation is a bonus: without it the analysis goes on.
       const code = error instanceof ProviderError ? `${error.provider}:${error.code}` : "social_failed";
       this.logger.log("warning", "reputation_skipped", { error: code });
     }
     await this.setProgress(analysis, 80, {});
-    return { kind: "next", stage: "compute", payload: { ...job.payload, reputation } };
+    return { kind: "next", stage: "compute", payload: job.payload };
   }
 
   // Stage: computation ---------------------------------------------------------------------------------------------
@@ -739,7 +731,6 @@ export class AnalysisPipeline implements JobHandler {
     const scale = salaryScale(comparables, history);
     const estimatedSalary = probableSalary(displayedSalary, comparables);
     const trend = marketTrend(comparables, history, today);
-    const reputation = (job.payload.reputation as Reputation | null | undefined) ?? null;
     const regionName = departmentName(department) ?? department;
     const result = {
       score: estimate.score,
@@ -751,7 +742,6 @@ export class AnalysisPipeline implements JobHandler {
       trendThreeMonthsPercent: trend.changeThreeMonthsPercent,
       comparableOfferCount: estimate.comparableOfferCount,
       timingAdvice: timingAdvice((offer.published_on as string | null) ?? null, today),
-      reputation,
       internal: {
         reasons: estimate.reasons,
         finalApplicants: Math.round(estimate.finalApplicants),
@@ -823,7 +813,7 @@ export class AnalysisPipeline implements JobHandler {
           : `${formatNumber(estimate.comparableOfferCount, "en")} comparable offers, ${regionName}`,
       },
     });
-    return { kind: "next", stage: "finalize", payload: { ...job.payload, reputation: null } };
+    return { kind: "next", stage: "finalize", payload: job.payload };
   }
 
   // Stage: wait for an analysis of the same offer --------------------------------------------------------------------
@@ -852,9 +842,12 @@ export class AnalysisPipeline implements JobHandler {
   private async finalize(analysis: AnalysisRecord): Promise<StageOutcome> {
     const fresh = await findAnalysis(this.database, analysis.id, null);
     if (!fresh?.snapshotId || !fresh.offerId) throw new Error("snapshot_missing");
-    const snapshot = await queryOne<{ result: Record<string, unknown> }>(
+    const snapshot = await queryOne<{
+      result: Record<string, unknown>;
+      insights: { salaryScale: SalaryScale | null; skills: { name: string; sharePercent: number }[] } | null;
+    }>(
       this.database,
-      `select result from public.offer_snapshots where id = $1::uuid and status = 'ready'`,
+      `select result, insights from public.offer_snapshots where id = $1::uuid and status = 'ready'`,
       [fresh.snapshotId],
     );
     if (!snapshot) throw new Error("snapshot_not_ready");
@@ -886,7 +879,17 @@ export class AnalysisPipeline implements JobHandler {
       [fresh.snapshotId, center?.latitude ?? null, center?.longitude ?? null, radius],
     );
     const applicants = (snapshot.result.applicants as { estimate: number }) ?? { estimate: 0 };
-    const result = { ...snapshot.result, twinOfferCount: twinCount?.count ?? 0, twinRadiusKilometers: radius };
+    const computed = { ...snapshot.result, twinOfferCount: twinCount?.count ?? 0, twinRadiusKilometers: radius };
+    const reputation = await this.reputationOf(offerBody, fresh.language, fresh.snapshotId);
+    const advice = await this.adviceFor(
+      fresh.language,
+      offerBody,
+      computed,
+      snapshot.insights,
+      reputation,
+      fresh.snapshotId,
+    );
+    const result = { ...computed, reputation, advice };
     const steps = this.updateSteps(fresh, {
       position_and_place: { status: "done" },
       skills: { status: "done" },
@@ -921,6 +924,71 @@ export class AnalysisPipeline implements JobHandler {
       durationMs: this.clock.now().getTime() - Date.parse(toIsoTimestamp(fresh.createdAt)),
     });
     return { kind: "done" };
+  }
+
+  /** Reputation of the company in the user's language, from the cache of 30 days filled by the social stage. */
+  private async reputationOf(
+    offer: { jobTitle: string; company: string | null; city: string },
+    language: "fr" | "en",
+    snapshotId: string,
+  ): Promise<Reputation | null> {
+    try {
+      // Read only: the social stage of this offer searched within the last 7 days (the company is cached 30 days).
+      return await this.reputations.reputationFor(offer, language, snapshotId, true);
+    } catch (error) {
+      const code = error instanceof ProviderError ? `${error.provider}:${error.code}` : "social_failed";
+      this.logger.log("warning", "reputation_skipped", { error: code });
+      return null;
+    }
+  }
+
+  /**
+   * Advice of the verdict written by the AI from the computed facts, in the user's language (per analysis: it
+   * depends on the twins in the user's radius). Null when the AI is unavailable, over the daily limit, or when no
+   * answer passes the checks: the screen then shows the computed timing advice.
+   */
+  private async adviceFor(
+    language: "fr" | "en",
+    offer: {
+      jobTitle: string;
+      company: string | null;
+      city: string;
+      contractType: string;
+      workMode: string | null;
+      publishedOn: string | null;
+      displayedSalary: { minimum: number; maximum: number } | null;
+      skills: string[];
+    },
+    result: Record<string, unknown>,
+    insights: { salaryScale: SalaryScale | null; skills: { name: string; sharePercent: number }[] } | null,
+    reputation: Reputation | null,
+    snapshotId: string,
+  ): Promise<Advice | null> {
+    const ai = this.providers.ai;
+    try {
+      if (!(await this.spendGuard.allows(ai.estimateCostMicroUsd("advice")))) return null;
+      const facts = buildAdviceFacts({
+        language,
+        offer: { ...offer, city: offer.city || null },
+        result,
+        insights,
+        reputation,
+        today: utcDay(this.clock.now()),
+      });
+      const written = await ai.writeAdvice(facts);
+      await this.spendGuard.record({
+        provider: ai.name,
+        operation: "advice",
+        costMicroUsd: written.costMicroUsd,
+        snapshotId,
+        usage: written.usage,
+      });
+      return written.advice;
+    } catch (error) {
+      const code = error instanceof ProviderError ? `${error.provider}:${error.code}` : "advice_failed";
+      this.logger.log("warning", "advice_skipped", { error: code });
+      return null;
+    }
   }
 
   // Helpers ---------------------------------------------------------------------------------------------------------

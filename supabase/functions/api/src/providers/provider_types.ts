@@ -40,11 +40,29 @@ export interface ExtractedOffer {
   readonly displayedApplicantCount: number | null;
 }
 
-/** Result of reading an offer. */
+/** Tokens used by an AI operation (every attempt counted), journaled with its cost. */
+export interface AiUsage {
+  readonly model: string;
+  readonly inputTokens: number;
+  /** Output tokens, thinking tokens included (billed as output). */
+  readonly outputTokens: number;
+}
+
+/** Result of reading an offer. `usage` is set when an AI read it. */
 export type ExtractionOutcome =
-  | { readonly kind: "extracted"; readonly offer: ExtractedOffer; readonly costMicroUsd: number }
-  | { readonly kind: "unreadable"; readonly recognizedCompany: string | null; readonly costMicroUsd: number }
-  | { readonly kind: "unsupported"; readonly costMicroUsd: number };
+  | {
+    readonly kind: "extracted";
+    readonly offer: ExtractedOffer;
+    readonly costMicroUsd: number;
+    readonly usage?: AiUsage;
+  }
+  | {
+    readonly kind: "unreadable";
+    readonly recognizedCompany: string | null;
+    readonly costMicroUsd: number;
+    readonly usage?: AiUsage;
+  }
+  | { readonly kind: "unsupported"; readonly costMicroUsd: number; readonly usage?: AiUsage };
 
 /** Failure of a provider. Retryable failures are retried with a backoff until the deadline of the analysis. */
 export class ProviderError extends Error {
@@ -136,9 +154,10 @@ export interface OfferSource {
 /** A public post about a company or a job (Reddit, X). Only used in memory, never stored. */
 export interface SocialMention {
   readonly source: "reddit" | "x";
+  /** Link of the post (Reddit thread, X post), cited as a source. */
   readonly url: string;
   readonly publishedOn: string | null;
-  /** Text of the post, cut to 600 characters. */
+  /** Anonymized text of the post (no user names, handles, emails or phone numbers), cut to 600 characters. */
   readonly text: string;
 }
 
@@ -167,13 +186,86 @@ export interface Reputation {
   readonly mentionCount: number;
   /** Sources that brought posts. */
   readonly sources: readonly ("reddit" | "x")[];
+  /** Links of the posts the summary relies on (at most 5). */
+  readonly links?: readonly ReputationLink[];
 }
+
+/** A post cited by the reputation. */
+export interface ReputationLink {
+  readonly source: "reddit" | "x";
+  readonly url: string;
+}
+
+/** Reputation written by the AI in French and in English at once (cached 30 days per company for every user). */
+export interface ReputationSummary {
+  readonly summaryFrench: string;
+  readonly summaryEnglish: string;
+  readonly tone: Reputation["tone"];
+  readonly mentionCount: number;
+  readonly sources: readonly ("reddit" | "x")[];
+  readonly links: readonly ReputationLink[];
+}
+
+/**
+ * What the AI may say about an analysis: only facts computed by Jauge (the AI never makes up a number), the offer as
+ * read, and the reputation. Every number of the advice must come from here.
+ */
+export interface AdviceFacts {
+  readonly language: "fr" | "en";
+  readonly offer: {
+    readonly jobTitle: string;
+    readonly company: string | null;
+    readonly city: string | null;
+    readonly contractType: string | null;
+    readonly workMode: string | null;
+    readonly publishedDaysAgo: number | null;
+    readonly displayedSalary: SalaryRange | null;
+    readonly skills: readonly string[];
+  };
+  readonly score: number;
+  /** `calm`, `disputed` or `crowded`. */
+  readonly scoreLevel: "calm" | "disputed" | "crowded";
+  readonly applicants: { readonly estimate: number; readonly low: number; readonly high: number };
+  readonly reliability: "high" | "medium" | "low";
+  readonly percentileInRegion: number;
+  readonly regionName: string;
+  readonly comparableOfferCount: number;
+  readonly estimatedSalary: SalaryRange | null;
+  /** Median salary of the area, thousands of euros. */
+  readonly salaryMedian: number | null;
+  /** Salary to ask for, thousands of euros (third quartile kept in the range of the offer). */
+  readonly negotiationTarget: number | null;
+  readonly trendThreeMonthsPercent: number | null;
+  readonly twinOfferCount: number;
+  readonly twinRadiusKilometers: number;
+  readonly timingAdvice:
+    | { readonly applyBefore: string; readonly sharePercent: number; readonly withinDays: number }
+    | null;
+  /** Skills most asked for by the comparable offers, with their share. */
+  readonly marketSkills: readonly { readonly name: string; readonly sharePercent: number }[];
+  /** Market skills that the offer does not mention: the only ones the advice may call missing. */
+  readonly missingSkillCandidates: readonly string[];
+  readonly reputation: { readonly summary: string; readonly tone: Reputation["tone"] } | null;
+}
+
+/** Advice of the verdict, written by the AI from the facts. */
+export interface Advice {
+  /** Two or three sentences: when and how to apply ("Postule avant jeudi..."). */
+  readonly text: string;
+  /** One sentence for the salary negotiation, null without salary data. */
+  readonly negotiationArgument: string | null;
+  /** Skills asked by the market and missing from the offer (subset of `missingSkillCandidates`). */
+  readonly missingSkills: readonly string[];
+}
+
+/** Operations of the AI, for the estimates and the cost journal. */
+export type AiOperation = "extract_text" | "extract_image" | "reputation" | "advice";
 
 /** Provider of artificial intelligence (Gemini Flash-Lite, Mistral Small...). */
 export interface AiProvider {
   readonly name: string;
   /** Cost of one call of an operation, checked against the daily limit before the call. */
-  estimateCostMicroUsd(operation: "extract_text" | "extract_image" | "reputation"): number;
+  estimateCostMicroUsd(operation: AiOperation): number;
   /**
    * Reads an offer from its text (read on the phone or pasted).
    *
@@ -187,7 +279,8 @@ export interface AiProvider {
    */
   extractOfferFromImage(image: Uint8Array, mimeType: string, today: string): Promise<ExtractionOutcome>;
   /**
-   * Summarizes what candidates and employees say (social posts) about the company and the job.
+   * Summarizes what candidates and employees say (social posts) about the company, in French and in English.
+   * Null when the posts say nothing useful about the company.
    *
    * @param input offer and posts.
    */
@@ -195,8 +288,14 @@ export interface AiProvider {
     company: string | null;
     jobTitle: string;
     mentions: readonly SocialMention[];
-    language: "fr" | "en";
-  }): Promise<{ reputation: Reputation | null; costMicroUsd: number }>;
+  }): Promise<{ summary: ReputationSummary | null; costMicroUsd: number; usage?: AiUsage }>;
+  /**
+   * Writes the advice of the verdict (when to apply, negotiation argument, missing skills) from computed facts.
+   * Null when no advice passes the checks (the screen then shows the computed timing advice only).
+   *
+   * @param facts facts computed by Jauge.
+   */
+  writeAdvice(facts: AdviceFacts): Promise<{ advice: Advice | null; costMicroUsd: number; usage?: AiUsage }>;
 }
 
 /** RevenueCat, server side (secret key). */
