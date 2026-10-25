@@ -48,7 +48,11 @@ internal interface RetrofitJaugeService {
     ): AnalysisPayload
 
     @GET("v1/analyses")
-    suspend fun getAnalyses(@Query("cursor") cursor: String?, @Query("limit") limit: Int): AnalysisPagePayload
+    suspend fun getAnalyses(
+        @Query("cursor") cursor: String?,
+        @Query("limit") limit: Int,
+        @Query("query") query: String?,
+    ): AnalysisPagePayload
 
     @GET("v1/analyses/{id}")
     suspend fun getAnalysis(@Path("id") analysisId: String): AnalysisPayload
@@ -82,6 +86,7 @@ internal interface RetrofitJaugeService {
         @Query("city") city: String?,
         @Query("department") department: String?,
         @Query("radius") radiusKilometers: Int?,
+        @Query("query") query: String?,
     ): TwinOffersPayload
 
     @POST("v1/analyses/{id}/feedback")

@@ -31,7 +31,7 @@ class SwitchingJaugeApi(
     override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?) =
         current.createAnalysisFromImage(image, mimeType, origin, area)
 
-    override suspend fun getAnalyses(cursor: String?, limit: Int) = current.getAnalyses(cursor, limit)
+    override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?) = current.getAnalyses(cursor, limit, query)
 
     override suspend fun getAnalysis(analysisId: String) = current.getAnalysis(analysisId)
 
@@ -47,7 +47,8 @@ class SwitchingJaugeApi(
 
     override suspend fun getTrend(analysisId: String) = current.getTrend(analysisId)
 
-    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?) = current.getTwins(analysisId, sort, area)
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?, query: String?) =
+        current.getTwins(analysisId, sort, area, query)
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) =
         current.sendApplicantFeedback(analysisId, request)

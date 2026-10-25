@@ -89,4 +89,9 @@
     <string name="history_filter_favorites">Favoris</string>
     <string name="history_favorites_empty_title">Aucun favori pour l'instant</string>
     <string name="history_favorites_empty_message">Touche l'étoile d'une offre jaugée pour la retrouver ici.</string>
+    <string name="history_search_placeholder">Poste, entreprise ou ville</string>
+    <string name="history_search_clear">Effacer la recherche</string>
+    <string name="history_search_empty_title">Aucun résultat pour « %1$s »</string>
+    <string name="history_search_empty_message">Aucune offre jaugée ne correspond. Vérifie l'orthographe ou essaie un autre poste, une entreprise ou une ville.</string>
+    <string name="history_search_empty_action">Effacer la recherche</string>
 </resources>

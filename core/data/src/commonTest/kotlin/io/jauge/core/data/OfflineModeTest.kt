@@ -42,8 +42,9 @@ class OfflineModeTest {
     fun historyShowsTheThreeMockupOffers() = runTest {
         assertEquals(Outcome.Success(Unit), analyses.refreshHistory())
         val history = analyses.observeHistory().first()
-        assertEquals(listOf(78, 44, 19), history.map { it.score })
-        assertEquals(listOf(CompetitionLevel.CROWDED, CompetitionLevel.DISPUTED, CompetitionLevel.CALM), history.map { it.level })
+        assertEquals(listOf(78, 44, 19), history.take(3).map { it.score })
+        assertEquals(listOf(CompetitionLevel.CROWDED, CompetitionLevel.DISPUTED, CompetitionLevel.CALM), history.take(3).map { it.level })
+        assertTrue(history.size >= 10, "the full list is long enough to show its search field")
         assertEquals("Atelier Sorel", history.first().company)
     }
 
@@ -105,6 +106,26 @@ class OfflineModeTest {
         assertTrue(analyses.observeHistory().first().isEmpty())
         val twins = TwinRepositoryImplementation(api).getTwinOffers(OfflineDataset.MARKETING_ID, TwinSort.LEAST_DISPUTED).getOrNull()
         assertTrue(twins!!.offers.isEmpty())
+    }
+
+    @Test
+    fun theOfflineListsHonorTheSearchQuery() = runTest {
+        val analyses = api.getAnalyses(cursor = null, limit = 50, query = "VELO").items
+        assertEquals(setOf("Vélo Ardent"), analyses.map { it.company }.toSet())
+        assertTrue(analyses.size >= 2)
+        assertTrue(api.getAnalyses(cursor = null, limit = 50).items.size >= 10)
+        val twins = api.getTwins(OfflineDataset.MARKETING_ID, "least_disputed", area = null, query = "ecully").items
+        assertEquals(listOf("Coopérative Brune", "Fromagerie Évrard"), twins.map { it.company })
+        assertTrue(api.getTwins(OfflineDataset.MARKETING_ID, "least_disputed", area = null).items.size >= 10)
+        assertTrue(api.getTwins(OfflineDataset.MARKETING_ID, "least_disputed", area = null, query = "zzz").items.isEmpty())
+    }
+
+    @Test
+    fun theOfflineTwinsFollowTheSortOrder() = runTest {
+        val bestPaid = api.getTwins(OfflineDataset.MARKETING_ID, "best_paid", area = null).items
+        assertEquals(bestPaid.map { it.salary?.maximum }.sortedByDescending { it }, bestPaid.map { it.salary?.maximum })
+        val leastDisputed = api.getTwins(OfflineDataset.MARKETING_ID, "least_disputed", area = null).items
+        assertEquals(leastDisputed.map { it.score }.sorted(), leastDisputed.map { it.score })
     }
 
     @Test

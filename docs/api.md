@@ -23,7 +23,7 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 | Method and path | Purpose | Screen |
 |---|---|---|
 | `POST /v1/analyses` | Start an analysis: JSON `{type: "link", url, area}` or `{type: "manual", jobTitle, city, area}`, or multipart `image` + `origin` (`screenshot` or `photo`) + `areaCity`, `areaDepartment`, `areaRadius`. Answers `202` with status `processing`. | 02, 10 |
-| `GET /v1/analyses?cursor=&limit=` | Analyses of the user, newest first, paginated with `nextCursor`. | 02 |
+| `GET /v1/analyses?cursor=&limit=&query=` | Analyses of the user, newest first, paginated with `nextCursor`. Optional `query`: see [Search](#search). | 02 |
 | `GET /v1/analyses/{id}` | One analysis. Polled about every second while `status` is `processing`. | 03, 04 |
 | `DELETE /v1/analyses/{id}` | Delete an analysis. | 02 |
 | `PUT /v1/analyses/{id}/favorite` | Star an analysis (favorite). Idempotent, answers `204`. | 02, 04 |
@@ -31,7 +31,7 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 | `GET /v1/analyses/{id}/salary?city=&department=` | Salary scale of the area, median, middle half, estimated range of the offer, negotiation target. | 05 |
 | `GET /v1/analyses/{id}/skills` | Skills asked for by twin offers, with the share of offers and whether the user has them. | 05 |
 | `GET /v1/analyses/{id}/trend` | Applicants per offer over 12 months and the change over 3 months. | 05 |
-| `GET /v1/analyses/{id}/twins?sort=&city=&department=&radius=` | Twin offers within `radius` km of the search area, `sort` = `least_disputed` (default), `best_paid` or `most_recent`. | 06 |
+| `GET /v1/analyses/{id}/twins?sort=&city=&department=&radius=&query=` | Twin offers within `radius` km of the search area, `sort` = `least_disputed` (default), `best_paid` or `most_recent`. Optional `query`: see [Search](#search). | 06 |
 | `POST /v1/analyses/{id}/feedback` | `{actualApplicants}`: the real number known by the user. | 09 |
 | `GET /v1/methodology?analysisId=` | How the estimate was made: range, reliability and its reasons, sources. | 09 |
 | `GET /v1/alerts` | Calm alerts of the user. | 06, 12 |
@@ -109,6 +109,18 @@ Without a known code, the app maps the HTTP status (401/403 session, 402 quota, 
 413 image too large, 400/422 invalid data, 429 rate limit, 5xx unavailable). Network failures (offline, timeout) and
 unreadable bodies are mapped too. The mapping lives in `core/data/.../error/ErrorMapping.kt` and the texts in
 `core/ui/src/commonMain/composeResources/values*/strings.xml`.
+
+## Search
+
+`GET /v1/analyses` and `GET /v1/analyses/{id}/twins` accept an optional `query` (100 characters at most). The server
+keeps the elements whose job title, company or city (place for twins) contain every word of the query, in any order,
+ignoring case, accents, ligatures and the middle dots of inclusive writing (`chargee` finds `Chargé·e`, `ecully` finds
+`Écully`). An absent or blank `query` returns everything. It combines with `sort` and the area parameters.
+
+The app shows a search field above these lists once they hold more than 6 elements and filters the loaded list on the
+device at once (short delay while typing), with the same rules (`core/common/.../text/SearchText.kt`), combined with
+the sort chips of mockup 06 and the "Toutes" / "Favoris" filter of the full list. The offline mode applies `query` and
+`sort` like the server.
 
 ## Clients in the app
 

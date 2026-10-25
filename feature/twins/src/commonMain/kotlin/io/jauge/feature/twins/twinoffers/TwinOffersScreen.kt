@@ -45,10 +45,12 @@ import io.jauge.core.designsystem.component.JaugeChipStyle
 import io.jauge.core.designsystem.component.JaugeGauge
 import io.jauge.core.designsystem.component.JaugeRefreshContainer
 import io.jauge.core.designsystem.component.JaugeScreenScaffold
+import io.jauge.core.designsystem.component.JaugeSearchField
 import io.jauge.core.designsystem.component.JaugeSwitch
 import io.jauge.core.designsystem.component.LevelPill
 import io.jauge.core.designsystem.component.RoundIconButton
 import io.jauge.core.designsystem.component.SkeletonList
+import io.jauge.core.designsystem.component.hideKeyboardOnScroll
 import io.jauge.core.designsystem.icon.JaugeIcons
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.core.domain.model.TwinOffer
@@ -72,6 +74,11 @@ import io.jauge.feature.twins.resources.twin_offers_no_twins_title
 import io.jauge.feature.twins.resources.twin_offers_open_offer
 import io.jauge.feature.twins.resources.twin_offers_overline
 import io.jauge.feature.twins.resources.twin_offers_salary
+import io.jauge.feature.twins.resources.twin_offers_search_clear
+import io.jauge.feature.twins.resources.twin_offers_search_empty_action
+import io.jauge.feature.twins.resources.twin_offers_search_empty_message
+import io.jauge.feature.twins.resources.twin_offers_search_empty_title
+import io.jauge.feature.twins.resources.twin_offers_search_placeholder
 import io.jauge.feature.twins.resources.twin_offers_sort_best_paid
 import io.jauge.feature.twins.resources.twin_offers_sort_least_disputed
 import io.jauge.feature.twins.resources.twin_offers_sort_most_recent
@@ -119,6 +126,8 @@ fun TwinOffersScreen(
         onSelectSort = viewModel::selectSort,
         onAlertChange = viewModel::setAlert,
         onAnalyzeOffer = onAnalyzeOffer,
+        onQueryChange = viewModel::updateQuery,
+        onClearQuery = viewModel::clearQuery,
     )
 }
 
@@ -132,6 +141,8 @@ fun TwinOffersScreen(
  * @param onSelectSort changes the order.
  * @param onAlertChange turns the calm alert on or off.
  * @param onAnalyzeOffer opens the paste screen (empty state).
+ * @param onQueryChange text typed in the search field (shown when the list holds more than 6 twins).
+ * @param onClearQuery empties the search field.
  */
 @Composable
 fun TwinOffersLayout(
@@ -142,6 +153,8 @@ fun TwinOffersLayout(
     onSelectSort: (TwinSort) -> Unit,
     onAlertChange: (Boolean) -> Unit,
     onAnalyzeOffer: () -> Unit,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
 ) {
     val twins = state.twins.content
     val uriHandler = LocalUriHandler.current
@@ -153,12 +166,31 @@ fun TwinOffersLayout(
     ) {
         JaugeRefreshContainer(isRefreshing = state.twins.isRefreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().hideKeyboardOnScroll(),
                 contentPadding = PaddingValues(top = if (onBack == null) 12.dp else 4.dp, bottom = JaugeTheme.spacing.section),
                 verticalArrangement = Arrangement.spacedBy(JaugeTheme.spacing.medium),
             ) {
                 item(key = "header") {
-                    Header(areaName = twins?.areaName, sort = state.sort, onSelectSort = onSelectSort, showSorts = !state.hasNoAnalysis)
+                    Header(
+                        areaName = twins?.areaName,
+                        sort = state.sort,
+                        onSelectSort = onSelectSort,
+                        showSorts = !state.hasNoAnalysis,
+                        search = if (state.showsSearch && !state.hasNoAnalysis) {
+                            {
+                                JaugeSearchField(
+                                    query = state.query,
+                                    onQueryChange = onQueryChange,
+                                    placeholder = stringResource(Res.string.twin_offers_search_placeholder),
+                                    clearDescription = stringResource(Res.string.twin_offers_search_clear),
+                                    onClear = onClearQuery,
+                                    modifier = Modifier.padding(horizontal = JaugeTheme.spacing.screenGutter).padding(top = 16.dp),
+                                )
+                            }
+                        } else {
+                            null
+                        },
+                    )
                 }
                 when {
                     state.hasNoAnalysis -> item(key = "empty") {
@@ -180,7 +212,18 @@ fun TwinOffersLayout(
                                 )
                             }
                         }
-                        items(twins.offers, key = { it.id }) { offer ->
+                        if (state.hasNoSearchResult) {
+                            item(key = "no-search-result") {
+                                EmptyState(
+                                    title = stringResource(Res.string.twin_offers_search_empty_title, state.appliedQuery),
+                                    message = stringResource(Res.string.twin_offers_search_empty_message),
+                                    icon = JaugeIcons.Search,
+                                    actionLabel = stringResource(Res.string.twin_offers_search_empty_action),
+                                    onAction = onClearQuery,
+                                )
+                            }
+                        }
+                        items(state.visibleOffers.orEmpty(), key = { it.id }) { offer ->
                             TwinOfferCard(
                                 offer = offer,
                                 onClick = WebLinks.safeWebLinkOrNull(offer.url)?.let { url -> { runCatching { uriHandler.openUri(url) } } },
@@ -216,7 +259,13 @@ private val TwinSort.label: StringResource
     }
 
 @Composable
-private fun Header(areaName: String?, sort: TwinSort, onSelectSort: (TwinSort) -> Unit, showSorts: Boolean) {
+private fun Header(
+    areaName: String?,
+    sort: TwinSort,
+    onSelectSort: (TwinSort) -> Unit,
+    showSorts: Boolean,
+    search: (@Composable () -> Unit)?,
+) {
     val colors = JaugeTheme.colors
     Column {
         Column(Modifier.padding(horizontal = JaugeTheme.spacing.screenGutter)) {
@@ -234,6 +283,7 @@ private fun Header(areaName: String?, sort: TwinSort, onSelectSort: (TwinSort) -
                 modifier = Modifier.padding(top = 6.dp),
             )
         }
+        search?.invoke()
         if (showSorts) {
             LazyRow(
                 modifier = Modifier

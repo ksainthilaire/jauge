@@ -46,12 +46,14 @@ interface JaugeApi {
     suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload
 
     /**
-     * `GET /v1/analyses`: analyses of the user, newest first.
+     * `GET /v1/analyses?cursor=&limit=&query=`: analyses of the user, newest first.
      *
      * @param cursor cursor of the page, null for the first page.
      * @param limit page size.
+     * @param query optional search on the job title, the company and the city (accents and case ignored), null or
+     *   blank for every analysis.
      */
-    suspend fun getAnalyses(cursor: String?, limit: Int): AnalysisPagePayload
+    suspend fun getAnalyses(cursor: String?, limit: Int, query: String? = null): AnalysisPagePayload
 
     /**
      * `GET /v1/analyses/{id}`: one analysis, polled while its status is `processing`.
@@ -104,13 +106,15 @@ interface JaugeApi {
     suspend fun getTrend(analysisId: String): TrendInsightPayload
 
     /**
-     * `GET /v1/analyses/{id}/twins?sort=&city=&department=&radius=`.
+     * `GET /v1/analyses/{id}/twins?sort=&city=&department=&radius=&query=`.
      *
      * @param analysisId identifier.
      * @param sort `least_disputed`, `best_paid` or `most_recent`.
      * @param area search area of the user (twins within its radius), null to let the server use the place of the offer.
+     * @param query optional search on the job title, the company and the place (accents and case ignored), null or
+     *   blank for every twin.
      */
-    suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload
+    suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?, query: String? = null): TwinOffersPayload
 
     /**
      * `POST /v1/analyses/{id}/feedback`.

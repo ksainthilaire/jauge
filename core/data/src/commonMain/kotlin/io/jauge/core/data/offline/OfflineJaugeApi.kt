@@ -1,7 +1,9 @@
 package io.jauge.core.data.offline
 
+import io.jauge.core.common.text.SearchText
 import io.jauge.core.data.preferences.FavoriteStore
 import io.jauge.core.network.payload.AreaPayload
+import io.jauge.core.network.payload.TwinOfferPayload
 import io.jauge.core.network.payload.TwinOffersPayload
 import io.jauge.core.data.preferences.InMemoryKeyValueStore
 import io.jauge.core.data.error.ApiErrorCodes
@@ -85,11 +87,15 @@ class OfflineJaugeApi(
             startAnalysis(completed, unreadable = scenarios.scenario.value == OfflineScenario.UNREADABLE_OFFER)
         }
 
-    override suspend fun getAnalyses(cursor: String?, limit: Int): AnalysisPagePayload = simulate {
+    override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload = simulate {
         if (isEmptyScenario()) return@simulate AnalysisPagePayload(emptyList())
+        val matching = order.filter { id ->
+            val offer = analyses[id]?.offer
+            query.isNullOrBlank() || (offer != null && SearchText.matches(query, offer.jobTitle, offer.company, offer.city))
+        }
         val start = cursor?.toIntOrNull() ?: 0
-        val ids = order.drop(start).take(limit)
-        val next = (start + ids.size).takeIf { it < order.size }?.toString()
+        val ids = matching.drop(start).take(limit)
+        val next = (start + ids.size).takeIf { it < matching.size }?.toString()
         AnalysisPagePayload(
             items = ids.mapNotNull { id -> analyses[id]?.let(dataset::summaryOf)?.copy(isFavorite = id in favorites) },
             nextCursor = next,
@@ -129,10 +135,22 @@ class OfflineJaugeApi(
 
     override suspend fun getTrend(analysisId: String): TrendInsightPayload = simulate { requireAnalysis(analysisId); dataset.trend() }
 
-    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload = simulate {
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?, query: String?): TwinOffersPayload = simulate {
         requireAnalysis(analysisId)
         val twins = dataset.twins().around(area)
-        if (isEmptyScenario()) twins.copy(items = emptyList()) else twins
+        if (isEmptyScenario()) return@simulate twins.copy(items = emptyList())
+        twins.copy(
+            items = twins.items
+                .filter { query.isNullOrBlank() || SearchText.matches(query, it.jobTitle, it.company, it.place) }
+                .sortedWith(twinOrder(sort)),
+        )
+    }
+
+    /** Order of the twins for a sort value of the API, like the server would apply it. */
+    private fun twinOrder(sort: String): Comparator<TwinOfferPayload> = when (sort) {
+        SORT_BEST_PAID -> compareByDescending<TwinOfferPayload> { it.salary?.maximum ?: 0 }.thenBy { it.score }
+        SORT_MOST_RECENT -> compareByDescending<TwinOfferPayload> { it.publishedOn.orEmpty() }.thenBy { it.score }
+        else -> compareBy { it.score }
     }
 
     /** Twins of the sample data moved around the area of the user: inside the radius, in its city outside Rhône. */
@@ -301,5 +319,11 @@ class OfflineJaugeApi(
 
         /** Poll after which the analysis is complete. */
         const val COMPLETED_STAGE = 4
+
+        /** API value of the "Mieux payées" order. */
+        const val SORT_BEST_PAID = "best_paid"
+
+        /** API value of the "Récentes" order. */
+        const val SORT_MOST_RECENT = "most_recent"
     }
 }
