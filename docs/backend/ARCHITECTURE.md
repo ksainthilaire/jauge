@@ -1,7 +1,8 @@
 # Jauge backend: architecture
 
 Read this before touching the API. The contract is `docs/api.md` and `docs/openapi.yaml`; the estimation is explained
-in `docs/backend/score.md`; putting it online is `docs/backend/DEPLOIEMENT.md` (in French, for the owner).
+in `docs/backend/score.md`; the sources of offers (Apify, page reading, costs) in `docs/backend/sources.md`; putting it
+online is `docs/backend/DEPLOIEMENT.md` (in French, for the owner).
 
 ## Choices
 
@@ -29,6 +30,7 @@ Edge Function "api"  (supabase/functions/api)
    src/queue/*      worker (claims jobs) + analysis pipeline (stages)
    src/scoring/*    score, applicants, salary, trend, twins, skills, timing (pure functions)
    src/providers/*  interfaces + simulated providers + live account services (RevenueCat, Apple, Supabase Auth)
+                    apify/ (client, actor catalog, market sources) + offers/ (page and JSON-LD reader, parsers)
    src/operations/* spend guard, rate limiter, health, maintenance, structured logger
    |
    v
@@ -45,7 +47,8 @@ Postgres (supabase/migrations)
 ```
 
 Routes (all in `src/application.ts`): the 22 operations of the contract under `/v1`, plus `GET /health`,
-`GET /public/analyses/{id}`, `POST /webhooks/revenuecat`, and `POST /internal/worker`, `POST /internal/maintenance`
+`GET /public/analyses/{id}`, `POST /webhooks/revenuecat`, `POST /webhooks/apify` (header `x-jauge-apify-secret`, called
+by Apify at the end of a run, directly on the Supabase URL), and `POST /internal/worker`, `POST /internal/maintenance`
 (header `x-jauge-webhook-secret`, never exposed by the proxy). A test (`src/contract_test.ts`) reads
 `docs/openapi.yaml` and fails if an operation is not routed.
 
@@ -69,9 +72,12 @@ worker (POST /internal/worker, answers 202 at once and works up to 50 s in the b
   cache         offer_snapshots ready and not expired (7 days) -> finalize at once (from_cache)
                 another analysis computing the same offer -> wait_snapshot (no second collection)
   market        market_slices (job family x department) ready and not expired (7 days) -> reuse
-                otherwise start every source (Apify actors) under the daily spending limit
-  market_wait   poll the runs every 5 s; store the offers (collected_offers, upsert); stop waiting 15 s before
-                the deadline and go on with the data at hand (partial: lower reliability, slice kept 1 day)
+                otherwise start the main sources (LinkedIn, HelloWork) under the daily spending limit; the estimate
+                of each run (also its cap on Apify) is reserved until the run ends
+  market_wait   poll the runs every 5 s (the Apify webhook wakes the job at once); store the offers
+                (collected_offers, upsert), journal the real cost; fewer than 25 offers -> start the complementary
+                sources (Indeed) once; stop waiting 15 s before the deadline and go on with the data at hand
+                (partial: lower reliability, slice kept 1 day); late runs are stored by the webhook or the maintenance
   social        reputation of the company: 30 day cache per company, else social search (Reddit, X through Apify)
                 + AI summary in French and English (never blocks the analysis, docs/backend/ia.md)
   compute       comparables (same family and department, 12 months) + market_statistics history
@@ -139,36 +145,39 @@ from the cache and the market data already in the database, with a lower reliabi
 
 | Interface | Simulated (tests, `JAUGE_PROVIDER_MODE=simulated`) | Live (phase 2) |
 |---|---|---|
-| `OfferReader.readLink` | mockup offer, `unreadable` / `unsupported` in the URL simulate failures | JSON-LD `JobPosting` of the page when allowed, Apify actor of the site otherwise |
-| `OfferSource` (start, poll) | LinkedIn (asynchronous run, shows applicants), Hellowork | Apify actors: LinkedIn Jobs Scraper (applicant counts, the anchors), Hellowork, Indeed when the market is thin, Glassdoor; Welcome to the Jungle off (70 USD rental) |
+| `OfferReader.readLink`, `readText` | mockup offer, `unreadable` / `unsupported` in the URL simulate failures | `LiveOfferReader`: JSON-LD `JobPosting` of the page (free), Apify actor of the site when the page refuses (Indeed), AI on the visible text otherwise; plain facts of the text fill what the AI left empty (`docs/backend/sources.md`) |
+| `OfferSource` (start, poll) | LinkedIn (asynchronous run, shows applicants), Hellowork | `ApifyOfferSource`: LinkedIn Jobs Scraper (applicant counts, the anchors) and HelloWork for every new market, Indeed for thin markets, Glassdoor and Welcome to the Jungle off by default |
 | `SocialSearch` | a few posts per company | `ApifySocialSearch`: Reddit (`trudax/reddit-scraper-lite`) and X (Apify pay per result actor), see `docs/backend/ia.md` |
 | `AiProvider` | rules and templates | `LanguageModelAiProvider` on Gemini 3.1 Flash-Lite (default) or Mistral Small 4 (EU), `AI_PROVIDER` |
 | `SubscriptionStore`, `AppleTokenRevoker`, `AuthAdministration`, `OperationsAlerter` | recording fakes | already implemented (`live_account_services.ts`), on as soon as their secrets exist |
 
 Connecting a live provider is one line in `createProviders` (`src/providers/provider_registry.ts`, `LiveConnectors`).
+The offer reader and the Apify sources are built from the configuration by `createOfferConnectors`. Only
+`JAUGE_PROVIDER_MODE=live` turns the live providers on; keys alone never do.
 Rules for connectors: return `ProviderError(retryable)` for network and 5xx errors, `ProviderError(not retryable)`
 for configuration errors; report the real cost of each call in micro dollars; never log the content.
 
 ## Costs
 
-Prices to check when connecting (October 2026 public prices, may change): Apify pay per result actors about 1 USD per
-1 000 LinkedIn offers and 3 USD per 1 000 Indeed offers; Gemini 3.1 Flash-Lite 0.25 USD per million input tokens and
-1.50 USD per million output tokens (checked 25/10/2026, details in `docs/backend/ia.md`).
+Prices to check (October 2026 public prices, may change): Apify pay per event actors on the Starter plan, 1 USD per
+1 000 LinkedIn offers, 0.8 USD per 1 000 HelloWork offers, 5 USD per 1 000 Indeed offers (3 USD on Business), detail
+in `docs/backend/sources.md`; Gemini 3.1 Flash-Lite 0.25 USD per million input tokens and 1.50 USD per million output
+tokens (checked 25/10/2026, details in `docs/backend/ia.md`).
 
 Per analysis:
 
 | Case | What is paid | Estimate |
 |---|---|---|
 | Offer and market in cache | nothing | 0 USD |
-| Offer new, market in cache (most common) | reading of the offer (page or AI on the text, about 2 000 tokens) + social search and summary | 0.005 to 0.04 USD |
-| Offer and market new | + market collection: LinkedIn 60 offers (0.06) + Hellowork 60 (about 0.06), Indeed only when thin | 0.13 to 0.20 USD |
+| Offer new, market in cache (most common) | reading of the offer (page: free; Indeed link: 0.005; AI on a text: about 0.001) + social search and summary | 0 to 0.04 USD |
+| Offer and market new | + market collection: LinkedIn 60 offers (0.060) + HelloWork 60 (0.048), Indeed 30 (0.15) only when thin | 0.05 to 0.20 USD |
 
 Per month for 1 000 users (assumptions: 40 % active each week, 1.5 analyses per active user per week, so about
 2 600 analyses; about 1 500 market collections as the markets repeat, offers reused 15 %):
 
 | Item | Estimate per month |
 |---|---|
-| Market collections (Apify) | 60 to 180 USD, capped by the daily limit (3 USD per day = 90 USD per month by default) |
+| Market collections (Apify) | about 210 USD, capped by the daily limit (3 USD per day = 90 USD per month by default) |
 | AI (extraction, advice, reputation) | 3 to 5 USD |
 | Social search | 20 to 40 USD (one search per company every 30 days; under 5 USD with X only) |
 | Supabase | 0 USD (free) then 25 USD (Pro, recommended at launch for backups and 8 GB) |
@@ -193,10 +202,6 @@ When the database nears 400 MB or invocations near 400 000 per month: Pro plan, 
 
 ## For the next phases
 
-- **Apify connectors** (phase 2): implement `OfferSource` (start = `POST /v2/acts/{actor}/runs`, poll =
-  `GET /v2/actor-runs/{id}` then the dataset items) and `OfferReader` per site, map to `CollectedOfferInput`
-  (`applicantCount` from LinkedIn is the anchor of the estimate), register them in `createProviders`. Tests with
-  recorded answers (no network in CI).
 - **AI with Reddit and X** (phase 2): implement `AiProvider` (structured JSON output for the offer, short French or
   English summary for the reputation) and `SocialSearch`; keep the cost per call in the result. Cache the reputation
   per company (30 days) to cut the cost.

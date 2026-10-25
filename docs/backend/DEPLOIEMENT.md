@@ -8,8 +8,8 @@ l'ordre. Compte une heure la première fois.
 - L'API tourne **sur Supabase** (ton projet `ynvaaswsenerrummanrs`), dans une seule fonction appelée `api`.
 - Les données sont dans la base Supabase (tables créées par les fichiers de `supabase/migrations/`).
 - L'adresse publique `https://api.jauge.io` passe par **Cloudflare** (gratuit), qui renvoie vers Supabase.
-- Tant que les connecteurs (Apify, IA) ne sont pas branchés, l'API répond avec des **données simulées** : ne l'ouvre
-  pas au public avant (voir « Mode simulé »).
+- Tant que les connecteurs ne sont pas branchés, l'API répond avec des **données simulées** : ne l'ouvre pas au
+  public avant (voir « Mode simulé »). Les sources d'offres Apify sont prêtes (étape 8) ; l'IA arrive dans un autre lot.
 
 ## 1. Installer les outils (une fois)
 
@@ -58,7 +58,11 @@ open -e supabase/functions/.env
 | `JAUGE_WEBHOOK_SECRET` | la valeur de l'étape 3 | oui |
 | `JAUGE_IP_HASH_SALT` | une autre valeur `openssl rand -hex 32` | oui |
 | `JAUGE_PROXY_SECRET` | une troisième valeur `openssl rand -hex 32` (la même ira dans Cloudflare, étape 7) | oui |
-| `JAUGE_PROVIDER_MODE` | `simulated` jusqu'aux connecteurs, puis `live` | oui |
+| `JAUGE_PROVIDER_MODE` | `simulated` jusqu'aux connecteurs, puis `live` (une clé seule n'allume rien) | oui |
+| `APIFY_PRICING_TIER` | `BRONZE` avec l'offre Starter d'Apify, `FREE` avec l'offre gratuite | non |
+| `APIFY_WEBHOOK_URL` | `https://ynvaaswsenerrummanrs.supabase.co/functions/v1/api/webhooks/apify` (déjà rempli dans le modèle) | conseillé |
+| `APIFY_WEBHOOK_SECRET` | une valeur `openssl rand -hex 32` | conseillé |
+| `JAUGE_APIFY_SOURCES`, `JAUGE_APIFY_COMPLEMENTARY_SOURCES` | sources allumées (voir `docs/backend/sources.md`) ; les valeurs du modèle conviennent | non |
 | `JAUGE_DAILY_SPEND_LIMIT_USD` | dépense maximum par jour en dollars (3 par défaut, soit 90 $ par mois au plus) | non |
 | `JAUGE_ALERT_WEBHOOK_URL` | une adresse ntfy (par exemple `https://ntfy.sh/un-nom-secret`) pour recevoir les alertes de coût | conseillé |
 | `REVENUECAT_WEBHOOK_AUTHORIZATION` | une valeur au hasard, par exemple `Bearer ` suivi de `openssl rand -hex 24` (la même ira dans RevenueCat, étape 6) | oui |
@@ -124,8 +128,19 @@ npx wrangler deploy
 
 - `JAUGE_PROVIDER_MODE=simulated` : tout marche, mais les offres du marché, les avis et la lecture des offres sont
   **inventés** (toujours les mêmes pour une même offre). Parfait pour tester l'app, **pas pour le public**.
-- Quand les connecteurs Apify et IA sont livrés (phase suivante), ajoute leurs clés (`APIFY_TOKEN`,
-  `GEMINI_API_KEY`...), passe `JAUGE_PROVIDER_MODE=live`, renvoie les secrets (étape 4) et redéploie (étape 5).
+- **Vraies offres (Apify)** :
+  1. Crée un compte sur apify.com. L'offre gratuite donne 5 $ par mois (assez pour essayer) ; prends **Starter
+     (39 $ par mois, 39 $ d'usage compris)** avant le lancement public, et mets alors `APIFY_PRICING_TIER=BRONZE`.
+  2. Apify > Settings > API & Integrations : copie le jeton (« Personal API token ») dans `APIFY_TOKEN`.
+  3. Apify > Settings > Usage & billing : fixe une **limite de dépense mensuelle** (par exemple 60 $). C'est une
+     deuxième sécurité, en plus du plafond du jour de Jauge.
+  4. Remplis `APIFY_WEBHOOK_SECRET` (`openssl rand -hex 32`) ; `APIFY_WEBHOOK_URL` est déjà rempli.
+  5. Passe `JAUGE_PROVIDER_MODE=live`, renvoie les secrets (étape 4) et redéploie (étape 5).
+  6. Essaie un lien LinkedIn dans l'app, puis regarde Apify > Runs : un lancement LinkedIn et un HelloWork, de
+     quelques centimes chacun.
+- Sans clé d'IA (étape 8 bis), en mode `live` les **captures et textes** ne sont pas lus (l'app propose la saisie) ;
+  les liens, eux, marchent.
+- Ce que coûte chaque source, ce qui est allumé par défaut et comment changer : `docs/backend/sources.md`.
 
 ## 8 bis. L'IA et les avis Reddit / X
 
@@ -169,12 +184,12 @@ entreprise est analysée dans le mois (avis Reddit et X). Tout compte dans la li
 |---|---|---|
 | Supabase | 0 € (gratuit) | 25 $ par mois (Pro) conseillé avant le lancement public : sauvegardes chaque jour, plus de place |
 | Cloudflare (proxy) | 0 € | 0 € |
-| Apify (collecte des offres) | 0 € (5 $ offerts par mois) | 39 $ par mois (offre Starter, usage inclus), plafonné par la limite du jour |
+| Apify (collecte des offres) | 0 € (5 $ offerts par mois) | 39 $ par mois (offre Starter, 39 $ d'usage compris) ; environ 210 $ d'usage si rien n'est plafonné, 90 $ au plus avec le plafond de 3 $ par jour |
 | IA (lecture des offres, conseils, résumé des avis) | quelques centimes | 3 à 5 $ par mois |
 | Avis Reddit et X (Apify) | quelques centimes | 20 à 40 $ par mois (moins de 5 $ avec X seulement), dans le plafond du jour |
 | Domaine jauge.io | environ 40 $ par an | idem |
 
-Une analyse coûte 0 $ quand l'offre a été analysée par quelqu'un dans les 7 derniers jours, quelques centimes
-d'ordinaire, et 0,13 à 0,20 $ quand ni l'offre ni son marché (même métier, même département) ne sont connus. Le
-plafond du jour (`JAUGE_DAILY_SPEND_LIMIT_USD`) garantit que la facture des sources ne dépasse jamais ce montant
-multiplié par 30. Détail des calculs : `docs/backend/ARCHITECTURE.md`, partie « Costs ».
+Une analyse coûte 0 $ quand l'offre a été analysée par quelqu'un dans les 7 derniers jours, presque rien d'ordinaire
+(la page de l'offre est lue gratuitement), et 0,05 à 0,20 $ quand son marché (même métier, même département) n'a pas
+été étudié depuis 7 jours. Le plafond du jour (`JAUGE_DAILY_SPEND_LIMIT_USD`) garantit que la facture des sources ne dépasse jamais ce montant
+multiplié par 30. Détail des calculs : `docs/backend/sources.md` et `docs/backend/ARCHITECTURE.md` (« Costs »).
