@@ -1,0 +1,74 @@
+# Backend of Jauge: Edge Function "api" (Deno), SQL migrations (applied on PGlite, Postgres 17 in memory, with row
+# level security checks) and the Cloudflare proxy. Format, lint, types and tests on every change of the backend.
+name: backend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "supabase/**"
+      - "cloudflare/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "supabase/**"
+      - "cloudflare/**"
+      - ".github/workflows/backend.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: supabase/functions/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.8
+      - name: Format
+        run: deno fmt --check
+      - name: Lint
+        run: deno lint
+      - name: Types
+        run: deno task check
+      - name: Tests (unit, integration, migrations on PGlite)
+        run: deno task test
+
+  proxy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: cloudflare/api-proxy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.8
+      - name: Format, lint, types and tests
+        run: deno task verify
+
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: No long dashes in the backend (rule of the project)
+        run: |
+          if grep -rnP '\x{2014}|\x{2013}' supabase cloudflare docs/backend .github/workflows/backend.yml; then
+            echo "Long dashes are not allowed: use '-', ':' or a comma." && exit 1
+          fi
+      - name: No secret in the repository
+        run: |
+          if grep -rnE 'sk_[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9]{10,}|service_role.{0,5}eyJ' supabase cloudflare; then
+            echo "A secret looks committed." && exit 1
+          fi
