@@ -63,7 +63,7 @@ interface HandlerContext {
 type Handler = (context: HandlerContext) => Promise<Response>;
 
 /** Kinds of routes: what each one checks before its handler. */
-type Access = "user" | "public" | "internal" | "webhook";
+type Access = "user" | "public" | "internal" | "webhook" | "apify_webhook";
 
 interface RouteEntry {
   readonly access: Access;
@@ -151,7 +151,8 @@ export function createApplication(dependencies: ApplicationDependencies): Applic
     configuration,
     clock,
     logger,
-    dependencies.pipelineSettings ?? DEFAULT_PIPELINE_SETTINGS,
+    dependencies.pipelineSettings ??
+      { ...DEFAULT_PIPELINE_SETTINGS, offersPerSource: configuration.apify.offersPerSource },
   );
   const evaluateAlertsHandler = {
     runStage: async () => {
@@ -445,7 +446,32 @@ export function createApplication(dependencies: ApplicationDependencies): Applic
   });
   router.add("POST", "/internal/maintenance", {
     access: "internal",
-    handler: async () => jsonResponse(await operations.runMaintenance()),
+    handler: async () => {
+      const report = await operations.runMaintenance();
+      // Apify runs that no analysis waited for: their results are paid, store them for the next analyses.
+      const collections = await pipeline.harvestCollections();
+      return jsonResponse({ ...report, collections });
+    },
+  });
+  router.add("POST", "/webhooks/apify", {
+    access: "apify_webhook",
+    // Apify calls it when a market run ends: the waiting analysis is woken at once, an abandoned run is stored.
+    handler: async ({ request }) => {
+      const body = await readJsonObject(request, 64 * 1024);
+      const eventData = isObject(body.eventData) ? body.eventData : {};
+      const resource = isObject(body.resource) ? body.resource : {};
+      const runId = typeof eventData.actorRunId === "string" ? eventData.actorRunId : resource.id;
+      if (typeof runId !== "string" || !/^[A-Za-z0-9]{8,40}$/.test(runId)) throw validationFailed("actorRunId");
+      const woken = await pipeline.wakeForRun(runId);
+      if (woken > 0) {
+        dependencies.runInBackground(
+          worker.run().catch((error) => logger.log("error", "worker_failed", errorDetails(error))),
+        );
+      } else {
+        await pipeline.harvestCollections(runId);
+      }
+      return jsonResponse({ status: woken > 0 ? "woken" : "stored" });
+    },
   });
 
   async function clientSubject(request: Request): Promise<string> {
@@ -500,6 +526,10 @@ export function createApplication(dependencies: ApplicationDependencies): Applic
     if (entry.access === "internal") {
       if (!secretsMatch(request.headers.get("x-jauge-webhook-secret"), configuration.webhookSecret)) {
         throw new ApiError("unauthorized", "Internal route");
+      }
+    } else if (entry.access === "apify_webhook") {
+      if (!secretsMatch(request.headers.get("x-jauge-apify-secret"), configuration.apify.webhookSecret)) {
+        throw new ApiError("unauthorized", "Webhook secret does not match");
       }
     } else if (entry.access === "webhook") {
       if (!secretsMatch(request.headers.get("authorization"), configuration.revenueCatWebhookAuthorization)) {

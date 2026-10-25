@@ -77,11 +77,17 @@ export class ProviderError extends Error {
   }
 }
 
-/** Reads the offer behind a link (page of a job site, career page). */
+/**
+ * Asks the daily spending limit whether a paid step of this estimated cost (micro US dollars) may run now. Readers
+ * try their free ways first and only ask before a paid one.
+ */
+export type PaidStepBudget = (estimateMicroUsd: number) => Promise<boolean>;
+
+/** Reads the offer behind a link (page of a job site, career page) or a text (pasted, or read on the phone). */
 export interface OfferReader {
   /** Name for the logs and the cost journal. */
   readonly name: string;
-  /** Cost of one reading, checked against the daily limit before the call. */
+  /** Cost of one reading checked before the call (0 when the reader asks `budget` before each paid step). */
   estimateCostMicroUsd(): number;
   /**
    * Reads the offer of a canonical link.
@@ -89,8 +95,16 @@ export interface OfferReader {
    * @param url canonical link.
    * @param site known job site, null for another site.
    * @param today date of today (ISO), to turn "il y a 2 jours" into a date.
+   * @param budget daily limit, asked before each paid step (allows everything when omitted).
    */
-  readLink(url: string, site: string | null, today: string): Promise<ExtractionOutcome>;
+  readLink(url: string, site: string | null, today: string, budget?: PaidStepBudget): Promise<ExtractionOutcome>;
+  /**
+   * Reads an offer from its text (optional: without it the AI reads the text directly).
+   *
+   * @param text text of the offer.
+   * @param today date of today (ISO).
+   */
+  readText?(text: string, today: string): Promise<ExtractionOutcome>;
 }
 
 /** What a market collection looks for: one job family in one department. */
@@ -143,6 +157,11 @@ export interface OfferSource {
   readonly name: string;
   /** False for free sources (they run even when the daily limit is reached). */
   readonly paid: boolean;
+  /**
+   * True for a complementary source, started only when the main sources found a thin market (fewer offers than
+   * `PipelineSettings.thinMarketOffers`): Indeed is the most expensive per result.
+   */
+  readonly complementary?: boolean;
   /** Cost of a collection, checked against the daily limit before it starts. */
   estimateCostMicroUsd(request: CollectionRequest): number;
   /** Starts a collection. */

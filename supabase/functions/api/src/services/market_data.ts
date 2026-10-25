@@ -1,4 +1,5 @@
 import { type Database, toIsoTimestampOrNull } from "../database/database.ts";
+import { mergeDuplicateOffers } from "../offers/deduplication.ts";
 import {
   daysBetweenDates,
   type MarketHistoryPoint,
@@ -44,7 +45,8 @@ function yearBefore(today: string): string {
 }
 
 /**
- * Comparable offers: same job family, same department, published in the last 12 months (or without date).
+ * Comparable offers: same job family, same department, published in the last 12 months (or without date), one entry
+ * per real offer (an offer published on several sites is merged, see `offers/deduplication.ts`).
  *
  * @param database database.
  * @param family job family.
@@ -64,12 +66,12 @@ export async function loadComparables(
      limit 3000`,
     [family, department, yearBefore(today)],
   );
-  return rows.map(toMarketOffer);
+  return mergeDuplicateOffers(rows.map(toMarketOffer));
 }
 
 /**
  * Offers of a job family around a point (bounding box, then exact distance in the caller), published within the
- * last 12 months: candidates of the twins of an area.
+ * last 12 months, duplicates between sources merged: candidates of the twins of an area.
  */
 export async function loadOffersAround(
   database: Database,
@@ -94,7 +96,7 @@ export async function loadOffersAround(
       yearBefore(today),
     ],
   );
-  return rows.map(toMarketOffer);
+  return mergeDuplicateOffers(rows.map(toMarketOffer));
 }
 
 /** History of the market: the last 13 months of `market_statistics`, oldest first. */

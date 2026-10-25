@@ -1,0 +1,8 @@
+{
+  "data": {
+    "id": "Fa1LeDrUn0000001",
+    "status": "FAILED",
+    "defaultDatasetId": "datasetFailed0001",
+    "chargedEventCounts": { "apify-actor-start": 1 }
+  }
+}

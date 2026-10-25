@@ -1,0 +1,70 @@
+[
+  {
+    "contract_duration_minimum": null,
+    "salary_period": "yearly",
+    "reference": "e117dc5d-4ba5-4253-88b8-6a19db1da69b",
+    "offices": [
+      { "state": "Catalonia", "city": "Barcelona", "country": "Spain", "country_code": "ES", "district": "Barcelona" },
+      {
+        "state": "Auvergne-Rhone-Alpes",
+        "city": "Lyon",
+        "country": "France",
+        "country_code": "FR",
+        "district": "Rhône",
+        "local_city": "Lyon"
+      }
+    ],
+    "sectors": [{ "name": "Logiciels", "reference": "software-1", "parent_name": "Tech" }],
+    "salary_maximum": 48000,
+    "language": "fr",
+    "salary_minimum": 42000,
+    "remote": "partial",
+    "contract_type": "full_time",
+    "organization": { "name": "Lumio", "reference": "xwzW84M", "slug": "lumio" },
+    "summary": "Rejoins Lumio pour piloter le SEO et les campagnes Google Ads.",
+    "published_at_timestamp": 1792396800,
+    "salary_currency": "EUR",
+    "name": "Growth marketer",
+    "slug": "growth-marketer_lyon",
+    "key_missions": [
+      "Piloter l'acquisition payante (Google Ads, Meta Ads)",
+      "Suivre les conversions dans Google Analytics"
+    ],
+    "published_at": "2026-10-18T14:36:37Z",
+    "published_at_date": "2026-10-18",
+    "objectID": "e117dc5d-4ba5-4253-88b8-6a19db1da69b"
+  },
+  {
+    "reference": "95470687-c44a-4d63-88cf-3727b6015073",
+    "name": "Stage Assistant.e Communication",
+    "slug": "stage-assistant-communication_barcelona",
+    "contract_type": "internship",
+    "offices": [{ "city": "Barcelona", "country": "Spain", "country_code": "ES" }],
+    "organization": { "name": "Hindbag" },
+    "published_at_date": "2026-10-20"
+  },
+  {
+    "organization_url": "https://www.welcometothejungle.com/fr/companies/hindbag",
+    "job_url": "https://www.welcometothejungle.com/fr/companies/hindbag/jobs/stage-responsable-commercial_paris",
+    "slug": "stage-responsable-commercial_paris",
+    "remote": "no",
+    "offices": [
+      {
+        "address": "7 Rue de l'Abbé de l'Épée, 75005 Paris, France",
+        "city": "Paris",
+        "zip_code": "75005",
+        "country_code": "FR"
+      }
+    ],
+    "salary_maximum": null,
+    "reference": "95470687-c44a-4d63-88cf-3727b6015074",
+    "salary_currency": "EUR",
+    "contract_type": "internship",
+    "name": "Stage Responsable commercial",
+    "salary_period": null,
+    "skills": ["Prospection", "Négociation", "HubSpot"],
+    "organization": { "name": "Hindbag" },
+    "salary_minimum": null,
+    "published_at": "2026-10-25T10:05:45Z"
+  }
+]
