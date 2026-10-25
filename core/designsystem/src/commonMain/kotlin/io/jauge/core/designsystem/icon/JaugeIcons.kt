@@ -58,6 +58,9 @@ object JaugeIcons {
     /** Icon for a rising trend. */
     val TrendUp: ImageVector by lazy { strokeIcon("TrendUp", "m3 17 6-6 4 4 8-8 M15 7h6v6") }
 
+    /** Paste from the clipboard (clipboard with an arrow), "Coller". */
+    val Paste: ImageVector by lazy { strokeIcon("Paste", "M9 4h6v3H9z M15 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h2 M12 11v6 M9 14l3 3 3-3") }
+
     /** Icon for copying. */
     val Copy: ImageVector by lazy { strokeIcon("Copy", "M10 8h9a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-9a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2z M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3") }
 

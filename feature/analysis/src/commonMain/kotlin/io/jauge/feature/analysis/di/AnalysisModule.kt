@@ -13,7 +13,9 @@ import org.koin.dsl.module
 /** Koin module of the analysis feature (mockups 02, 03 and 10), listed in `composeApp` (`JaugeKoin.kt`). */
 val analysisModule = module {
     single { PendingAnalysisStore() }
-    viewModelOf(::HomeViewModel)
+    viewModel {
+        HomeViewModel(observeAuthenticationState = get(), getHistory = get(), pendingAnalyses = get(), favoriteAnalysis = get())
+    }
     viewModelOf(::ManualEntryViewModel)
     viewModelOf(::HistoryViewModel)
     viewModel { parameters -> ReadingViewModel(requestId = parameters.get(), pendingAnalyses = get(), analyzeOffer = get()) }
