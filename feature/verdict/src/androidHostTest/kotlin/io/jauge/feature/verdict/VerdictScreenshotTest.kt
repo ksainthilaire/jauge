@@ -50,7 +50,7 @@ class VerdictScreenshotTest {
         }
     }
 
-    /** Score 19 (the case seen on a phone) with a large system text size, dark theme: the digits stay below the pivot. */
+    /** Score 19 (the case seen on a phone) with a large system text size, dark theme: the score stays clear of the arc. */
     @Test
     fun scoreNineteenLargeTextDark() = scoreCase(score = 19, fontScale = 1.3f, darkTheme = true, name = "04-verdict-score-19-texte-grand-sombre")
 
@@ -62,7 +62,17 @@ class VerdictScreenshotTest {
     @Test
     fun scoreHundredLargestTextDark() = scoreCase(score = 100, fontScale = 2f, darkTheme = true, name = "04-verdict-score-100-texte-200-sombre")
 
-    /** Score 0 (needle flat on the left) at the default text size, light theme. */
+    /** The redesigned gauge at the bounds and the usual scores, in both themes: the card follows the theme. */
+    @Test
+    fun gaugeScores() {
+        listOf(0, 19, 50, 78, 100).forEach { score ->
+            listOf(false, true).forEach { dark ->
+                scoreCase(score = score, fontScale = 1f, darkTheme = dark, name = "04-verdict-jauge-$score-${if (dark) "sombre" else "clair"}")
+            }
+        }
+    }
+
+    /** Score 0 (cursor on the left end) at the default text size, light theme. */
     @Test
     fun scoreZeroLight() = scoreCase(score = 0, fontScale = 1f, darkTheme = false, name = "04-verdict-score-0-clair")
 

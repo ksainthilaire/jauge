@@ -68,7 +68,7 @@ fun SkeletonListRow(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(44.dp, 30.dp).skeleton())
+        Box(Modifier.size(52.dp, 31.dp).skeleton())
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Box(Modifier.fillMaxWidth(0.7f).height(14.dp).skeleton())
             Box(Modifier.fillMaxWidth(0.5f).height(11.dp).skeleton())

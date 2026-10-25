@@ -8,4 +8,5 @@
     <string name="level_disputed">Disputed</string>
     <string name="level_crowded">Crowded</string>
     <string name="gauge_description">Competition: %1$d out of 100, %2$s</string>
+    <string name="gauge_out_of"> /100</string>
 </resources>

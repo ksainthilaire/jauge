@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
@@ -313,8 +314,7 @@ private fun BrandVisual(modifier: Modifier = Modifier) {
         JaugeGauge(
             score = BRAND_VISUAL_SCORE,
             size = GaugeSize.MEDIUM,
-            needleColor = colors.textPrimary,
-            modifier = Modifier.size(width = 152.dp, height = 76.dp),
+            modifier = Modifier.width(168.dp),
         )
         Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             LevelPill(level = GaugeLevel.CALM, showDot = true)

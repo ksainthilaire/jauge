@@ -214,7 +214,7 @@ private fun ShareRow(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             if (analysis != null) {
-                JaugeGauge(score = analysis.score, size = GaugeSize.MINI, needleColor = colors.textPrimary, animate = false)
+                JaugeGauge(score = analysis.score, size = GaugeSize.MINI, animate = false)
             }
             Column(Modifier.weight(1f)) {
                 Text(

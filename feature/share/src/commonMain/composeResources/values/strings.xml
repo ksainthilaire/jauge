@@ -31,7 +31,6 @@
     <!-- 07 Share card -->
     <string name="share_card_brand">Jauge</string>
     <string name="share_card_date">%1$s.%2$s.%3$s</string>
-    <string name="share_card_score_suffix"> /100 · </string>
     <string name="share_card_applicants_value">≈%1$s</string>
     <string name="share_card_applicants_caption">candidats</string>
     <string name="share_card_salary_value">%1$d-%2$dk</string>
