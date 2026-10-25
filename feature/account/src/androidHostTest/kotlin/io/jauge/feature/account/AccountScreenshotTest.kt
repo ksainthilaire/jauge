@@ -1,6 +1,8 @@
 package io.jauge.feature.account
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.core.domain.model.Account
@@ -63,15 +65,37 @@ class AccountScreenshotTest {
     @Test
     fun profileRestoring() = capture("13-profil-restauration-en-cours") { ProfileSample(isRestoring = true) }
 
+    /** Mockup 13 in the dark theme (trial running). */
+    @Test
+    fun profileDark() = capture("13-profil-et-abonnement-sombre") { ProfileSample(isRestoring = false, darkTheme = true) }
+
+    /** Free user: the highlighted "Découvrir Jauge Plus" offer, light theme. */
+    @Test
+    fun profileFreeLight() = capture("13-profil-gratuit-clair") { ProfileSample(isRestoring = false, subscription = FREE) }
+
+    /** Free user: the highlighted "Découvrir Jauge Plus" offer, dark theme. */
+    @Test
+    fun profileFreeDark() = capture("13-profil-gratuit-sombre") { ProfileSample(isRestoring = false, subscription = FREE, darkTheme = true) }
+
+    /** Ended subscription: the offer without the trial promise, dark theme. */
+    @Test
+    fun profileExpiredDark() = capture("13-profil-termine-sombre") {
+        ProfileSample(isRestoring = false, subscription = Subscription(SubscriptionStatus.EXPIRED, null, null, 0), darkTheme = true)
+    }
+
     @Composable
-    private fun ProfileSample(isRestoring: Boolean) {
-        JaugeTheme(darkTheme = false) {
+    private fun ProfileSample(
+        isRestoring: Boolean,
+        subscription: Subscription = Subscription(SubscriptionStatus.TRIAL, LocalDate(2026, 10, 26), null, 0),
+        darkTheme: Boolean = false,
+    ) {
+        JaugeTheme(darkTheme = darkTheme) {
             ProfileContent(
                 state = ProfileUiState(
                     content = ContentState(
                         content = ProfileContent(
                             account = Account("1", "Inès Bertrand", null, SignInMethod.APPLE, 12, Consents(false)),
-                            subscription = Subscription(SubscriptionStatus.TRIAL, LocalDate(2026, 10, 26), null, 0),
+                            subscription = subscription,
                             formattedPrice = "6,99 €",
                             latestAnalysisId = "1",
                         ),
@@ -83,6 +107,7 @@ class AccountScreenshotTest {
                 ),
                 navigation = ProfileNavigation({}, {}, {}, {}, {}, {}, {}, {}, {}),
                 onRefresh = {}, onManageSubscription = {}, onRestore = {}, onExport = {}, onSignOut = {},
+                modifier = Modifier.background(JaugeTheme.colors.background),
             )
         }
     }
@@ -131,6 +156,10 @@ class AccountScreenshotTest {
     @Test
     fun aboutDark() = capture("a-propos-sombre") {
         JaugeTheme(darkTheme = true) { AboutScreen({}, {}, {}, {}) }
+    }
+
+    private companion object {
+        val FREE = Subscription(SubscriptionStatus.FREE, null, null, 1)
     }
 
     @OptIn(ExperimentalResourceApi::class)

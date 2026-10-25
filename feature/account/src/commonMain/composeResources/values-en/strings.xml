@@ -63,6 +63,13 @@
     <string name="profile_expired_text">Your subscription has ended. You can take it again whenever you want.</string>
     <string name="profile_manage_subscription">Manage or cancel the subscription</string>
     <string name="profile_discover_plus">Discover Jauge Plus</string>
+    <string name="profile_plus_tagline">Every analysis, the real salary and the calmer twin offers.</string>
+    <string name="profile_plus_trial_badge">3 days free</string>
+    <string name="profile_plus_then_price">then %1$s per month</string>
+    <string name="profile_plus_price">%1$s per month</string>
+    <string name="profile_plus_start_trial">Try 3 days free</string>
+    <string name="profile_plus_resume">Get Jauge Plus again</string>
+    <string name="profile_plus_no_commitment">No commitment, cancel anytime.</string>
     <string name="profile_group_settings">Settings</string>
     <string name="profile_calm_alerts">"Calm" alerts</string>
     <string name="profile_calm_alerts_on">On</string>
