@@ -6,6 +6,7 @@ import io.jauge.core.network.payload.AlertListPayload
 import io.jauge.core.network.payload.AnalysisPayload
 import io.jauge.core.network.payload.AnalysisPagePayload
 import io.jauge.core.network.payload.ApplicantFeedbackRequestPayload
+import io.jauge.core.network.payload.AreaPayload
 import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
@@ -40,14 +41,21 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
 
     override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload = call { service.createAnalysis(request) }
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String): AnalysisPayload = call {
+    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload = call {
         val extension = mimeType.substringAfter('/', "jpg")
         val imagePart = MultipartBody.Part.createFormData(
             name = "image",
             filename = "offer.$extension",
             body = image.toRequestBody(mimeType.toMediaType()),
         )
-        service.createAnalysisFromImage(imagePart, origin.toRequestBody("text/plain".toMediaType()))
+        val text = "text/plain".toMediaType()
+        service.createAnalysisFromImage(
+            image = imagePart,
+            origin = origin.toRequestBody(text),
+            areaCity = area?.city?.toRequestBody(text),
+            areaDepartment = area?.departmentCode?.toRequestBody(text),
+            areaRadius = area?.radiusKilometers?.toString()?.toRequestBody(text),
+        )
     }
 
     override suspend fun getAnalyses(cursor: String?, limit: Int): AnalysisPagePayload = call { service.getAnalyses(cursor, limit) }
@@ -60,13 +68,15 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
 
     override suspend fun removeFavorite(analysisId: String) = callWithoutBody { service.removeFavorite(analysisId) }
 
-    override suspend fun getSalary(analysisId: String): SalaryInsightPayload = call { service.getSalary(analysisId) }
+    override suspend fun getSalary(analysisId: String, area: AreaPayload?): SalaryInsightPayload =
+        call { service.getSalary(analysisId, area?.city, area?.departmentCode) }
 
     override suspend fun getSkills(analysisId: String): SkillsInsightPayload = call { service.getSkills(analysisId) }
 
     override suspend fun getTrend(analysisId: String): TrendInsightPayload = call { service.getTrend(analysisId) }
 
-    override suspend fun getTwins(analysisId: String, sort: String): TwinOffersPayload = call { service.getTwins(analysisId, sort) }
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload =
+        call { service.getTwins(analysisId, sort, area?.city, area?.departmentCode, area?.radiusKilometers) }
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) =
         callWithoutBody { service.sendApplicantFeedback(analysisId, request) }

@@ -31,7 +31,7 @@ Légende : **OK**, **Corrigé** (corrigé pendant l'audit), **À toi** (voir [a-
 | --- | --- | --- |
 | 5.1.1(i) Politique de confidentialité dans l'app et dans la fiche | OK + **Corrigé** | Dans l'app (Profil, Confidentialité et données). Version web créée : `docs/web/confidentialite/`. |
 | 5.1.1(ii) Accord avant la collecte | OK | Connexion facultative, case « conseils par e-mail » décochée par défaut, autorisation des notifications demandée après explication. |
-| 5.1.1(iii) Minimisation | OK | Pas de localisation, contacts, ni accès complet aux photos (PHPicker ne demande aucune autorisation). |
+| 5.1.1(iii) Minimisation | OK | Localisation « When In Use » en précision réduite seulement (`NSLocationDefaultAccuracyReduced`), demandée après une explication de l'app avec « Plus tard » ; la position devient une ville sur le téléphone et n'est jamais envoyée ; refus : Paris, modifiable. Pas de contacts, ni accès complet aux photos (PHPicker ne demande aucune autorisation). |
 | 5.1.1(v) Pas de compte obligatoire | OK | « Continuer sans compte » ; l'app est utilisable sans connexion. |
 | 5.1.1(v) Suppression du compte dans l'app | OK | Profil, Supprimer mon compte, avec rappel que l'abonnement se gère dans l'App Store. |
 | 5.1.1(v) Révocation du jeton « Se connecter avec Apple » à la suppression | À toi (serveur) | Le serveur doit appeler `https://appleid.apple.com/auth/revoke` dans `DELETE /v1/account` (écrit dans `docs/api.md`). |
@@ -63,7 +63,7 @@ donnée croisée avec celles d'autres entreprises, aucun courtier de données. D
 | Section | Contenu |
 | --- | --- |
 | Suivi | `NSPrivacyTracking` faux, aucun domaine. |
-| Données collectées (toutes liées à l'utilisateur, aucune pour le suivi, finalité « fonctionnement de l'app ») | Adresse e-mail, nom, identifiant utilisateur, identifiant de l'appareil (jeton push), photos (captures, effacées sous 24 h), autre contenu de l'utilisateur (liens, alertes, partages), historique d'achats. |
+| Données collectées (toutes liées à l'utilisateur, aucune pour le suivi, finalité « fonctionnement de l'app ») | Adresse e-mail, nom, identifiant utilisateur, identifiant de l'appareil (jeton push), photos (captures, effacées sous 24 h), position approximative (ville de la zone de recherche), autre contenu de l'utilisateur (liens, alertes, partages), historique d'achats. |
 | API à raison obligatoire | `NSUserDefaults` : raison `CA92.1` (réglages et session de l'app, `KeyValueStore.ios.kt`, session Supabase). Horloge depuis le démarrage : raison `35F9.1` (horloge monotone du runtime Kotlin et des coroutines). Aucun accès aux dates de fichiers, à l'espace disque ou aux claviers actifs. |
 | SDK tiers | RevenueCat (`PurchasesHybridCommon` / `RevenueCat`) fournit son propre manifeste. À la première archive, vérifier le rapport : Xcode › Product › Archive, puis clic droit sur l'archive › « Generate Privacy Report ». |
 
@@ -77,11 +77,12 @@ App Store Connect › App Privacy. « Données utilisées pour vous suivre » : 
 | Coordonnées | Nom | Fonctionnement de l'app | Oui | Non |
 | Contenu de l'utilisateur | Photos ou vidéos | Fonctionnement de l'app | Oui | Non |
 | Contenu de l'utilisateur | Autre contenu de l'utilisateur | Fonctionnement de l'app | Oui | Non |
+| Position | Position approximative (ville et département de la zone de recherche) | Fonctionnement de l'app | Oui | Non |
 | Identifiants | Identifiant de l'utilisateur | Fonctionnement de l'app | Oui | Non |
 | Identifiants | Identifiant de l'appareil (jeton push) | Fonctionnement de l'app | Oui | Non |
 | Achats | Historique des achats | Fonctionnement de l'app | Oui | Non |
 
-Non collectés : santé, finances (hors achats), localisation, informations sensibles, contacts, historique de
+Non collectés : santé, finances (hors achats), position précise, informations sensibles, contacts, historique de
 navigation ou de recherche, données d'usage pour analyse, diagnostics côté app (aucun SDK de plantage).
 
 ## 7. Info.plist, droits et liens
@@ -91,7 +92,8 @@ navigation ou de recherche, données d'usage pour analyse, diagnostics côté ap
 | `NSCameraUsageDescription` | OK + **Corrigé** | Texte précis (photographier une offre). Ajout de la version anglaise : `fr.lproj` et `en.lproj/InfoPlist.strings`. |
 | `NSPhotoLibraryAddUsageDescription` | OK + **Corrigé** | Enregistrer la carte de partage ; traduit aussi. |
 | `NSPhotoLibraryUsageDescription` | OK (absent) | Inutile : le choix d'une capture passe par PHPicker, sans autorisation. |
-| `NSUserTrackingUsageDescription`, localisation, micro, contacts | OK (absents) | Non utilisés. |
+| `NSLocationWhenInUseUsageDescription` | OK | Ville de la zone de recherche ; texte français dans `Info.plist`, traductions dans `fr.lproj` et `en.lproj/InfoPlist.strings`. `NSLocationDefaultAccuracyReduced` = oui (précision réduite). Déclarée aussi dans `PrivacyInfo.xcprivacy` (`NSPrivacyCollectedDataTypeCoarseLocation`). |
+| `NSUserTrackingUsageDescription`, localisation en arrière-plan, micro, contacts | OK (absents) | Non utilisés. |
 | `ITSAppUsesNonExemptEncryption = false` | OK | Seulement HTTPS : pas de document d'export à fournir. |
 | `NSAppTransportSecurity` | OK | Aucune exception (audit de sécurité). |
 | Notifications push (`aps-environment`) | OK, À toi | `development` dans le fichier ; Xcode met `production` à l'archive pour l'App Store. Activer « Push Notifications » sur l'identifiant `io.jauge.app` et créer la clé APNs `.p8` (pour l'Edge Function). Pas de `UIBackgroundModes` : pas besoin (notifications visibles seulement). |

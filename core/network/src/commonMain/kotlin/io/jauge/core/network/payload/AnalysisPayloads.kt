@@ -4,12 +4,28 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
+ * Search area of the user, sent with the analyses, the twin offers and the salaries. Only a city and its department:
+ * never a position.
+ *
+ * @property city city at the center ("Lyon").
+ * @property departmentCode French department ("69"), null when unknown.
+ * @property radiusKilometers radius around the city.
+ */
+@Serializable
+data class AreaPayload(
+    val city: String,
+    val departmentCode: String? = null,
+    val radiusKilometers: Int,
+)
+
+/**
  * Body of `POST /v1/analyses` for a link or a manual entry (images are sent as multipart).
  *
  * @property type `link` or `manual`.
  * @property url link of the offer, for `link`.
  * @property jobTitle job title, for `manual`.
  * @property city city, for `manual`.
+ * @property area search area of the user, for the comparisons and the twin offers.
  */
 @Serializable
 data class CreateAnalysisRequestPayload(
@@ -17,6 +33,7 @@ data class CreateAnalysisRequestPayload(
     val url: String? = null,
     val jobTitle: String? = null,
     val city: String? = null,
+    val area: AreaPayload? = null,
 ) {
     /** Values of [type]. */
     companion object {

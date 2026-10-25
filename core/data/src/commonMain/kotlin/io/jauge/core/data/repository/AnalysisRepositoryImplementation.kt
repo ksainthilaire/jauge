@@ -18,6 +18,8 @@ import io.jauge.core.network.ImageOrigins
 import io.jauge.core.network.JaugeApi
 import io.jauge.core.data.preferences.FavoriteStore
 import io.jauge.core.data.preferences.InMemoryKeyValueStore
+import io.jauge.core.data.preferences.SearchAreaSource
+import io.jauge.core.data.preferences.toPayload
 import io.jauge.core.network.payload.AnalysisPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
 import kotlinx.coroutines.CancellationException
@@ -44,12 +46,14 @@ import kotlinx.coroutines.sync.withLock
  * @param favoriteStore favorites kept on the device.
  * @param pollIntervalMilliseconds delay between two polls.
  * @param maximumPolls number of polls before giving up.
+ * @param searchArea search area of the user, sent with every new analysis.
  */
 class AnalysisRepositoryImplementation(
     private val api: JaugeApi,
     private val favoriteStore: FavoriteStore = FavoriteStore(InMemoryKeyValueStore()),
     private val pollIntervalMilliseconds: Long = 1_000,
     private val maximumPolls: Int = 90,
+    private val searchArea: SearchAreaSource = SearchAreaSource.NONE,
 ) : AnalysisRepository {
 
     private val history = MutableStateFlow<List<AnalysisSummary>>(emptyList())
@@ -144,11 +148,15 @@ class AnalysisRepositoryImplementation(
         }
     }
 
-    private suspend fun create(source: OfferSource): AnalysisPayload = when (source) {
-        is OfferSource.Link -> api.createAnalysis(CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_LINK, url = source.url))
-        is OfferSource.Manual -> api.createAnalysis(
-            CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_MANUAL, jobTitle = source.jobTitle, city = source.city),
-        )
+    private suspend fun create(source: OfferSource): AnalysisPayload {
+        val area = searchArea.current()?.toPayload()
+        return when (source) {
+            is OfferSource.Link -> api.createAnalysis(
+                CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_LINK, url = source.url, area = area),
+            )
+            is OfferSource.Manual -> api.createAnalysis(
+                CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_MANUAL, jobTitle = source.jobTitle, city = source.city, area = area),
+            )
         is OfferSource.Image -> api.createAnalysisFromImage(
             image = source.bytes,
             mimeType = source.mimeType,
@@ -156,7 +164,9 @@ class AnalysisRepositoryImplementation(
                 ImageOrigin.SCREENSHOT -> ImageOrigins.SCREENSHOT
                 ImageOrigin.PHOTO -> ImageOrigins.PHOTO
             },
+            area = area,
         )
+        }
     }
 
     private fun remember(analysis: Analysis) {

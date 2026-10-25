@@ -44,6 +44,8 @@ core/data             Repository implementations, payload mapping, error mapping
 core/network          JaugeApi interface and payloads, Retrofit/OkHttp (Android), Ktor (iOS)
 core/billing          Store purchases (BillingClient): RevenueCat purchases-kmp, see docs/revenuecat.md
 core/notifications    NotificationRepository: push tokens (FCM, APNs), notifications table, Realtime calm alerts
+core/location         LocationRepository: approximate position (Android LocationManager, iOS CoreLocation) turned into a
+                      city on the phone (FrenchCities), never sent
 core/authentication   AuthenticationRepository: Supabase Auth (Apple, Google, email link), simulated without Supabase
 core/common           Build configuration, AppEnvironment, ApiModeController, dispatchers, platform
 build-logic           Convention plugins shared by the modules
@@ -284,6 +286,16 @@ libraries ship with the app in `composeApp/src/commonMain/composeResources/files
 The app is portrait only: `android:screenOrientation="portrait"` on `MainActivity` (`"behind"` on the translucent
 notification permission activity), `UISupportedInterfaceOrientations` = portrait on iOS (iPhone only). Android 16
 ignores the forced orientation on large screens, which is accepted.
+
+## Location and search area
+
+`SearchArea` (city, department, radius, origin) is used by the analyses, the twin offers and the salaries; core:data
+reads it with `SearchAreaSource` and sends only the city, the department and the radius (`AreaPayload`). The default is
+`SearchArea.DEFAULT` (Paris, 30 km). `LocationPromptHost` (feature:onboarding, shown by `JaugeApp` once the first launch
+is over) explains why the city helps, then `LocateSearchAreaUseCase.allow` shows the system request (Android
+`LocationPermissionActivity`, iOS `requestWhenInUseAuthorization`). The position is turned into the nearest city by
+`FrenchCities` on the phone. A city typed in Settings (`SearchAreaOrigin.MANUAL`) always wins; "Utiliser ma position"
+goes back to the position.
 
 ## Favorites
 

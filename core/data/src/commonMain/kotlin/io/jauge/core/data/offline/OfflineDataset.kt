@@ -231,6 +231,9 @@ class OfflineDataset(private val clock: Clock = Clock.System) {
         /** "Chargée de marketing digital", Atelier Sorel, score 78. */
         const val MARKETING_ID = "demo-marketing-digital"
 
+        /** Department of the sample data (Rhône): twin offers keep their own places there. */
+        const val SAMPLE_DEPARTMENT_CODE = "69"
+
         /** "Traffic manager", Groupe Pellat, score 44. */
         const val TRAFFIC_ID = "demo-traffic-manager"
 

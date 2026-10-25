@@ -9,6 +9,8 @@ import io.jauge.core.domain.model.TwinOffers
 import io.jauge.core.domain.model.TwinSort
 import io.jauge.core.domain.model.map
 import io.jauge.core.domain.repository.TwinRepository
+import io.jauge.core.data.preferences.SearchAreaSource
+import io.jauge.core.data.preferences.toPayload
 import io.jauge.core.network.JaugeApi
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import kotlinx.coroutines.flow.Flow
@@ -21,13 +23,17 @@ import kotlinx.coroutines.flow.update
  * (Supabase) will push into the same cache.
  *
  * @param api the API client.
+ * @param searchArea search area of the user, sent with the twin offers.
  */
-class TwinRepositoryImplementation(private val api: JaugeApi) : TwinRepository {
+class TwinRepositoryImplementation(
+    private val api: JaugeApi,
+    private val searchArea: SearchAreaSource = SearchAreaSource.NONE,
+) : TwinRepository {
 
     private val alerts = MutableStateFlow<List<CalmAlert>>(emptyList())
 
     override suspend fun getTwinOffers(analysisId: String, sort: TwinSort): Outcome<TwinOffers> =
-        outcomeOf { api.getTwins(analysisId, sort.toApiValue()).toDomain() }
+        outcomeOf { api.getTwins(analysisId, sort.toApiValue(), searchArea.current()?.toPayload()).toDomain() }
 
     override fun observeAlerts(): Flow<List<CalmAlert>> = alerts.asStateFlow()
 

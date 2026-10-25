@@ -22,16 +22,16 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 
 | Method and path | Purpose | Screen |
 |---|---|---|
-| `POST /v1/analyses` | Start an analysis: JSON `{type: "link", url}` or `{type: "manual", jobTitle, city}`, or multipart `image` + `origin` (`screenshot` or `photo`). Answers `202` with status `processing`. | 02, 10 |
+| `POST /v1/analyses` | Start an analysis: JSON `{type: "link", url, area}` or `{type: "manual", jobTitle, city, area}`, or multipart `image` + `origin` (`screenshot` or `photo`) + `areaCity`, `areaDepartment`, `areaRadius`. Answers `202` with status `processing`. | 02, 10 |
 | `GET /v1/analyses?cursor=&limit=` | Analyses of the user, newest first, paginated with `nextCursor`. | 02 |
 | `GET /v1/analyses/{id}` | One analysis. Polled about every second while `status` is `processing`. | 03, 04 |
 | `DELETE /v1/analyses/{id}` | Delete an analysis. | 02 |
 | `PUT /v1/analyses/{id}/favorite` | Star an analysis (favorite). Idempotent, answers `204`. | 02, 04 |
 | `DELETE /v1/analyses/{id}/favorite` | Remove the star. Idempotent, answers `204`. | 02, 04 |
-| `GET /v1/analyses/{id}/salary` | Salary scale of the area, median, middle half, estimated range of the offer, negotiation target. | 05 |
+| `GET /v1/analyses/{id}/salary?city=&department=` | Salary scale of the area, median, middle half, estimated range of the offer, negotiation target. | 05 |
 | `GET /v1/analyses/{id}/skills` | Skills asked for by twin offers, with the share of offers and whether the user has them. | 05 |
 | `GET /v1/analyses/{id}/trend` | Applicants per offer over 12 months and the change over 3 months. | 05 |
-| `GET /v1/analyses/{id}/twins?sort=` | Twin offers, `sort` = `least_disputed` (default), `best_paid` or `most_recent`. | 06 |
+| `GET /v1/analyses/{id}/twins?sort=&city=&department=&radius=` | Twin offers within `radius` km of the search area, `sort` = `least_disputed` (default), `best_paid` or `most_recent`. | 06 |
 | `POST /v1/analyses/{id}/feedback` | `{actualApplicants}`: the real number known by the user. | 09 |
 | `GET /v1/methodology?analysisId=` | How the estimate was made: range, reliability and its reasons, sources. | 09 |
 | `GET /v1/alerts` | Calm alerts of the user. | 06, 12 |
@@ -54,6 +54,20 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 3. `status: "completed"` brings `offer` and `result`. `status: "failed"` brings `failure.code`:
    `unreadable_offer` (with `recognizedCompany` when the company could still be read) or `unsupported_link`.
 4. An unreadable image does not use the free analysis of the week.
+
+### Search area (location)
+
+The analyses, the twin offers ("à moins de 30 km") and the salaries depend on the **search area** of the user: a city,
+its French department and a radius (`{"city": "Lyon", "departmentCode": "69", "radiusKilometers": 30}`, query
+parameters `city`, `department`, `radius` on `GET`, parts `areaCity`, `areaDepartment`, `areaRadius` on multipart).
+
+- The app asks the phone for its **approximate** position only after its own explanation (Android
+  `ACCESS_COARSE_LOCATION`, iOS "When In Use" with reduced accuracy) and turns it into the nearest city **on the
+  phone** (`core:location`, table of the prefectures and large cities). The position is never sent: the API only ever
+  receives a city and a department (GDPR minimization).
+- Refused or unavailable position: `Paris` (`75`), radius 30 km. The user can type another city in Settings; a typed
+  city always wins over the position.
+- When no area is sent, the server uses the place of the offer.
 
 ### Favorites
 
@@ -108,7 +122,9 @@ unreadable bodies are mapped too. The mapping lives in `core/data/.../error/Erro
 `OfflineJaugeApi` implements the same interface with realistic data from the mockups (Atelier Sorel, score 78,
 about 210 applicants, 36 to 41 k€, twins around Lyon), a simulated latency (350 to 900 ms) and an analysis that
 progresses 20, 40, 62, 85 % then completes. New analyses, alerts and shares are kept in memory; favorites are kept on the device (key
-`offline.analyses.favorites`), like a server would.
+`offline.analyses.favorites`), like a server would. It follows the search area: salaries take the
+city of the area, twin offers keep the radius and move to the city of the area outside Rhône, new analyses use the
+radius of the area.
 
 It is on when `jauge.api.offlineMode` is not `false` (the default while the API does not exist). In debug builds a
 long press on the "Profil" tab switches between offline and real API at runtime. `OfflineScenarioController`

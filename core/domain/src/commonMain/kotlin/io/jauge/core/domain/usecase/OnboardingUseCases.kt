@@ -1,6 +1,9 @@
 package io.jauge.core.domain.usecase
 
 import io.jauge.core.domain.model.SearchArea
+import io.jauge.core.domain.model.SearchAreaOrigin
+import io.jauge.core.domain.repository.LocationRepository
+import io.jauge.core.domain.repository.UnavailableLocationRepository
 import io.jauge.core.domain.model.UserPreferences
 import io.jauge.core.domain.repository.PreferencesRepository
 import kotlinx.coroutines.flow.Flow
@@ -46,8 +49,12 @@ class CompleteOnboardingStepUseCase(private val repository: PreferencesRepositor
  * Changes the settings of the user (mockup 13, "Réglages").
  *
  * @param repository preferences repository.
+ * @param location finds the department of a typed city.
  */
-class UpdateSettingsUseCase(private val repository: PreferencesRepository) {
+class UpdateSettingsUseCase(
+    private val repository: PreferencesRepository,
+    private val location: LocationRepository = UnavailableLocationRepository(),
+) {
     /**
      * Turns calm alerts on or off.
      *
@@ -56,14 +63,26 @@ class UpdateSettingsUseCase(private val repository: PreferencesRepository) {
     suspend fun setCalmAlertsEnabled(enabled: Boolean) = repository.update { it.copy(calmAlertsEnabled = enabled) }
 
     /**
-     * Saves the search area. A blank city clears it.
+     * Saves the search area typed by the user: it wins over the position of the phone. A blank city clears it (the
+     * city of the phone or Paris is used again). Only the radius changed: the origin of the city is kept.
      *
      * @param city city at the center.
      * @param radiusKilometers radius around the city.
      */
     suspend fun setSearchArea(city: String, radiusKilometers: Int) = repository.update {
         val trimmed = city.trim()
-        it.copy(searchArea = if (trimmed.isEmpty()) null else SearchArea(trimmed, radiusKilometers.coerceIn(1, 200)))
+        val radius = radiusKilometers.coerceIn(1, 200)
+        val current = it.searchArea
+        it.copy(
+            searchArea = when {
+                trimmed.isEmpty() -> null
+                current != null && current.city.equals(trimmed, ignoreCase = true) -> current.copy(radiusKilometers = radius)
+                else -> {
+                    val known = location.findCity(trimmed)
+                    SearchArea(known?.name ?: trimmed, radius, known?.departmentCode, SearchAreaOrigin.MANUAL)
+                }
+            },
+        )
     }
 
     /** Forgets every preference after the account is deleted: the app starts again from the welcome screen. */

@@ -6,6 +6,7 @@ import io.jauge.core.network.payload.AlertListPayload
 import io.jauge.core.network.payload.AnalysisPayload
 import io.jauge.core.network.payload.AnalysisPagePayload
 import io.jauge.core.network.payload.ApplicantFeedbackRequestPayload
+import io.jauge.core.network.payload.AreaPayload
 import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
@@ -55,12 +56,17 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
     override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload =
         call { client.post("v1/analyses") { json(request) } }.decode()
 
-    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String): AnalysisPayload = call {
+    override suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload = call {
         val extension = mimeType.substringAfter('/', "jpg")
         client.submitFormWithBinaryData(
             url = "v1/analyses",
             formData = formData {
                 append("origin", origin)
+                area?.let {
+                    append("areaCity", it.city)
+                    it.departmentCode?.let { department -> append("areaDepartment", department) }
+                    append("areaRadius", it.radiusKilometers.toString())
+                }
                 append(
                     key = "image",
                     value = image,
@@ -94,14 +100,29 @@ internal class KtorJaugeApi(private val client: HttpClient) : JaugeApi {
         call { client.delete("v1/analyses/${pathSegment(analysisId)}/favorite") }
     }
 
-    override suspend fun getSalary(analysisId: String): SalaryInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/salary") }.decode()
+    override suspend fun getSalary(analysisId: String, area: AreaPayload?): SalaryInsightPayload = call {
+        client.get("v1/analyses/${pathSegment(analysisId)}/salary") {
+            area?.let {
+                parameter("city", it.city)
+                it.departmentCode?.let { department -> parameter("department", department) }
+            }
+        }
+    }.decode()
 
     override suspend fun getSkills(analysisId: String): SkillsInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/skills") }.decode()
 
     override suspend fun getTrend(analysisId: String): TrendInsightPayload = call { client.get("v1/analyses/${pathSegment(analysisId)}/trend") }.decode()
 
-    override suspend fun getTwins(analysisId: String, sort: String): TwinOffersPayload =
-        call { client.get("v1/analyses/${pathSegment(analysisId)}/twins") { parameter("sort", sort) } }.decode()
+    override suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload = call {
+        client.get("v1/analyses/${pathSegment(analysisId)}/twins") {
+            parameter("sort", sort)
+            area?.let {
+                parameter("city", it.city)
+                it.departmentCode?.let { department -> parameter("department", department) }
+                parameter("radius", it.radiusKilometers)
+            }
+        }
+    }.decode()
 
     override suspend fun sendApplicantFeedback(analysisId: String, request: ApplicantFeedbackRequestPayload) {
         call { client.post("v1/analyses/${pathSegment(analysisId)}/feedback") { json(request) } }

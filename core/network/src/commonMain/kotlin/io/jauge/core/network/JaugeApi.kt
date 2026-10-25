@@ -6,6 +6,7 @@ import io.jauge.core.network.payload.AlertListPayload
 import io.jauge.core.network.payload.AnalysisPayload
 import io.jauge.core.network.payload.AnalysisPagePayload
 import io.jauge.core.network.payload.ApplicantFeedbackRequestPayload
+import io.jauge.core.network.payload.AreaPayload
 import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
@@ -40,8 +41,9 @@ interface JaugeApi {
      * @param image encoded image.
      * @param mimeType type of the image.
      * @param origin `screenshot` or `photo`.
+     * @param area search area of the user (parts `areaCity`, `areaDepartment`, `areaRadius`), null to send none.
      */
-    suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String): AnalysisPayload
+    suspend fun createAnalysisFromImage(image: ByteArray, mimeType: String, origin: String, area: AreaPayload?): AnalysisPayload
 
     /**
      * `GET /v1/analyses`: analyses of the user, newest first.
@@ -80,11 +82,12 @@ interface JaugeApi {
     suspend fun removeFavorite(analysisId: String)
 
     /**
-     * `GET /v1/analyses/{id}/salary`.
+     * `GET /v1/analyses/{id}/salary?city=&department=`.
      *
      * @param analysisId identifier.
+     * @param area search area of the user, null to let the server use the place of the offer.
      */
-    suspend fun getSalary(analysisId: String): SalaryInsightPayload
+    suspend fun getSalary(analysisId: String, area: AreaPayload?): SalaryInsightPayload
 
     /**
      * `GET /v1/analyses/{id}/skills`.
@@ -101,12 +104,13 @@ interface JaugeApi {
     suspend fun getTrend(analysisId: String): TrendInsightPayload
 
     /**
-     * `GET /v1/analyses/{id}/twins?sort=`.
+     * `GET /v1/analyses/{id}/twins?sort=&city=&department=&radius=`.
      *
      * @param analysisId identifier.
      * @param sort `least_disputed`, `best_paid` or `most_recent`.
+     * @param area search area of the user (twins within its radius), null to let the server use the place of the offer.
      */
-    suspend fun getTwins(analysisId: String, sort: String): TwinOffersPayload
+    suspend fun getTwins(analysisId: String, sort: String, area: AreaPayload?): TwinOffersPayload
 
     /**
      * `POST /v1/analyses/{id}/feedback`.

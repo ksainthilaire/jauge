@@ -32,4 +32,10 @@
     <string name="alerts_continue">Continuer</string>
     <string name="alerts_system_prompt_ios">iOS va te demander l'autorisation.\nTu pourras changer d'avis dans Réglages.</string>
     <string name="alerts_system_prompt_android">Android va te demander l'autorisation.\nTu pourras changer d'avis dans les paramètres.</string>
+    <string name="location_prompt_title">Où cherches-tu ?</string>
+    <string name="location_prompt_message">Jauge utilise ta ville pour comparer chaque offre aux annonces de ta région et trouver les offres jumelles près de chez toi.</string>
+    <string name="location_prompt_privacy">Seules ta ville et ton département sont utilisés. Ta position exacte ne quitte jamais ton téléphone.</string>
+    <string name="location_prompt_allow">Autoriser la localisation</string>
+    <string name="location_prompt_later">Plus tard</string>
+    <string name="location_prompt_default">Sans localisation, Jauge prend Paris. Tu peux changer de ville à tout moment dans Réglages.</string>
 </resources>

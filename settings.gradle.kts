@@ -41,6 +41,7 @@ include(":core:data")
 include(":core:network")
 include(":core:billing")
 include(":core:notifications")
+include(":core:location")
 include(":core:authentication")
 
 include(":feature:onboarding")

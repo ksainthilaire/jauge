@@ -7,6 +7,7 @@ import io.jauge.core.domain.model.Account
 import io.jauge.core.domain.model.AuthenticatedUser
 import io.jauge.core.domain.model.Consents
 import io.jauge.core.domain.model.SearchArea
+import io.jauge.core.domain.model.SearchAreaOrigin
 import io.jauge.core.domain.model.SignInMethod
 import io.jauge.core.domain.model.Subscription
 import io.jauge.core.domain.model.SubscriptionStatus
@@ -107,7 +108,17 @@ class AccountScreenshotTest {
     /** Settings. */
     @Test
     fun settings() = capture("reglages") {
-        JaugeTheme(darkTheme = false) { SettingsContent(SettingsUiState(calmAlertsEnabled = true, city = "Lyon"), {}, {}, {}, {}, {}) }
+        JaugeTheme(darkTheme = false) {
+            SettingsContent(SettingsUiState(calmAlertsEnabled = true, city = "Lyon", origin = SearchAreaOrigin.DEVICE), {}, {}, {}, {}, {})
+        }
+    }
+
+    /** Settings, dark theme, default city (location refused). */
+    @Test
+    fun settingsDarkDefaultCity() = capture("reglages-ville-par-defaut-sombre") {
+        JaugeTheme(darkTheme = true) {
+            SettingsContent(SettingsUiState(calmAlertsEnabled = false, city = "Paris", origin = SearchAreaOrigin.DEFAULT), {}, {}, {}, {}, {})
+        }
     }
 
     /** About. */

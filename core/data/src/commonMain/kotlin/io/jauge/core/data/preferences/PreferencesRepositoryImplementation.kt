@@ -1,6 +1,7 @@
 package io.jauge.core.data.preferences
 
 import io.jauge.core.domain.model.SearchArea
+import io.jauge.core.domain.model.SearchAreaOrigin
 import io.jauge.core.domain.model.UserPreferences
 import io.jauge.core.domain.repository.PreferencesRepository
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +37,18 @@ class PreferencesRepositoryImplementation(private val store: KeyValueStore) : Pr
             hasPassedAccount = store.getString(ACCOUNT).toBoolean(),
             hasAnsweredAlerts = store.getString(ALERTS).toBoolean(),
             calmAlertsEnabled = store.getString(CALM_ALERTS).toBoolean(),
-            searchArea = if (city.isNullOrBlank() || radius == null) null else SearchArea(city, radius),
+            searchArea = if (city.isNullOrBlank() || radius == null) {
+                null
+            } else {
+                SearchArea(
+                    city = city,
+                    radiusKilometers = radius,
+                    departmentCode = store.getString(SEARCH_DEPARTMENT)?.takeIf { it.isNotBlank() },
+                    origin = store.getString(SEARCH_ORIGIN)?.let { origin -> SearchAreaOrigin.entries.firstOrNull { it.name == origin } }
+                        ?: SearchAreaOrigin.MANUAL,
+                )
+            },
+            hasAnsweredLocation = store.getString(LOCATION).toBoolean(),
         )
     }.getOrDefault(UserPreferences())
 
@@ -48,6 +60,9 @@ class PreferencesRepositoryImplementation(private val store: KeyValueStore) : Pr
             store.putString(CALM_ALERTS, value.calmAlertsEnabled.toString())
             store.putString(SEARCH_CITY, value.searchArea?.city)
             store.putString(SEARCH_RADIUS, value.searchArea?.radiusKilometers?.toString())
+            store.putString(SEARCH_DEPARTMENT, value.searchArea?.departmentCode)
+            store.putString(SEARCH_ORIGIN, value.searchArea?.origin?.name)
+            store.putString(LOCATION, value.hasAnsweredLocation.toString())
         }
     }
 
@@ -58,5 +73,8 @@ class PreferencesRepositoryImplementation(private val store: KeyValueStore) : Pr
         const val CALM_ALERTS = "settings.calmAlerts"
         const val SEARCH_CITY = "settings.searchArea.city"
         const val SEARCH_RADIUS = "settings.searchArea.radius"
+        const val SEARCH_DEPARTMENT = "settings.searchArea.department"
+        const val SEARCH_ORIGIN = "settings.searchArea.origin"
+        const val LOCATION = "onboarding.location"
     }
 }

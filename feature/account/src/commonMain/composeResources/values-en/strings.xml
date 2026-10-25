@@ -108,7 +108,7 @@
     <string name="settings_alerts_text">A notification when an offer you follow calms down or when a calm twin offer appears. 3 messages a week at most.</string>
     <string name="settings_alerts_system">If notifications are turned off in the phone settings, Jauge cannot let you know. You can turn them back on at any time.</string>
     <string name="settings_area_title">Search area</string>
-    <string name="settings_area_text">Jauge looks for twin offers within this radius around your city.</string>
+    <string name="settings_area_text">Jauge compares your offers with those of your city and looks for twin offers within this radius around it.</string>
     <string name="settings_area_city">City</string>
     <string name="settings_area_city_placeholder">Lyon</string>
     <string name="settings_area_radius">Radius</string>
@@ -135,4 +135,8 @@
     <string name="about_website">Website</string>
     <string name="about_contact_address">contact@jauge.io</string>
     <string name="about_website_address">https://jauge.io</string>
+    <string name="settings_area_origin_device">City found with the position of your phone. Only the city is used.</string>
+    <string name="settings_area_origin_manual">City chosen by you.</string>
+    <string name="settings_area_origin_default">Default city. Type your city or use your position.</string>
+    <string name="settings_area_use_position">Use my position</string>
 </resources>
