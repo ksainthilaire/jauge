@@ -20,13 +20,20 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [35], qualifiers = "fr-w393dp-h852dp-xhdpi")
 class TwinsScreenshotTest {
 
-    private fun capture(name: String, content: @Composable () -> Unit) {
+    private fun capture(name: String, darkTheme: Boolean = false, content: @Composable () -> Unit) {
         val directory = System.getProperty("jauge.screenshots.directory") ?: "build/screenshots"
-        captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = false) { content() } }
+        captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = darkTheme) { content() } }
     }
 
     @Test
-    fun twinOffers() = capture("06-twin-offers") {
+    fun twinOffers() = capture("06-twin-offers") { TwinOffersSample() }
+
+    /** The calm alert card follows the dark theme instead of staying a cream block. */
+    @Test
+    fun twinOffersDark() = capture("06-twin-offers-sombre", darkTheme = true) { TwinOffersSample() }
+
+    @Composable
+    private fun TwinOffersSample() {
         TwinOffersLayout(
             state = TwinOffersUiState(
                 analysisId = "analysis-marketing",

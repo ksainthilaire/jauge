@@ -319,8 +319,8 @@ private fun CalmAlertCard(isOn: Boolean, threshold: Int, onChange: (Boolean) -> 
     val colors = JaugeTheme.colors
     JaugeCard(
         modifier = modifier.fillMaxWidth(),
-        containerColor = colors.inverseSurface,
-        borderColor = colors.inverseSurface,
+        containerColor = colors.emphasisSurface,
+        borderColor = colors.emphasisOutline,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -329,12 +329,12 @@ private fun CalmAlertCard(isOn: Boolean, threshold: Int, onChange: (Boolean) -> 
                 Text(
                     text = stringResource(Res.string.twin_offers_alert_title),
                     style = JaugeTheme.typography.body.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
-                    color = colors.onInverseSurface,
+                    color = colors.onEmphasisSurface,
                 )
                 Text(
                     text = stringResource(Res.string.twin_offers_alert_message, threshold),
                     style = JaugeTheme.typography.body.copy(fontSize = 14.sp, fontWeight = FontWeight.Normal),
-                    color = colors.textTertiary,
+                    color = colors.onEmphasisSurfaceSecondary,
                 )
             }
             Box { JaugeSwitch(checked = isOn, onCheckedChange = onChange) }
