@@ -14,6 +14,9 @@ kotlin {
             api(libs.supabase.postgrest)
             api(libs.supabase.realtime)
         }
+        commonTest.dependencies {
+            implementation(libs.ktor.client.mock)
+        }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)

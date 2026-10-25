@@ -124,6 +124,37 @@ npx wrangler deploy
 `secret put` te demande la valeur : la même que `JAUGE_PROXY_SECRET` de l'étape 4. Vérifie :
 `curl -s https://api.jauge.io/health`.
 
+## 7 bis. Les e-mails de connexion (Brevo)
+
+Les liens de connexion partent par **Brevo**, de `connexion@jauge.io` (« Jauge »), avec le modèle aux couleurs de Jauge
+en français ou en anglais selon la langue du téléphone. Le détail de chaque écran est dans `docs/supabase.md`, section
+« E-mails de connexion avec Brevo ». En bref, dans l'ordre :
+
+1. **Brevo** (brevo.com, offre gratuite) > roue > Expéditeurs, domaines et IP dédiées > **Domaines** > ajoute
+   `jauge.io`.
+2. **Cloudflare > jauge.io > DNS** : crée exactement les entrées données par Brevo : le **code Brevo** (`TXT` sur `@`,
+   `brevo-code:…`), la **DKIM** (`CNAME` `brevo1._domainkey` et `brevo2._domainkey`, nuage gris, ou `TXT`
+   `mail._domainkey`) et la **DMARC** (`TXT` sur `_dmarc`, par exemple `v=DMARC1; p=none; rua=mailto:contact@jauge.io`).
+   Puis « Vérifier » sur Brevo : le domaine passe à « Authentifié ».
+3. Brevo > **Expéditeurs** : ajoute `Jauge` / `connexion@jauge.io`.
+4. Brevo > **SMTP & API** > SMTP > **Générer une nouvelle clé SMTP**. Garde l'identifiant (`…@smtp-brevo.com`) et la clé
+   (montrée une fois, jamais dans le dépôt). Coupe le suivi des ouvertures et des clics des e-mails transactionnels.
+5. **Supabase > Authentication > Emails > SMTP Settings** : Enable custom SMTP, expéditeur `connexion@jauge.io`, nom
+   `Jauge`, hôte `smtp-relay.brevo.com`, port `587`, intervalle `60`, Username = identifiant Brevo, Password = clé SMTP.
+   Puis Authentication > Rate Limits : 100 e-mails par heure.
+6. **Supabase > Authentication > Emails > Templates** > **Magic Link** : Subject =
+   `{{ if and .Data (eq .Data.locale "en") }}Your Jauge sign-in link{{ else }}Ton lien de connexion à Jauge{{ end }}`,
+   Message body (onglet Source) = le contenu de `supabase/templates/magic_link.html`
+   (`pbcopy < supabase/templates/magic_link.html`). Même chose pour **Confirm signup** avec `confirmation.html`.
+   **Email OTP Expiration** = `3600` (le lien vaut 1 heure).
+7. Mets le logo en ligne à `https://jauge.io/email/logo-jauge-96.png` (fichier
+   `supabase/templates/assets/logo-jauge-96.png`) quand le site existe ; avant, l'e-mail affiche le nom en texte.
+8. **Test** : connexion par e-mail depuis l'app sur un téléphone en français, puis en anglais ; l'e-mail arrive de
+   « Jauge », le bouton « Me connecter » ouvre l'app ; dans Gmail > Afficher l'original, SPF, DKIM et DMARC sont à
+   `PASS` et le lien commence par `https://ynvaaswsenerrummanrs.supabase.co/auth/v1/verify`.
+
+Ce que ça coûte : 0 € jusqu'à 300 e-mails par jour (offre gratuite de Brevo).
+
 ## 8. Mode simulé, puis vraies sources
 
 - `JAUGE_PROVIDER_MODE=simulated` : tout marche, mais les offres du marché, les avis et la lecture des offres sont
@@ -188,6 +219,7 @@ entreprise est analysée dans le mois (avis Reddit et X). Tout compte dans la li
 | IA (lecture des offres, conseils, résumé des avis) | quelques centimes | 3 à 5 $ par mois |
 | Avis Reddit et X (Apify) | quelques centimes | 20 à 40 $ par mois (moins de 5 $ avec X seulement), dans le plafond du jour |
 | Domaine jauge.io | environ 40 $ par an | idem |
+| E-mails de connexion (Brevo) | 0 € (300 par jour offerts) | 0 € tant qu'on reste sous 300 par jour, sinon une offre payante de Brevo (voir leurs tarifs) |
 
 Une analyse coûte 0 $ quand l'offre a été analysée par quelqu'un dans les 7 derniers jours, presque rien d'ordinaire
 (la page de l'offre est lue gratuitement), et 0,05 à 0,20 $ quand son marché (même métier, même département) n'a pas
