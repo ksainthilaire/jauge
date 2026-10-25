@@ -11,6 +11,7 @@ import io.jauge.core.network.payload.ConsentsPayload
 import io.jauge.core.network.payload.CreateAlertRequestPayload
 import io.jauge.core.network.payload.CreateAnalysisRequestPayload
 import io.jauge.core.network.payload.CreateShareRequestPayload
+import io.jauge.core.network.payload.DeleteAccountRequestPayload
 import io.jauge.core.network.payload.MethodologyPayload
 import io.jauge.core.network.payload.SalaryInsightPayload
 import io.jauge.core.network.payload.SharePayload
@@ -36,7 +37,8 @@ import java.net.UnknownHostException
  */
 internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : JaugeApi {
 
-    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload = call { service.createAnalysis(request) }
+    override suspend fun createAnalysis(request: CreateAnalysisRequestPayload, idempotencyKey: String?): AnalysisPayload =
+        call { service.createAnalysis(request, idempotencyKey?.takeIf { it.isNotBlank() }) }
 
 
     override suspend fun getAnalyses(cursor: String?, limit: Int, query: String?): AnalysisPagePayload =
@@ -86,7 +88,10 @@ internal class RetrofitJaugeApi(private val service: RetrofitJaugeService) : Jau
 
     override suspend fun updateConsents(consents: ConsentsPayload): AccountPayload = call { service.updateConsents(consents) }
 
-    override suspend fun deleteAccount() = callWithoutBody { service.deleteAccount() }
+    override suspend fun deleteAccount(appleAuthorizationCode: String?) = callWithoutBody {
+        val code = appleAuthorizationCode?.takeIf { it.isNotBlank() }
+        if (code == null) service.deleteAccount() else service.deleteAccountWithBody(DeleteAccountRequestPayload(code))
+    }
 
     override suspend fun getSubscription(): SubscriptionPayload = call { service.getSubscription() }
 

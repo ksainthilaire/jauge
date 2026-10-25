@@ -125,6 +125,17 @@ class TwinOffersViewModelTest {
         assertEquals(TwinOffersEvent.AlertFailed(JaugeError.NoConnection), viewModel.events.first())
     }
 
+    @Test
+    fun aFreeUserTurningTheAlertOnSeesThePaywall() = runTest {
+        twins.alertOutcome = Outcome.Failure(JaugeError.QuotaReached)
+        val viewModel = viewModel("analysis-42")
+
+        viewModel.setAlert(true)
+
+        assertFalse(viewModel.uiState.value.isAlertOn)
+        assertEquals(TwinOffersEvent.PaywallRequired, viewModel.events.first())
+    }
+
     private fun TestScope.typeAndWait(viewModel: TwinOffersViewModel, query: String) {
         viewModel.updateQuery(query)
         advanceTimeBy(SearchText.TYPING_DELAY_MILLISECONDS + 1)

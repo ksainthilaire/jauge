@@ -87,6 +87,7 @@ import io.jauge.feature.verdict.resources.details_section_unavailable
 import io.jauge.feature.verdict.resources.details_skills_caption
 import io.jauge.feature.verdict.resources.details_skills_empty
 import io.jauge.feature.verdict.resources.details_skills_owned
+import io.jauge.feature.verdict.resources.details_skills_missing
 import io.jauge.feature.verdict.resources.details_skills_title
 import io.jauge.feature.verdict.resources.details_skills_to_add
 import io.jauge.feature.verdict.resources.details_tab_salaries
@@ -238,8 +239,12 @@ private fun DetailsSections(
         val sectionModifier = { section: DetailsSection ->
             Modifier.onGloballyPositioned { onSectionPositioned(section, it.positionInParent().y.toInt()) }
         }
-        SectionCard(state.salary, sectionModifier(DetailsSection.SALARIES), skeletonHeight = 150) { SalaryCardContent(it) }
-        SectionCard(state.skills, sectionModifier(DetailsSection.SKILLS), skeletonHeight = 170) { SkillsCardContent(it) }
+        SectionCard(state.salary, sectionModifier(DetailsSection.SALARIES), skeletonHeight = 150) {
+            SalaryCardContent(it, negotiationArgument = state.advice?.negotiationArgument)
+        }
+        SectionCard(state.skills, sectionModifier(DetailsSection.SKILLS), skeletonHeight = 170) {
+            SkillsCardContent(it, missingSkills = state.advice?.missingSkills.orEmpty())
+        }
         SectionCard(state.trend, sectionModifier(DetailsSection.TREND), skeletonHeight = 90) { TrendCardContent(it) }
         state.reliability?.let { MethodologyLinkCard(it, onOpenMethodology) }
     }
@@ -282,7 +287,7 @@ private fun CardHeader(title: String, trailing: @Composable () -> Unit) {
 }
 
 @Composable
-private fun SalaryCardContent(insight: SalaryInsight) {
+private fun SalaryCardContent(insight: SalaryInsight, negotiationArgument: String?) {
     val colors = JaugeTheme.colors
     val typography = JaugeTheme.typography
     val mono = typography.numberCaption.copy(fontSize = 12.sp, letterSpacing = 0.sp)
@@ -334,15 +339,28 @@ private fun SalaryCardContent(insight: SalaryInsight) {
         )
     }
     Text(
-        text = salarySummary(insight),
+        text = salarySummary(insight, withNegotiation = negotiationArgument == null),
         style = typography.bodySmall,
         color = colors.textPrimary,
         modifier = Modifier.padding(top = 12.dp),
     )
+    // The negotiation sentence of the server, when there is one, replaces the computed one.
+    negotiationArgument?.let { argument ->
+        Text(
+            text = argument,
+            style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+            color = colors.calm.content,
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+                .background(colors.calm.container, JaugeTheme.radii.cardShape)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+        )
+    }
 }
 
 @Composable
-private fun salarySummary(insight: SalaryInsight) = buildAnnotatedString {
+private fun salarySummary(insight: SalaryInsight, withNegotiation: Boolean) = buildAnnotatedString {
     val range = insight.offerRange
     if (range == null) {
         append(stringResource(Res.string.details_salary_unknown))
@@ -359,7 +377,7 @@ private fun salarySummary(insight: SalaryInsight) = buildAnnotatedString {
             else -> stringResource(Res.string.details_salary_around_median, insight.areaName)
         },
     )
-    insight.negotiationTargetThousands?.let { target ->
+    insight.negotiationTargetThousands?.takeIf { withNegotiation }?.let { target ->
         append(
             if (position == SalaryPosition.BELOW_MEDIAN) {
                 stringResource(Res.string.details_salary_negotiate_below)
@@ -373,7 +391,7 @@ private fun salarySummary(insight: SalaryInsight) = buildAnnotatedString {
 }
 
 @Composable
-private fun SkillsCardContent(insight: SkillsInsight) {
+private fun SkillsCardContent(insight: SkillsInsight, missingSkills: List<String>) {
     val colors = JaugeTheme.colors
     CardHeader(stringResource(Res.string.details_skills_title)) {
         Text(stringResource(Res.string.details_skills_caption), style = JaugeTheme.typography.caption, color = colors.textSecondary)
@@ -387,6 +405,17 @@ private fun SkillsCardContent(insight: SkillsInsight) {
         )
     }
     insight.skills.forEach { SkillRow(it) }
+    if (missingSkills.isNotEmpty()) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(stringResource(Res.string.details_skills_missing)) }
+                append(missingSkills.joinToString(", "))
+            },
+            style = JaugeTheme.typography.bodySmall,
+            color = colors.textPrimary,
+            modifier = Modifier.padding(top = 14.dp),
+        )
+    }
 }
 
 @Composable

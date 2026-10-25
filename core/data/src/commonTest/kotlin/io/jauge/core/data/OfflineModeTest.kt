@@ -7,6 +7,7 @@ import io.jauge.core.data.offline.OfflineJaugeApi
 import io.jauge.core.data.offline.OfflineScenario
 import io.jauge.core.data.offline.OfflineScenarioController
 import io.jauge.core.data.repository.AnalysisRepositoryImplementation
+import io.jauge.core.data.repository.PollingSchedule
 import io.jauge.core.data.repository.InsightRepositoryImplementation
 import io.jauge.core.data.repository.ShareRepositoryImplementation
 import io.jauge.core.data.repository.SubscriptionRepositoryImplementation
@@ -36,7 +37,7 @@ class OfflineModeTest {
 
     private val scenarios = OfflineScenarioController(latencyMilliseconds = OfflineScenarioController.NO_LATENCY)
     private val api = OfflineJaugeApi(OfflineDataset(), scenarios)
-    private val analyses = AnalysisRepositoryImplementation(api, pollIntervalMilliseconds = 0)
+    private val analyses = AnalysisRepositoryImplementation(api, polling = PollingSchedule.IMMEDIATE)
 
     @Test
     fun historyShowsTheThreeMockupOffers() = runTest {
@@ -66,7 +67,7 @@ class OfflineModeTest {
 
     @Test
     fun linkAnalysisProgressesThenCompletesAndJoinsTheHistory() = runTest {
-        val progress = analyses.analyze(OfferSource.Link("https://emplois-rhone.fr/offre/41872")).toList()
+        val progress = analyses.analyze(OfferSource.Link("https://emplois-rhone.fr/offre/41872"), "request-key-0001").toList()
         val readings = progress.filterIsInstance<AnalysisProgress.Reading>()
         assertEquals(listOf(20, 40, 62, 85), readings.map { it.percent })
         val completed = assertIs<AnalysisProgress.Completed>(progress.last())
@@ -78,7 +79,7 @@ class OfflineModeTest {
     fun unreadableScreenshotFailsWithTheRecognizedCompany() = runTest {
         scenarios.select(OfflineScenario.UNREADABLE_OFFER)
         val capture = OfferSource.Text("Chargé de marketing digital, Maison Odier, Lyon 3e, CDI", ImageOrigin.SCREENSHOT)
-        val last = analyses.analyze(capture).toList().last()
+        val last = analyses.analyze(capture, "request-key-0001").toList().last()
         assertEquals(AnalysisProgress.Failed(JaugeError.UnreadableOffer(OfflineDataset.UNREADABLE_COMPANY)), last)
     }
 
@@ -96,7 +97,7 @@ class OfflineModeTest {
             assertEquals(Outcome.Failure(error), analyses.refreshHistory(), scenario.name)
         }
         scenarios.select(OfflineScenario.QUOTA_REACHED)
-        assertEquals(AnalysisProgress.Failed(JaugeError.QuotaReached), analyses.analyze(OfferSource.Link("https://a.fr/b")).first())
+        assertEquals(AnalysisProgress.Failed(JaugeError.QuotaReached), analyses.analyze(OfferSource.Link("https://a.fr/b"), "request-key-0001").first())
     }
 
     @Test

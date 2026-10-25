@@ -58,7 +58,7 @@ object ShareSampleData {
 class FakeAnalysisRepository(var outcome: Outcome<Analysis> = Outcome.Success(ShareSampleData.analysis)) : AnalysisRepository {
     val history = MutableStateFlow(listOf(ShareSampleData.summary))
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> = emptyFlow()
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> = emptyFlow()
 
     override fun observeHistory(): Flow<List<AnalysisSummary>> = history
 

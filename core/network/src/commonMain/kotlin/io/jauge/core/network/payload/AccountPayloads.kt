@@ -138,3 +138,11 @@ data class ApiErrorBodyPayload(val error: ApiErrorPayload)
  */
 @Serializable
 data class ApiErrorPayload(val code: String, val message: String? = null)
+
+/**
+ * Optional body of `DELETE /v1/account`.
+ *
+ * @property appleAuthorizationCode fresh Sign in with Apple code, so that the server revokes the Apple tokens.
+ */
+@Serializable
+data class DeleteAccountRequestPayload(val appleAuthorizationCode: String? = null)

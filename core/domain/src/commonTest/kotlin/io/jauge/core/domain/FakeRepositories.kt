@@ -20,7 +20,7 @@ import kotlin.time.Instant
 class FakeAnalysisRepository : AnalysisRepository {
     val receivedSources = mutableListOf<OfferSource>()
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> {
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> {
         receivedSources += source
         return flowOf(AnalysisProgress.Reading("new", 20, emptyList(), null, null))
     }

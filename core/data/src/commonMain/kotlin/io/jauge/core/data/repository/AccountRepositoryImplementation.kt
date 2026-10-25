@@ -25,8 +25,8 @@ class AccountRepositoryImplementation(
     override suspend fun updateConsents(consents: Consents): Outcome<Account> =
         outcomeOf { api.updateConsents(ConsentsPayload(consents.marketingEmails)).toDomain() }
 
-    override suspend fun deleteAccount(): Outcome<Unit> = outcomeOf {
-        api.deleteAccount()
+    override suspend fun deleteAccount(appleAuthorizationCode: String?): Outcome<Unit> = outcomeOf {
+        api.deleteAccount(appleAuthorizationCode)
         onAccountDeleted()
     }
 }

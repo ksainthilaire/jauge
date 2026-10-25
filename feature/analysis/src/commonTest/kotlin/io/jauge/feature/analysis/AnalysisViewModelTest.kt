@@ -149,6 +149,20 @@ class AnalysisViewModelTest {
     }
 
     @Test
+    fun retryKeepsTheRequestKeyOnlyAfterALostAnswer() {
+        val requestId = store.put(OfferSource.Link("https://emplois-rhone.fr/offre/1"))
+        repository.progress = listOf(AnalysisProgress.Failed(JaugeError.NoConnection))
+        val viewModel = ReadingViewModel(requestId, store, AnalyzeOfferUseCase(repository, recognizer))
+        repository.progress = listOf(AnalysisProgress.Failed(JaugeError.UnsupportedLink))
+        viewModel.retry()
+        assertEquals(1, repository.requestKeys.distinct().size, "same key after a lost answer")
+        viewModel.retry()
+        assertEquals(3, repository.requestKeys.size)
+        assertTrue(repository.requestKeys[2] != repository.requestKeys[1], "new key after a final failure")
+        assertTrue(repository.requestKeys.all { it.matches(Regex("[a-z0-9]{32}")) })
+    }
+
+    @Test
     fun unknownRequestIsNotFound() {
         val viewModel = ReadingViewModel("request-unknown", store, AnalyzeOfferUseCase(repository, recognizer))
         assertEquals(JaugeError.NotFound, viewModel.uiState.value.error)

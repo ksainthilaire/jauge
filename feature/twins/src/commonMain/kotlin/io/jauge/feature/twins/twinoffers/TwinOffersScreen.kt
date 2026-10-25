@@ -95,12 +95,14 @@ import org.koin.core.parameter.parametersOf
  * @param analysisId analysis whose twins are shown, null for the tab (most recent analysis).
  * @param onBack back action when opened from a verdict, null for the tab root.
  * @param onAnalyzeOffer opens the paste screen when the user has no analysis yet.
+ * @param onOpenPaywall opens Jauge Plus when a free user turns the calm alert on.
  */
 @Composable
 fun TwinOffersScreen(
     analysisId: String?,
     onBack: (() -> Unit)?,
     onAnalyzeOffer: () -> Unit,
+    onOpenPaywall: () -> Unit,
 ) {
     val viewModel: TwinOffersViewModel = koinViewModel(key = "twins-$analysisId") { parametersOf(analysisId) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -114,8 +116,12 @@ fun TwinOffersScreen(
                     getString(Res.string.twin_offers_alert_off)
                 }
                 is TwinOffersEvent.AlertFailed -> getString(event.error.toFriendlyMessage().title)
+                TwinOffersEvent.PaywallRequired -> {
+                    onOpenPaywall()
+                    null
+                }
             }
-            snackbarHostState.showSnackbar(message)
+            message?.let { snackbarHostState.showSnackbar(it) }
         }
     }
     TwinOffersLayout(

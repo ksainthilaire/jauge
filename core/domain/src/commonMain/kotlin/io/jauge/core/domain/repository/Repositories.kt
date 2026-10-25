@@ -27,9 +27,11 @@ interface AnalysisRepository {
     /**
      * Starts an analysis and follows it until it completes or fails.
      *
-     * @param source link, image or manual entry.
+     * @param source link, text of a capture or manual entry (images are read on the phone first).
+     * @param requestKey key of this request, sent as `Idempotency-Key`: the same key never creates a second analysis
+     *   nor uses the free analysis twice (see [io.jauge.core.domain.usecase.AnalysisRequestKeys]).
      */
-    fun analyze(source: OfferSource): Flow<AnalysisProgress>
+    fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress>
 
     /** Analyses of the user, newest first, updated after every refresh, analysis or deletion. */
     fun observeHistory(): Flow<List<AnalysisSummary>>
@@ -172,8 +174,13 @@ interface AccountRepository {
      */
     suspend fun updateConsents(consents: Consents): Outcome<Account>
 
-    /** Deletes the account and its data. */
-    suspend fun deleteAccount(): Outcome<Unit>
+    /**
+     * Deletes the account and its data.
+     *
+     * @param appleAuthorizationCode fresh Sign in with Apple code, so that the server revokes the Apple tokens; null
+     *   for other accounts or when it could not be obtained.
+     */
+    suspend fun deleteAccount(appleAuthorizationCode: String? = null): Outcome<Unit>
 }
 
 /** Jauge Plus subscription (store purchases and free quota). */

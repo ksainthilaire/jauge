@@ -56,7 +56,11 @@ class FakeAnalysisRepository : AnalysisRepository {
     /** Last analyzed source. */
     var analyzed: OfferSource? = null
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> {
+    /** Keys of the requests, in order. */
+    val requestKeys = mutableListOf<String>()
+
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> {
+        requestKeys += requestKey
         analyzed = source
         return flowOf(*progress.toTypedArray())
     }

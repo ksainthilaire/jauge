@@ -92,6 +92,7 @@ fun JaugeNavigationHost(
         twinsGraph(
             onBack = onBack,
             onAnalyzeOffer = { navigationController.navigateToTopLevelDestination(TopLevelDestination.ANALYZE) },
+            onOpenPaywall = { navigationController.navigate(PaywallRoute) },
         )
         shareGraph(
             onBack = onBack,

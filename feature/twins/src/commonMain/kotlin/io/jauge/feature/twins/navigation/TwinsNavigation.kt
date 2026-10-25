@@ -22,14 +22,16 @@ data class TwinOffersRoute(val analysisId: String? = null)
  *
  * @param onBack pops the current screen.
  * @param onAnalyzeOffer opens the paste screen (empty state of the twin offers).
+ * @param onOpenPaywall opens Jauge Plus (calm alert turned on by a free user).
  */
-fun NavGraphBuilder.twinsGraph(onBack: () -> Unit, onAnalyzeOffer: () -> Unit) {
+fun NavGraphBuilder.twinsGraph(onBack: () -> Unit, onAnalyzeOffer: () -> Unit, onOpenPaywall: () -> Unit) {
     composable<TwinOffersRoute> { entry ->
         val route = entry.toRoute<TwinOffersRoute>()
         TwinOffersScreen(
             analysisId = route.analysisId,
             onBack = if (route.analysisId != null) onBack else null,
             onAnalyzeOffer = onAnalyzeOffer,
+            onOpenPaywall = onOpenPaywall,
         )
     }
 }

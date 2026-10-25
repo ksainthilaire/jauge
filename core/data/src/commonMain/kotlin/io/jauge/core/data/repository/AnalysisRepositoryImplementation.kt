@@ -34,8 +34,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * [AnalysisRepository] backed by the Jauge API (real or offline). An analysis is created, then polled every
- * [pollIntervalMilliseconds] until it completes, fails or [maximumPolls] is reached (then [JaugeError.Timeout]).
+ * [AnalysisRepository] backed by the Jauge API (real or offline). An analysis is created with an `Idempotency-Key`,
+ * then polled following [polling] (every second for 10 seconds, then every 2 seconds) until it completes, fails or
+ * the last poll of [polling] is reached (then [JaugeError.Timeout]).
  * The history is cached in memory and updated after every change.
  *
  * Favorites are kept on the device ([favoriteStore]) so the stars survive a restart and show at once. A star change
@@ -44,15 +45,13 @@ import kotlinx.coroutines.sync.withLock
  *
  * @param api the API client.
  * @param favoriteStore favorites kept on the device.
- * @param pollIntervalMilliseconds delay between two polls.
- * @param maximumPolls number of polls before giving up.
+ * @param polling delays between the polls.
  * @param searchArea search area of the user, sent with every new analysis.
  */
 class AnalysisRepositoryImplementation(
     private val api: JaugeApi,
     private val favoriteStore: FavoriteStore = FavoriteStore(InMemoryKeyValueStore()),
-    private val pollIntervalMilliseconds: Long = 1_000,
-    private val maximumPolls: Int = 90,
+    private val polling: PollingSchedule = PollingSchedule(),
     private val searchArea: SearchAreaSource = SearchAreaSource.NONE,
 ) : AnalysisRepository {
 
@@ -61,7 +60,7 @@ class AnalysisRepositoryImplementation(
     private val favoriteIds = MutableStateFlow(favoriteStore.read())
     private val favoriteMutex = Mutex()
 
-    override fun analyze(source: OfferSource): Flow<AnalysisProgress> = flow {
+    override fun analyze(source: OfferSource, requestKey: String): Flow<AnalysisProgress> = flow {
         if (source is OfferSource.Image) {
             // Images are read on the phone by AnalyzeOfferUseCase and only their text is sent: an image is never
             // uploaded, even if one reaches this point.
@@ -69,15 +68,15 @@ class AnalysisRepositoryImplementation(
             return@flow
         }
         try {
-            var payload = create(source)
+            var payload = create(source, requestKey)
             var polls = 0
             while (payload.status == AnalysisPayload.STATUS_PROCESSING) {
                 emit(payload.toProgress())
-                if (polls >= maximumPolls) {
+                if (polls >= polling.maximumPolls) {
                     emit(AnalysisProgress.Failed(JaugeError.Timeout))
                     return@flow
                 }
-                delay(pollIntervalMilliseconds)
+                delay(polling.delayBeforePoll(polls))
                 payload = api.getAnalysis(payload.id)
                 polls += 1
             }
@@ -154,14 +153,16 @@ class AnalysisRepositoryImplementation(
         }
     }
 
-    private suspend fun create(source: OfferSource): AnalysisPayload {
+    private suspend fun create(source: OfferSource, requestKey: String): AnalysisPayload {
         val area = searchArea.current()?.toPayload()
         return when (source) {
             is OfferSource.Link -> api.createAnalysis(
                 CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_LINK, url = source.url, area = area),
+                requestKey,
             )
             is OfferSource.Manual -> api.createAnalysis(
                 CreateAnalysisRequestPayload(type = CreateAnalysisRequestPayload.TYPE_MANUAL, jobTitle = source.jobTitle, city = source.city, area = area),
+                requestKey,
             )
             is OfferSource.Text -> api.createAnalysis(
                 CreateAnalysisRequestPayload(
@@ -173,6 +174,7 @@ class AnalysisRepositoryImplementation(
                     },
                     area = area,
                 ),
+                requestKey,
             )
             is OfferSource.Image -> error("Images are read on the phone by AnalyzeOfferUseCase, never uploaded")
         }
@@ -196,3 +198,32 @@ class AnalysisRepositoryImplementation(
     }
 }
 
+
+/**
+ * Delays between the polls of `GET /v1/analyses/{id}`: quick at first (most analyses from the cache end in a few
+ * seconds), slower after [fastPolls] polls to spare the battery and the free quota of the server.
+ *
+ * @property fastIntervalMilliseconds delay of the first [fastPolls] polls.
+ * @property slowIntervalMilliseconds delay of the next polls.
+ * @property fastPolls number of quick polls: 10 polls of 1 second, the first 10 seconds.
+ * @property maximumPolls polls before giving up: 10 of 1 second then 40 of 2 seconds, 90 seconds in all.
+ */
+data class PollingSchedule(
+    val fastIntervalMilliseconds: Long = 1_000,
+    val slowIntervalMilliseconds: Long = 2_000,
+    val fastPolls: Int = 10,
+    val maximumPolls: Int = 50,
+) {
+    /**
+     * Delay to wait before the poll number [pollIndex] (0 for the first poll).
+     *
+     * @param pollIndex index of the coming poll.
+     */
+    fun delayBeforePoll(pollIndex: Int): Long = if (pollIndex < fastPolls) fastIntervalMilliseconds else slowIntervalMilliseconds
+
+    /** Schedules for tests. */
+    companion object {
+        /** No delay at all, same number of polls as a real 90 second wait. */
+        val IMMEDIATE = PollingSchedule(fastIntervalMilliseconds = 0, slowIntervalMilliseconds = 0)
+    }
+}

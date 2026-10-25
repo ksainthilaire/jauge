@@ -1,5 +1,13 @@
 package io.jauge.core.data.mapper
 
+import io.jauge.core.common.link.WebLinks
+import io.jauge.core.domain.model.AnalysisAdvice
+import io.jauge.core.domain.model.Reputation
+import io.jauge.core.domain.model.ReputationLink
+import io.jauge.core.domain.model.ReputationSource
+import io.jauge.core.domain.model.ReputationTone
+import io.jauge.core.network.payload.AdvicePayload
+import io.jauge.core.network.payload.ReputationPayload
 import io.jauge.core.data.error.apiErrorCodeToJaugeError
 import io.jauge.core.domain.error.JaugeError
 import io.jauge.core.domain.model.Account
@@ -127,7 +135,50 @@ internal fun AnalysisPayload.toDomainAnalysis(): Analysis {
             }
         },
         isFavorite = isFavorite,
+        reputation = resultPayload.reputation?.toDomainOrNull(),
+        advice = resultPayload.advice?.toDomainOrNull(),
     )
+}
+
+/** Maps the advice, or null when its text is blank. Blank skills are dropped, 4 at most are kept. */
+internal fun AdvicePayload.toDomainOrNull(): AnalysisAdvice? {
+    val adviceText = text.trim().takeIf { it.isNotEmpty() } ?: return null
+    return AnalysisAdvice(
+        text = adviceText,
+        negotiationArgument = negotiationArgument?.trim()?.takeIf { it.isNotEmpty() },
+        missingSkills = missingSkills.map { it.trim() }.filter { it.isNotEmpty() }.distinct().take(MAXIMUM_MISSING_SKILLS),
+    )
+}
+
+private const val MAXIMUM_MISSING_SKILLS = 4
+private const val MAXIMUM_REPUTATION_LINKS = 5
+
+/** Maps a source name of the API, null when unknown. */
+private fun reputationSourceOf(name: String): ReputationSource? = when (name.lowercase()) {
+    "reddit" -> ReputationSource.REDDIT
+    "x", "twitter" -> ReputationSource.X
+    else -> null
+}
+
+/**
+ * Maps the reputation, or null when it says nothing (blank summary, no known source). Unknown tones become
+ * [ReputationTone.UNKNOWN] and unknown sources are dropped, so a newer API never breaks the verdict.
+ */
+internal fun ReputationPayload.toDomainOrNull(): Reputation? {
+    val text = summary.trim().takeIf { it.isNotEmpty() } ?: return null
+    // Only safe https links are kept: a link that cannot be opened safely is dropped, never shown.
+    val safeLinks = links.mapNotNull { link ->
+        val source = reputationSourceOf(link.source) ?: return@mapNotNull null
+        WebLinks.safeWebLinkOrNull(link.url.trim())?.let { ReputationLink(source, it) }
+    }.distinctBy { it.url }.take(MAXIMUM_REPUTATION_LINKS)
+    val knownSources = (sources.mapNotNull(::reputationSourceOf) + safeLinks.map { it.source }).distinct()
+    val tone = when (tone.lowercase()) {
+        "positive" -> ReputationTone.POSITIVE
+        "mixed" -> ReputationTone.MIXED
+        "negative" -> ReputationTone.NEGATIVE
+        else -> ReputationTone.UNKNOWN
+    }
+    return Reputation(summary = text, tone = tone, mentionCount = mentionCount.coerceAtLeast(0), sources = knownSources, links = safeLinks)
 }
 
 /** Maps a reading step, or null for an unknown step. */

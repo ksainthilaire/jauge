@@ -20,6 +20,9 @@ import io.jauge.core.network.payload.SubscriptionPayload
 import io.jauge.core.network.payload.TrendInsightPayload
 import io.jauge.core.network.payload.TwinOffersPayload
 
+/** Name of the header that makes `POST /v1/analyses` idempotent. */
+const val IDEMPOTENCY_KEY_HEADER = "Idempotency-Key"
+
 /**
  * Client of the Jauge API (`https://api.jauge.io/`, contract in `docs/api.md` and `docs/openapi.yaml`).
  *
@@ -33,8 +36,10 @@ interface JaugeApi {
      * phone. Images are never sent.
      *
      * @param request link, manual entry or text.
+     * @param idempotencyKey sent as the `Idempotency-Key` header: the same key gives back the analysis already
+     *   created (kept 24 hours by the server), null to send none.
      */
-    suspend fun createAnalysis(request: CreateAnalysisRequestPayload): AnalysisPayload
+    suspend fun createAnalysis(request: CreateAnalysisRequestPayload, idempotencyKey: String? = null): AnalysisPayload
 
     /**
      * `GET /v1/analyses?cursor=&limit=&query=`: analyses of the user, newest first.
@@ -166,8 +171,12 @@ interface JaugeApi {
      */
     suspend fun updateConsents(consents: ConsentsPayload): AccountPayload
 
-    /** `DELETE /v1/account`. */
-    suspend fun deleteAccount()
+    /**
+     * `DELETE /v1/account`.
+     *
+     * @param appleAuthorizationCode fresh Sign in with Apple code sent in the body, null to send no body.
+     */
+    suspend fun deleteAccount(appleAuthorizationCode: String? = null)
 
     /** `GET /v1/subscription`. */
     suspend fun getSubscription(): SubscriptionPayload
