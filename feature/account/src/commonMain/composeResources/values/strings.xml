@@ -10,6 +10,7 @@
     <string name="about_title">À propos</string>
     <string name="account_back">Retour</string>
     <string name="account_logo_description">Logo de Jauge</string>
+    <string name="account_brand_name">Jauge</string>
     <string name="account_headline">Garde tes analyses.</string>
     <string name="account_text">Un compte pour retrouver tes offres jaugées et tes alertes sur tous tes appareils.</string>
     <string name="account_continue_apple">Continuer avec Apple</string>
