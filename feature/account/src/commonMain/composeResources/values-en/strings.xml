@@ -54,7 +54,13 @@
     <string name="profile_provider_apple">Apple</string>
     <string name="profile_provider_google">Google</string>
     <string name="profile_provider_email">an email</string>
-    <string name="profile_create_account">Create an account to keep my analyses</string>
+    <string name="profile_create_account">Create my account</string>
+    <string name="profile_keep_title">Keep your analyses</string>
+    <plurals name="profile_keep_message">
+        <item quantity="one">Find your gauged offer on all your devices.</item>
+        <item quantity="other">Find your %1$d gauged offers on all your devices.</item>
+    </plurals>
+    <string name="profile_keep_message_without_count">Find your gauged offers and alerts on all your devices.</string>
     <string name="profile_plus_name">Jauge Plus</string>
     <string name="profile_status_trial">Free trial</string>
     <string name="profile_status_active">Active</string>

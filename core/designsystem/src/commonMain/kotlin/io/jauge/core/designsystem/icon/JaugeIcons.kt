@@ -106,6 +106,9 @@ object JaugeIcons {
     /** Magnifying glass of the search fields. */
     val Search: ImageVector by lazy { strokeIcon("Search", "M4 11a7 7 0 1 0 14 0a7 7 0 1 0 -14 0z M20 20l-4-4") }
 
+    /** Cloud with an upward arrow: analyses kept and synced with an account. */
+    val CloudSync: ImageVector by lazy { strokeIcon("CloudSync", "M7 19h10.5a4.5 4.5 0 0 0 .4-8.98A6.5 6.5 0 0 0 5.3 9.6 4.75 4.75 0 0 0 7 19z M12 16v-5 M9.5 13.5 12 11l2.5 2.5") }
+
     /** Filled star: the analysis is a favorite. */
     val StarFilled: ImageVector by lazy { filledIcon("StarFilled", "M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z") }
 }

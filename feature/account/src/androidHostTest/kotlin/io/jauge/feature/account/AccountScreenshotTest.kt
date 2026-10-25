@@ -116,11 +116,31 @@ class AccountScreenshotTest {
         ProfileSample(isRestoring = false, subscription = Subscription(SubscriptionStatus.EXPIRED, null, null, 0), darkTheme = true)
     }
 
+    /** Without account: the "Garde tes analyses" card above the Jauge Plus offer, light theme. */
+    @Test
+    fun profileGuestLight() = capture("13-profil-sans-compte-clair") { ProfileSample(isRestoring = false, subscription = FREE, isGuest = true) }
+
+    /** Without account, dark theme. */
+    @Test
+    fun profileGuestDark() = capture("13-profil-sans-compte-sombre") {
+        ProfileSample(isRestoring = false, subscription = FREE, darkTheme = true, isGuest = true)
+    }
+
+    /** Without account with a large system text size. */
+    @Test
+    fun profileGuestLargeText() = capture("13-profil-sans-compte-texte-grand") {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, 1.3f)) {
+            ProfileSample(isRestoring = false, subscription = FREE, isGuest = true)
+        }
+    }
+
     @Composable
     private fun ProfileSample(
         isRestoring: Boolean,
         subscription: Subscription = Subscription(SubscriptionStatus.TRIAL, LocalDate(2026, 10, 26), null, 0),
         darkTheme: Boolean = false,
+        isGuest: Boolean = false,
     ) {
         JaugeTheme(darkTheme = darkTheme) {
             ProfileContent(
@@ -134,7 +154,7 @@ class AccountScreenshotTest {
                         ),
                         isLoading = false,
                     ),
-                    user = AuthenticatedUser("1", null, "Inès Bertrand", SignInMethod.APPLE),
+                    user = if (isGuest) null else AuthenticatedUser("1", null, "Inès Bertrand", SignInMethod.APPLE),
                     preferences = UserPreferences(calmAlertsEnabled = true, searchArea = SearchArea("Lyon", 30)),
                     isRestoring = isRestoring,
                 ),
