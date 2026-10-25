@@ -98,6 +98,11 @@ data class LevelColors(
  * @property onInverseSurface text on [inverseSurface].
  * @property inverseSurfaceSecondary secondary contrasting surface.
  * @property inverseOutline outline on contrasting surfaces.
+ * @property emphasisSurface highlighted card (the calm alert card): ink on a light screen, a regular dark card on a
+ *   dark screen so that it never shows as a bright block.
+ * @property emphasisOutline border of [emphasisSurface].
+ * @property onEmphasisSurface main text on [emphasisSurface].
+ * @property onEmphasisSurfaceSecondary secondary text on [emphasisSurface].
  * @property action coral call to action.
  * @property onAction text on [action].
  * @property neutralAction ink secondary button.
@@ -122,6 +127,10 @@ data class JaugeColors(
     val onInverseSurface: Color,
     val inverseSurfaceSecondary: Color,
     val inverseOutline: Color,
+    val emphasisSurface: Color,
+    val emphasisOutline: Color,
+    val onEmphasisSurface: Color,
+    val onEmphasisSurfaceSecondary: Color,
     val action: Color,
     val onAction: Color,
     val neutralAction: Color,
@@ -147,6 +156,10 @@ val LightJaugeColors = JaugeColors(
     onInverseSurface = JaugePalette.Paper,
     inverseSurfaceSecondary = JaugePalette.Ink2,
     inverseOutline = JaugePalette.Ink3,
+    emphasisSurface = JaugePalette.Ink,
+    emphasisOutline = JaugePalette.Ink,
+    onEmphasisSurface = JaugePalette.Paper,
+    onEmphasisSurfaceSecondary = JaugePalette.Sage2,
     action = JaugePalette.Coral,
     onAction = JaugePalette.White,
     neutralAction = JaugePalette.Ink,
@@ -172,6 +185,10 @@ val DarkJaugeColors = JaugeColors(
     onInverseSurface = JaugePalette.Ink,
     inverseSurfaceSecondary = JaugePalette.OffWhite,
     inverseOutline = JaugePalette.Line,
+    emphasisSurface = JaugePalette.Ink2,
+    emphasisOutline = JaugePalette.Ink3,
+    onEmphasisSurface = JaugePalette.Paper,
+    onEmphasisSurfaceSecondary = JaugePalette.Sage2,
     action = JaugePalette.Coral,
     onAction = JaugePalette.White,
     neutralAction = JaugePalette.Paper,
