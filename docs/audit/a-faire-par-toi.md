@@ -109,3 +109,29 @@ corrigés. Voici ce qui reste, dans l'ordre.
 
 15. Deux couleurs de la marque sont un peu pâles pour les personnes qui voient mal (gris secondaire et texte blanc sur
     le bouton corail, détails dans `app-store.md` section 8). Je peux foncer légèrement le gris si tu es d'accord.
+
+## IA et avis Reddit / X (25/10/2026, détails dans [../backend/ia.md](../backend/ia.md))
+
+1. **Clé IA** : Gemini (par défaut) **avec la facturation activée** sur son projet Google (sans facturation, Google
+   peut réutiliser les textes envoyés, ce qui est interdit pour des utilisateurs européens), ou Mistral avec
+   « Anonymous improvement data » coupé dans admin.mistral.ai > Privacy. Étapes : `docs/backend/DEPLOIEMENT.md`,
+   partie 8 bis.
+2. **Avis Reddit et X : décision à prendre.** Ils passent par des robots Apify qui lisent les messages publics. C'est
+   le moins cher (environ 0,05 $ par entreprise et par mois), et les données sont réduites au minimum (aucun pseudo,
+   rien de stocké sauf un résumé de deux phrases et les liens), mais les conditions d'utilisation de Reddit et de X
+   n'autorisent pas cette lecture automatique sans leur accord : le risque est un blocage ou une demande d'arrêt, pas
+   une amende. La voie sans risque : l'API officielle de X (environ 20 fois plus chère) et un accord commercial avec
+   Reddit (prix non public, demande à faire sur le site de Reddit). Dis-moi si tu gardes Apify, si tu préfères X
+   seulement (`JAUGE_SOCIAL_SOURCES=x`), ou si tu veux que je branche l'API officielle de X.
+3. **Politique de confidentialité : sous-traitants à citer** (le développeur de l'app la met à jour) :
+
+   | Sous-traitant | Rôle | Données envoyées | Lieu |
+   |---|---|---|---|
+   | Google LLC (Gemini API, offre payante) | lit les offres (texte, ou capture si le téléphone n'a pas su la lire), écrit les conseils et le résumé des avis | texte ou image de l'offre, chiffres calculés de l'analyse ; jamais le nom, l'e-mail ni l'identifiant de l'utilisateur | États-Unis et autres pays (clauses contractuelles types, Data Privacy Framework) |
+   | ou Mistral AI SAS (si `AI_PROVIDER=mistral`) | même rôle | mêmes données | France, Union européenne |
+   | Apify Technologies s.r.o. | collecte des offres du marché et recherche des avis publics Reddit et X sur l'entreprise | nom de l'entreprise et intitulé du poste seulement | République tchèque (serveurs possiblement hors UE : à vérifier dans leur DPA) |
+   | Reddit, X | sources publiques lues (pas des sous-traitants : aucune donnée de l'utilisateur ne leur est envoyée) | aucune | |
+
+   Phrase à ajouter pour les avis : « Jauge résume des messages publics de Reddit et de X qui parlent de
+   l'entreprise. Les auteurs ne sont jamais nommés, les messages ne sont pas conservés ; seul un résumé de deux
+   phrases et les liens vers les messages sont gardés 30 jours. »

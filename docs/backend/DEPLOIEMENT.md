@@ -66,6 +66,11 @@ open -e supabase/functions/.env
 | `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY_P8` | ta clé « Sign in with Apple » (Apple Developer > Keys), le contenu du fichier .p8 sur une ligne avec `\n` | oui pour la suppression des comptes Apple |
 | `APPLE_CLIENT_ID` | `io.jauge.app` | oui |
 | `SUPABASE_JWT_SECRET` | seulement si ton projet signe encore ses jetons avec l'ancien secret (Project Settings > API > JWT) | non |
+| `AI_PROVIDER` | `gemini` (par défaut) ou `mistral` : quelle IA lit les offres et écrit les conseils (étape 8 bis) | non |
+| `GEMINI_API_KEY` | ta clé Gemini (Google AI Studio > Get API key), sur un projet **avec facturation** | oui si `gemini` |
+| `MISTRAL_API_KEY` | ta clé Mistral (console.mistral.ai > API Keys) | oui si `mistral` |
+| `APIFY_TOKEN` | ton jeton Apify (Apify > Settings > API & Integrations), aussi utilisé pour les avis Reddit et X | oui en mode `live` |
+| `JAUGE_SOCIAL_SOURCES` | réseaux lus pour les avis : `reddit,x` (par défaut), `x`, `reddit` ou `none` | non |
 
 Les autres lignes ont déjà une bonne valeur. Supabase fournit lui-même `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` et
 `SUPABASE_DB_URL`. Envoie les secrets :
@@ -122,6 +127,26 @@ npx wrangler deploy
 - Quand les connecteurs Apify et IA sont livrés (phase suivante), ajoute leurs clés (`APIFY_TOKEN`,
   `GEMINI_API_KEY`...), passe `JAUGE_PROVIDER_MODE=live`, renvoie les secrets (étape 4) et redéploie (étape 5).
 
+## 8 bis. L'IA et les avis Reddit / X
+
+Détails et prix : `docs/backend/ia.md`.
+
+1. **Gemini (par défaut)** : va sur https://aistudio.google.com, crée une clé API, puis **active la facturation**
+   sur son projet Google Cloud (bouton « Set up billing »). Sans facturation, Google peut se servir des textes envoyés
+   pour améliorer ses produits, et c'est interdit pour des utilisateurs européens. Mets la clé dans `GEMINI_API_KEY`.
+2. **Ou Mistral (données en Europe, un peu moins cher)** : crée une clé sur https://console.mistral.ai, puis dans
+   https://admin.mistral.ai > Privacy, **coupe** « Anonymous improvement data ». Mets la clé dans `MISTRAL_API_KEY` et
+   `AI_PROVIDER=mistral`. Tu peux passer de l'une à l'autre quand tu veux : un secret à changer, rien à redéployer
+   d'autre que les secrets.
+3. **Avis Reddit et X** : ils passent par Apify avec le même `APIFY_TOKEN`. Une recherche par entreprise tous les
+   30 jours, environ 0,05 $ chacune. Pour payer moins, `JAUGE_SOCIAL_SOURCES=x` (X seulement, environ 0,005 $).
+   Pour couper les avis : `JAUGE_SOCIAL_SOURCES=none`.
+4. Renvoie les secrets (étape 4), applique la migration (`bash supabase/deploy.sh` le fait) et regarde les journaux :
+   des lignes `ai_call` (avec le nombre de jetons et le coût) doivent apparaître à chaque analyse.
+
+Coût de l'IA : environ 0,001 $ par analyse (lecture du texte et conseil), plus environ 0,05 $ la première fois qu'une
+entreprise est analysée dans le mois (avis Reddit et X). Tout compte dans la limite du jour.
+
 ## 9. Surveiller
 
 - `https://api.jauge.io/health` : `ok` ou `degraded` (file en retard ou budget du jour atteint).
@@ -145,7 +170,8 @@ npx wrangler deploy
 | Supabase | 0 € (gratuit) | 25 $ par mois (Pro) conseillé avant le lancement public : sauvegardes chaque jour, plus de place |
 | Cloudflare (proxy) | 0 € | 0 € |
 | Apify (collecte des offres) | 0 € (5 $ offerts par mois) | 39 $ par mois (offre Starter, usage inclus), plafonné par la limite du jour |
-| IA (lecture des offres, résumé des avis) | quelques centimes | 2 à 5 $ par mois |
+| IA (lecture des offres, conseils, résumé des avis) | quelques centimes | 3 à 5 $ par mois |
+| Avis Reddit et X (Apify) | quelques centimes | 20 à 40 $ par mois (moins de 5 $ avec X seulement), dans le plafond du jour |
 | Domaine jauge.io | environ 40 $ par an | idem |
 
 Une analyse coûte 0 $ quand l'offre a été analysée par quelqu'un dans les 7 derniers jours, quelques centimes
