@@ -1,7 +1,8 @@
 # Jauge API contract
 
-The API does not exist yet. This document and `docs/openapi.yaml` (OpenAPI 3.1, the reference) describe what the app
-expects. Until the API is deployed, the app runs in **offline mode** (see the end of this document).
+This document and `docs/openapi.yaml` (OpenAPI 3.1, the reference) describe the API. It is implemented by the Edge
+Function `supabase/functions/api` (architecture, queue, costs and deployment in `docs/backend/`); it is not deployed
+yet, so the app still runs in **offline mode** by default (see the end of this document).
 
 - Base URL: `https://api.jauge.io/` (configurable with `jauge.api.baseUrl`).
 - Paths in English, versioned under `/v1`. JSON bodies in UTF-8, except image uploads (multipart).
@@ -22,7 +23,7 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 
 | Method and path | Purpose | Screen |
 |---|---|---|
-| `POST /v1/analyses` | Start an analysis: JSON `{type: "link", url, area}` or `{type: "manual", jobTitle, city, area}`, or multipart `image` + `origin` (`screenshot` or `photo`) + `areaCity`, `areaDepartment`, `areaRadius`. Answers `202` with status `processing`. | 02, 10 |
+| `POST /v1/analyses` | Start an analysis: JSON `{type: "link", url, area}`, `{type: "manual", jobTitle, city, area}` or `{type: "text", text, origin, area}` (text of a capture read on the phone, preferred), or multipart `image` + `origin` (`screenshot` or `photo`) + `areaCity`, `areaDepartment`, `areaRadius`. Optional header `Idempotency-Key`. Answers `202` with status `processing` (or already `completed` when the offer is in the 7 day cache). | 02, 10 |
 | `GET /v1/analyses?cursor=&limit=&query=` | Analyses of the user, newest first, paginated with `nextCursor`. Optional `query`: see [Search](#search). | 02 |
 | `GET /v1/analyses/{id}` | One analysis. Polled about every second while `status` is `processing`. | 03, 04 |
 | `DELETE /v1/analyses/{id}` | Delete an analysis. | 02 |
@@ -44,6 +45,13 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 | `PATCH /v1/account/consents` | `{marketingEmails}`. | 11 |
 | `DELETE /v1/account` | Delete the account and its data (required by the stores). Answers `202`. The server also deletes the Supabase auth user, the devices and notifications rows, revokes the Sign in with Apple token (`POST https://appleid.apple.com/auth/revoke`, App Store guideline 5.1.1(v)) and deletes the RevenueCat customer (`DELETE /v1/subscribers/{app_user_id}`). Same flow for the requests received at privacy@jauge.io from the page jauge.io/supprimer-mon-compte. | 13 |
 | `GET /v1/subscription` | Jauge Plus status known by the server (from RevenueCat webhooks) and free analyses left this week. | 08, 13 |
+| `GET /public/analyses/{id}` | No token. What the page `jauge.io/a/{id}` shows (no user data), while a share exists. | web |
+| `GET /health` | No token. Health check. | |
+| `POST /webhooks/revenuecat` | RevenueCat only (Authorization header set in RevenueCat). | |
+
+`DELETE /v1/account` accepts an optional body `{appleAuthorizationCode}`: a fresh Sign in with Apple code that lets the
+server revoke the Apple tokens. Calm alerts (`POST /v1/alerts`) are a Jauge Plus feature: free users get `402
+quota_reached`. `result.reputation` (optional) sums up what public Reddit and X posts say about the company.
 
 ### Analysis lifecycle
 
@@ -53,7 +61,9 @@ expects. Until the API is deployed, the app runs in **offline mode** (see the en
 2. The app polls `GET /v1/analyses/{id}` every second (90 polls at most, then a timeout message).
 3. `status: "completed"` brings `offer` and `result`. `status: "failed"` brings `failure.code`:
    `unreadable_offer` (with `recognizedCompany` when the company could still be read) or `unsupported_link`.
-4. An unreadable image does not use the free analysis of the week.
+4. An unreadable image does not use the free analysis of the week (nor an unsupported link, nor a server failure).
+5. Images are read once and deleted at once (24 hours at most); the text read on the phone (`type: "text"`) is better:
+   the image never leaves the phone.
 
 ### Search area (location)
 
