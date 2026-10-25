@@ -13,6 +13,9 @@ service role key never go in the app or in the repository: the build fails if it
 the app starts with simulated sign in and notifications (`SimulatedAuthenticationRepository`,
 `SimulatedNotificationRepository`), so every screen still works.
 
+The Jauge API itself (Edge Function `api`, its tables, its queue) is described in `docs/backend/` (architecture,
+estimation, deployment guide in French).
+
 Nothing in this repository changes the hosted project by itself. The steps below are done by the owner of the
 project, once.
 
