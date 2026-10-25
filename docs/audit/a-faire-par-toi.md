@@ -123,7 +123,8 @@ corrigés. Voici ce qui reste, dans l'ordre.
    une amende. La voie sans risque : l'API officielle de X (environ 20 fois plus chère) et un accord commercial avec
    Reddit (prix non public, demande à faire sur le site de Reddit). Dis-moi si tu gardes Apify, si tu préfères X
    seulement (`JAUGE_SOCIAL_SOURCES=x`), ou si tu veux que je branche l'API officielle de X.
-3. **Politique de confidentialité : sous-traitants à citer** (le développeur de l'app la met à jour) :
+3. **Politique de confidentialité : sous-traitants à citer** (fait le 25/10/2026 dans l'app et sur jauge.io, avec Brevo
+   pour les e-mails ; à corriger si tu choisis un autre service d'e-mail ou un seul fournisseur d'IA) :
 
    | Sous-traitant | Rôle | Données envoyées | Lieu |
    |---|---|---|---|
