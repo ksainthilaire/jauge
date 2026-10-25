@@ -104,23 +104,18 @@ class RetrofitJaugeApiTest {
     }
 
     @Test
-    fun reputationAndAdviceAreReadAndOptional() = runTest {
+    fun adviceIsReadAndOptional() = runTest {
         val result = """{"score":78,"percentileInRegion":84,"regionName":"Rhône","applicants":{"estimate":210,"low":160,"high":260},"reliability":"medium""""
         server.enqueue(
             MockResponse.Builder().body(
                 """{"id":"a4","status":"completed","createdAt":"2026-10-23T08:00:00Z","result":$result,""" +
-                    """"reputation":{"summary":"Bonne ambiance.","tone":"positive","mentionCount":3,"sources":["reddit"],""" +
-                    """"links":[{"source":"reddit","url":"https://www.reddit.com/r/a/1"}]},""" +
                     """"advice":{"text":"Postule avant jeudi.","negotiationArgument":null,"missingSkills":["SQL"]}}}""",
             ).build(),
         )
         server.enqueue(MockResponse.Builder().body("""{"id":"a5","status":"completed","createdAt":"2026-10-23T08:00:00Z","result":$result}}""").build())
         val complete = api.getAnalysis("a4").result
-        assertEquals("Bonne ambiance.", complete?.reputation?.summary)
-        assertEquals("https://www.reddit.com/r/a/1", complete?.reputation?.links?.single()?.url)
         assertEquals(listOf("SQL"), complete?.advice?.missingSkills)
         val bare = api.getAnalysis("a5").result
-        assertEquals(null, bare?.reputation)
         assertEquals(null, bare?.advice)
     }
 

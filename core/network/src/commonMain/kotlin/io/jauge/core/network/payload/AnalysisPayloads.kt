@@ -141,7 +141,6 @@ data class AnalysisFailurePayload(val code: String, val recognizedCompany: Strin
  * @property trendThreeMonthsPercent change over 3 months.
  * @property comparableOfferCount comparable offers used.
  * @property timingAdvice advice about when to apply.
- * @property reputation what public posts (Reddit, X) say about the company, null when nothing was found.
  * @property advice advice written by the AI, null when unavailable.
  */
 @Serializable
@@ -157,7 +156,6 @@ data class AnalysisResultPayload(
     val trendThreeMonthsPercent: Int = 0,
     val comparableOfferCount: Int = 0,
     val timingAdvice: TimingAdvicePayload? = null,
-    val reputation: ReputationPayload? = null,
     val advice: AdvicePayload? = null,
 )
 
@@ -175,32 +173,6 @@ data class AdvicePayload(
     val missingSkills: List<String> = emptyList(),
 )
 
-/**
- * Reputation of the company (`result.reputation`).
- *
- * @property summary two sentences at most.
- * @property tone `positive`, `mixed`, `negative` or `unknown`.
- * @property mentionCount number of posts read.
- * @property sources `reddit`, `x`.
- * @property links public posts the summary relies on.
- */
-@Serializable
-data class ReputationPayload(
-    val summary: String,
-    val tone: String = "unknown",
-    val mentionCount: Int = 0,
-    val sources: List<String> = emptyList(),
-    val links: List<ReputationLinkPayload> = emptyList(),
-)
-
-/**
- * A post of the reputation.
- *
- * @property source `reddit` or `x`.
- * @property url link of the post.
- */
-@Serializable
-data class ReputationLinkPayload(val source: String, val url: String)
 
 /**
  * An analysis as returned by `POST /v1/analyses` and `GET /v1/analyses/{id}`.

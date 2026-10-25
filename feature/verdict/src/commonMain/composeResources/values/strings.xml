@@ -126,17 +126,5 @@
     <string name="verdict_favorite_remove">Retirer des favoris</string>
     <string name="verdict_favorite_add_failed">L'étoile n'a pas pu être enregistrée. Réessaie dans un instant.</string>
     <string name="verdict_favorite_remove_failed">L'étoile n'a pas pu être retirée. Réessaie dans un instant.</string>
-    <string name="verdict_reputation_title">Ce qu'en disent les candidats</string>
-    <string name="verdict_reputation_tone_positive">Plutôt positif</string>
-    <string name="verdict_reputation_tone_mixed">Partagé</string>
-    <string name="verdict_reputation_tone_negative">Plutôt négatif</string>
-    <string name="verdict_reputation_tone_unknown">Peu d'avis</string>
-    <plurals name="verdict_reputation_mentions">
-        <item quantity="one">D'après %1$d message public, résumé automatiquement</item>
-        <item quantity="other">D'après %1$d messages publics, résumés automatiquement</item>
-    </plurals>
-    <string name="verdict_reputation_source_reddit">Reddit</string>
-    <string name="verdict_reputation_source_x">X</string>
-    <string name="verdict_reputation_link_description">Ouvrir la source %1$s</string>
     <string name="details_skills_missing">Souvent demandé ailleurs, absent ici : </string>
 </resources>

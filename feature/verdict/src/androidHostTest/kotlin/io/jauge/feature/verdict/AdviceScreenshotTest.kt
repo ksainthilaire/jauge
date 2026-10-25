@@ -15,8 +15,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Verdict and details with the advice and the reputation written by the server (`result.advice`,
- * `result.reputation`), on a tall screen so that the cards under the key figures show, in light and dark themes.
+ * Verdict and details with the advice written by the server (`result.advice`), on a tall screen so that the cards
+ * under the key figures show, in light and dark themes.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -28,13 +28,13 @@ class AdviceScreenshotTest {
         captureRoboImage("$directory/$name.png") { JaugeTheme(darkTheme = darkTheme) { content() } }
     }
 
-    /** Verdict with the advice and the reputation, light theme. */
+    /** Verdict with the advice, light theme. */
     @Test
-    fun verdictWithReputationLight() = verdict(darkTheme = false, name = "04-verdict-conseil-avis-clair")
+    fun verdictWithAdviceLight() = verdict(darkTheme = false, name = "04-verdict-conseil-clair")
 
-    /** Verdict with the advice and the reputation, dark theme. */
+    /** Verdict with the advice, dark theme. */
     @Test
-    fun verdictWithReputationDark() = verdict(darkTheme = true, name = "04-verdict-conseil-avis-sombre")
+    fun verdictWithAdviceDark() = verdict(darkTheme = true, name = "04-verdict-conseil-sombre")
 
     /** Details with the negotiation sentence and the missing skills, light theme. */
     @Test
