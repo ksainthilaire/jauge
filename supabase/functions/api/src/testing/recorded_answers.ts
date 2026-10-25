@@ -93,7 +93,8 @@ export const MOCKUP_FACTS: AdviceFacts = {
     { name: "Brevo / emailing", sharePercent: 37 },
   ],
   missingSkillCandidates: ["Looker Studio", "Brevo / emailing"],
-  reputation: { summary: "Des avis publics évoquent une ambiance plutôt appréciée.", tone: "positive" },
+  candidateFeedback:
+    "Des messages publics évoquent des réponses aux candidats parfois lentes, souvent après 11 semaines.",
 };
 
 /** A good advice for `MOCKUP_FACTS`. */

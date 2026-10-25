@@ -14,8 +14,8 @@ import {
 import { normalizeSearchText } from "../text/search_text.ts";
 import { type SchemaNode, validateAgainstSchema } from "./json_schema.ts";
 import { costMicroUsd, type ModelClient, type ModelImage } from "./model_client.ts";
-import { numbersIn, removeLongDashes, textProblem, unexpectedWeekdays } from "./output_guards.ts";
-import { ADVICE_PROMPT_VERSION, ADVICE_SCHEMA, type AdviceAnswer, advicePrompt } from "./prompts/v1/advice.ts";
+import { numbersIn, removeLongDashes, socialSourceWords, textProblem, unexpectedWeekdays } from "./output_guards.ts";
+import { ADVICE_PROMPT_VERSION, ADVICE_SCHEMA, type AdviceAnswer, advicePrompt } from "./prompts/v2/advice.ts";
 import {
   OFFER_EXTRACTION_PROMPT_VERSION,
   OFFER_EXTRACTION_SCHEMA,
@@ -174,7 +174,8 @@ export class LanguageModelAiProvider implements AiProvider {
   /** @inheritdoc */
   async writeAdvice(facts: AdviceFacts): Promise<{ advice: Advice | null; costMicroUsd: number; usage?: AiUsage }> {
     const marker = newFenceMarker(this.random);
-    const allowedNumbers = new Set(numbersIn(JSON.stringify(facts)));
+    // The internal context from public posts may never bring a number into the advice.
+    const allowedNumbers = new Set(numbersIn(JSON.stringify({ ...facts, candidateFeedback: null })));
     const candidates = new Map(facts.missingSkillCandidates.map((skill) => [normalizeSearchText(skill), skill]));
     const answer = await this.structured<AdviceAnswer>(
       "advice",
@@ -189,6 +190,8 @@ export class LanguageModelAiProvider implements AiProvider {
         if (problem) return problem;
         const days = unexpectedWeekdays(`${advice} ${negotiation ?? ""}`, facts.timingAdvice?.applyBefore ?? null);
         if (days.length > 0) return `names a weekday that is not applyBefore: ${days.join(", ")}`;
+        const sources = socialSourceWords(`${advice} ${negotiation ?? ""}`);
+        if (sources.length > 0) return `cites the internal context: ${sources.join(", ")}`;
         return null;
       },
     );

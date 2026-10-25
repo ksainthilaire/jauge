@@ -165,10 +165,13 @@ export function presentAnalysis(record: AnalysisRecord): Record<string, unknown>
   return body;
 }
 
-/** Result as sent to clients (internal fields removed). */
+/**
+ * Result as sent to clients (internal fields removed). The reputation of the company is internal context of the
+ * advice and never leaves the server, also for the results stored before it was taken out of the contract.
+ */
 export function publicResult(result: Record<string, unknown> | null): Record<string, unknown> | null {
   if (!result) return null;
-  const { internal: _internal, ...visible } = result;
+  const { internal: _internal, reputation: _reputation, ...visible } = result;
   return visible;
 }
 

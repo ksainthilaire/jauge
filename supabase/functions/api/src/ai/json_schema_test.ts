@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "@std/assert";
 import { type SchemaNode, toGeminiSchema, toJsonSchema, validateAgainstSchema } from "./json_schema.ts";
-import { ADVICE_SCHEMA } from "./prompts/v1/advice.ts";
+import { ADVICE_SCHEMA } from "./prompts/v2/advice.ts";
 import { OFFER_EXTRACTION_SCHEMA } from "./prompts/v1/offer_extraction.ts";
 import { REPUTATION_SCHEMA } from "./prompts/v1/reputation.ts";
 

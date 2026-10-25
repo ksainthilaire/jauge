@@ -24,13 +24,15 @@ export interface AdviceSources {
     readonly salaryScale: SalaryScale | null;
     readonly skills: readonly { name: string; sharePercent: number }[];
   } | null;
+  /** Internal context (never shown): only its summary reaches the AI, never its tone, counts or sources. */
   readonly reputation: Reputation | null;
   /** Date of today (ISO). */
   readonly today: string;
 }
 
 /**
- * Facts given to the AI for the advice: only values computed by Jauge (the AI may not write any other number).
+ * Facts given to the AI for the advice: only values computed by Jauge (the AI may not write any other number), plus
+ * the summary of the public posts about the hiring of the company as internal context.
  *
  * @param sources offer, result, insights and reputation.
  */
@@ -69,6 +71,6 @@ export function buildAdviceFacts(sources: AdviceSources): AdviceFacts {
       .filter((skill) => skill.sharePercent >= MISSING_SKILL_MINIMUM_SHARE)
       .filter((skill) => !offerSkills.has(normalizeSearchText(skill.name)))
       .map((skill) => skill.name),
-    reputation: sources.reputation ? { summary: sources.reputation.summary, tone: sources.reputation.tone } : null,
+    candidateFeedback: sources.reputation?.summary ?? null,
   };
 }

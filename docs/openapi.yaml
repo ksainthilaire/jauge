@@ -585,12 +585,9 @@ components:
             applyBefore: { type: string, enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY] }
             sharePercent: { type: integer }
             withinDays: { type: integer }
-        reputation:
-          oneOf: [ { $ref: '#/components/schemas/Reputation' }, { type: 'null' } ]
-          description: What public posts (Reddit, X) say about the company and the job, summarized by the AI. Null when nothing was found.
         advice:
           oneOf: [ { $ref: '#/components/schemas/Advice' }, { type: 'null' } ]
-          description: Advice of the verdict written by the AI from the computed facts, in the language of the analysis. Null when unavailable (show timingAdvice).
+          description: Advice of the verdict written by the AI from the computed facts, in the language of the analysis. Null when unavailable (show timingAdvice). The server may use what candidates say about the hiring of the company as internal context, never shown or cited.
     Analysis:
       type: object
       required: [id, status, createdAt]
@@ -697,23 +694,6 @@ components:
         comparableOfferCount: { type: integer }
         regionName: { type: string }
         salarySourceCount: { type: integer }
-    Reputation:
-      type: object
-      required: [summary, tone, mentionCount, sources]
-      properties:
-        summary: { type: string, description: 'Two sentences at most, in the language of the analysis.' }
-        tone: { type: string, enum: [positive, mixed, negative, unknown] }
-        mentionCount: { type: integer }
-        sources: { type: array, items: { type: string, enum: [reddit, x] } }
-        links:
-          type: array
-          description: Public posts the summary relies on (5 at most), links without usernames.
-          items:
-            type: object
-            required: [source, url]
-            properties:
-              source: { type: string, enum: [reddit, x] }
-              url: { type: string, format: uri }
     Advice:
       type: object
       required: [text, missingSkills]

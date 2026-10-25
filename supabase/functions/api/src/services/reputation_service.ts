@@ -4,7 +4,7 @@ import { sha256Hex } from "../offers/offer_key.ts";
 import type { Clock } from "../operations/clock.ts";
 import type { Logger } from "../operations/logger.ts";
 import type { SpendGuard } from "../operations/spend_guard.ts";
-import type { Providers, Reputation, ReputationLink } from "../providers/provider_types.ts";
+import type { Providers, Reputation } from "../providers/provider_types.ts";
 import { normalizeSearchText } from "../text/search_text.ts";
 
 /** Days a reputation (or the fact that nothing was found) is reused for every user. */
@@ -30,11 +30,12 @@ interface ReputationRow {
   summary_english: string | null;
   mention_count: number;
   sources: string[];
-  links: ReputationLink[];
 }
 
 /**
- * Reputation of the company of an offer from public Reddit and X posts, summarized by the AI. One search and one
+ * Reputation of the company of an offer from public Reddit and X posts, summarized by the AI. Internal context of the
+ * advice only: never sent to the app, never cited. The links of the posts are not kept (data minimization). One
+ * search and one
  * summary per company every 30 days, whatever the number of users and offers (the summary is written in French and
  * in English at once). "Nothing found" is cached too. Failures and the daily limit are not cached, so the next
  * analysis tries again. Costs (social search, AI tokens) are journaled and checked against the daily limit.
@@ -77,7 +78,7 @@ export class ReputationService {
     const key = await companyKey(company);
     const cached = await queryOne<ReputationRow>(
       this.database,
-      `select found, tone, summary_french, summary_english, mention_count, sources, links
+      `select found, tone, summary_french, summary_english, mention_count, sources
        from public.company_reputations where company_key = $1 and expires_at > $2::timestamptz`,
       [key, this.clock.now().toISOString()],
     );
@@ -116,7 +117,6 @@ export class ReputationService {
         summary_english: summarized.summary.summaryEnglish,
         mention_count: summarized.summary.mentionCount,
         sources: [...summarized.summary.sources],
-        links: [...summarized.summary.links],
       }
       : null;
     await this.save(key, row);
@@ -147,7 +147,8 @@ export class ReputationService {
         row?.summary_english?.slice(0, 400) ?? null,
         row?.mention_count ?? 0,
         JSON.stringify(row?.sources ?? []),
-        JSON.stringify(row?.links ?? []),
+        // The links of the posts are not needed any more: nothing shows them.
+        "[]",
         REPUTATION_PROMPT_VERSION,
         now.toISOString(),
         new Date(now.getTime() + this.cacheDays * 86_400_000).toISOString(),
@@ -164,6 +165,5 @@ function toReputation(row: ReputationRow, language: "fr" | "en"): Reputation | n
     tone: row.tone,
     mentionCount: row.mention_count,
     sources: row.sources.filter((source): source is "reddit" | "x" => source === "reddit" || source === "x"),
-    links: row.links,
   };
 }

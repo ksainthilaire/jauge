@@ -76,8 +76,9 @@ Deno.test("the reputation of a company is searched once and served from the cach
       tone: "positive",
       mentionCount: 1,
       sources: ["reddit"],
-      links: [{ source: "reddit", url: "https://www.reddit.com/r/lyon/comments/1abcd2/a/" }],
     });
+    const stored = await test.database.query<{ links: unknown }>(`select links from public.company_reputations`);
+    assertEquals(stored, [{ links: [] }], "the links of the posts are not kept");
     clock.advance(29 * 86_400_000);
     const english = await service.reputationFor({ ...OFFER, company: "atelier sorel" }, "en", null);
     assertEquals(english?.summary, "Some public posts mention a fast hiring process.");

@@ -75,6 +75,35 @@ export function unexpectedWeekdays(text: string, allowedDay: string | null): str
     .map(([day]) => day);
 }
 
+/** Words that name the public posts behind the internal context of the advice, which a user must never read. */
+const SOCIAL_SOURCE_WORDS = new Set([
+  "reddit",
+  "subreddit",
+  "twitter",
+  "tweet",
+  "tweets",
+  "reputation",
+  "avis",
+  "posts",
+  "forum",
+  "forums",
+]);
+
+/**
+ * Names of the social sources or of the reputation in a text (the advice uses them as internal context only and never
+ * cites them: no "Reddit", no "X", no "public posts", no "reputation").
+ *
+ * @param text text of the AI.
+ */
+export function socialSourceWords(text: string): string[] {
+  const folded = normalizeSearchText(text);
+  const words = folded.split(/[^a-z0-9]+/).filter((word) => word.length > 0);
+  const found = new Set(words.filter((word) => SOCIAL_SOURCE_WORDS.has(word)));
+  if (/(^|[^a-z0-9])(sur|on) x([^a-z0-9]|$)/.test(folded)) found.add("x");
+  if (/reseaux? sociaux|social (media|network)/.test(folded)) found.add("social media");
+  return [...found];
+}
+
 /**
  * First problem of a text written for a user, or null when it may be shown.
  *
