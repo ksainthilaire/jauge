@@ -24,14 +24,40 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+
+/** Part of the day, for the greeting: "Bonjour" from 5 h, "Bonsoir" from 18 h. */
+enum class GreetingMoment {
+    /** From 5 h to 17 h 59. */
+    DAY,
+
+    /** From 18 h to 4 h 59. */
+    EVENING,
+    ;
+
+    /** Helpers. */
+    companion object {
+        /**
+         * Moment of [hour].
+         *
+         * @param hour hour of the day, 0 to 23.
+         */
+        fun of(hour: Int): GreetingMoment = if (hour in 5..17) DAY else EVENING
+    }
+}
 
 /**
  * State of the home screen (mockup 02).
  *
  * @property firstName first name of the signed in user ("Inès"), null without account.
  * @property initials initials of the avatar ("IB"), empty without account.
+ * @property greetingMoment "Bonjour" or "Bonsoir".
  * @property link text of the link field.
  * @property linkError friendly error of the link field, null when none.
+ * @property clipboardMayHoldLink true when the system says the clipboard holds a link ("Coller le lien copié").
+ * @property isClipboardEmpty true after a tap on "Coller" with nothing to paste.
  * @property isImageUnreadable true when the chosen image could not be opened.
  * @property history the last analyses.
  * @property startedRequestId request to open on the reading screen, consumed by [HomeViewModel.onReadingOpened].
@@ -39,12 +65,21 @@ import kotlinx.coroutines.launch
 data class HomeUiState(
     val firstName: String? = null,
     val initials: String = "",
+    val greetingMoment: GreetingMoment = GreetingMoment.DAY,
     val link: String = "",
     val linkError: JaugeError? = null,
+    val clipboardMayHoldLink: Boolean = false,
+    val isClipboardEmpty: Boolean = false,
     val isImageUnreadable: Boolean = false,
     val history: ContentState<List<AnalysisSummary>> = ContentState(),
     val startedRequestId: String? = null,
-)
+) {
+    /** What the link field holds, for the line under it. */
+    val linkStatus: OfferLinkStatus get() = OfferLinkRecognizer.recognize(link)
+
+    /** True when "Jauger" can be tapped: the field holds a web address. */
+    val canAnalyze: Boolean get() = linkStatus is OfferLinkStatus.Recognized
+}
 
 /**
  * View model of the home screen (mockup 02): the link field, the screenshot and photo choices and the last analyses.
@@ -53,12 +88,14 @@ data class HomeUiState(
  * @param getHistory analyses of the user.
  * @param pendingAnalyses keeps the chosen offer for the reading screen.
  * @param favoriteAnalysis adds or removes the star of an analysis.
+ * @param currentHour hour of the day on the phone, for the greeting.
  */
 class HomeViewModel(
     observeAuthenticationState: ObserveAuthenticationStateUseCase,
     private val getHistory: GetAnalysisHistoryUseCase,
     private val pendingAnalyses: PendingAnalysisStore,
     private val favoriteAnalysis: FavoriteAnalysisUseCase,
+    private val currentHour: () -> Int = ::localHour,
 ) : ViewModel() {
     private val state = MutableStateFlow(HomeUiState())
     private val favoriteFailureChannel = Channel<FavoriteFailure>(Channel.BUFFERED)
@@ -93,6 +130,7 @@ class HomeViewModel(
 
     /** Reloads the last analyses (first load and pull to refresh). */
     fun refresh() {
+        updateGreeting()
         viewModelScope.launch {
             state.update {
                 val history = it.history
@@ -120,10 +158,45 @@ class HomeViewModel(
      * @param link new text.
      */
     fun onLinkChange(link: String) {
-        state.update { it.copy(link = link, linkError = null) }
+        state.update { it.copy(link = link, linkError = null, isClipboardEmpty = false) }
     }
 
-    /** "Jauger cette offre": checks the link, then opens the reading screen. */
+    /** The cross of the field: empties it. */
+    fun clearLink() {
+        state.update { it.copy(link = "", linkError = null, isClipboardEmpty = false) }
+    }
+
+    /**
+     * What the system says about the clipboard, checked when the screen comes back to the front. Never reads it.
+     *
+     * @param mayHoldLink true when the clipboard probably holds a web address.
+     */
+    fun onClipboardChecked(mayHoldLink: Boolean) {
+        state.update { it.copy(clipboardMayHoldLink = mayHoldLink) }
+    }
+
+    /**
+     * "Coller" was tapped and the clipboard read.
+     *
+     * @param text text of the clipboard, null when there was nothing to paste.
+     */
+    fun onPasted(text: String?) {
+        val pasted = text?.trim().orEmpty()
+        if (pasted.isEmpty()) {
+            state.update { it.copy(isClipboardEmpty = true, linkError = null) }
+            return
+        }
+        // A copied offer often comes with its title ("Chargée de marketing https://..."): keep the address only.
+        val link = pasted.split(Regex("\\s+")).firstOrNull { AnalyzeOfferUseCase.normalizeLink(it) != null } ?: pasted
+        state.update { it.copy(link = link, linkError = null, isClipboardEmpty = false, clipboardMayHoldLink = false) }
+    }
+
+    /** Recomputes "Bonjour" or "Bonsoir" (first load, pull to refresh, back to the front). */
+    fun updateGreeting() {
+        state.update { it.copy(greetingMoment = GreetingMoment.of(currentHour())) }
+    }
+
+    /** "Jauger": checks the link, then opens the reading screen. */
     fun analyzeLink() {
         val link = AnalyzeOfferUseCase.normalizeLink(state.value.link)
         if (link == null) {
@@ -172,6 +245,8 @@ class HomeViewModel(
     }
 
     private companion object {
+        fun localHour(): Int = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).hour
+
         fun initialsOf(name: String): String = name.split(' ', '-')
             .filter { it.isNotBlank() }
             .take(2)

@@ -1,6 +1,9 @@
 package io.jauge.feature.analysis
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.jauge.core.designsystem.theme.JaugeTheme
 import io.jauge.core.domain.model.AnalysisProgress
@@ -13,6 +16,7 @@ import io.jauge.core.ui.state.ContentState
 import io.jauge.core.domain.usecase.AnalysisFilter
 import io.jauge.feature.analysis.history.HistoryContent
 import io.jauge.feature.analysis.history.HistoryUiState
+import io.jauge.feature.analysis.home.GreetingMoment
 import io.jauge.feature.analysis.home.HomeContent
 import io.jauge.feature.analysis.home.HomeUiState
 import io.jauge.feature.analysis.reading.ReadingContent
@@ -55,6 +59,67 @@ class AnalysisScreenshotTest {
             onLinkChange = {}, onAnalyzeLink = {}, onPickScreenshot = {}, onTakePhoto = {}, onOpenAnalysis = {},
             onOpenHistory = {}, onRefresh = {}, onErrorAction = {}, animateGauges = false,
         )
+    }
+
+    /** Top of the home screen (docs/design/home-input.md): every state of the composer, light and dark themes. */
+    @Test
+    fun homeInput() {
+        val states = listOf(
+            "vide" to HomeUiState(firstName = "Inès", initials = "IB", greetingMoment = GreetingMoment.EVENING),
+            "presse-papier" to HomeUiState(firstName = "Inès", initials = "IB", clipboardMayHoldLink = true),
+            "reconnu" to HomeUiState(firstName = "Inès", initials = "IB", link = "https://www.welcometothejungle.com/fr/companies/atelier-sorel/jobs/charge-marketing"),
+            "autre-site" to HomeUiState(link = "emplois-rhone.fr/offre/charge-marketing-digital-cdi-lyon-3-41872"),
+            "incomplet" to HomeUiState(firstName = "Inès", initials = "IB", link = "chargée de marketing"),
+            "rien-a-coller" to HomeUiState(firstName = "Inès", initials = "IB", isClipboardEmpty = true),
+        )
+        states.forEach { (name, inputState) ->
+            listOf(false, true).forEach { dark ->
+                capture("02-saisie-$name${if (dark) "-sombre" else ""}", darkTheme = dark) {
+                    HomeContent(
+                        state = inputState.copy(history = ContentState(content = analyses, isLoading = false)),
+                        onLinkChange = {}, onAnalyzeLink = {}, onPickScreenshot = {}, onTakePhoto = {}, onOpenAnalysis = {},
+                        onOpenHistory = {}, onRefresh = {}, onErrorAction = {}, animateGauges = false,
+                    )
+                }
+            }
+        }
+    }
+
+    /** Narrow phone (360 dp): "Coller le lien copié" moves under the tools instead of wrapping its label. */
+    @Test
+    @Config(qualifiers = "fr-rFR-w360dp-h800dp-xxhdpi")
+    fun homeInputNarrow() {
+        listOf(false, true).forEach { dark ->
+            capture("02-saisie-etroit${if (dark) "-sombre" else ""}", darkTheme = dark) {
+                HomeContent(
+                    state = HomeUiState(clipboardMayHoldLink = true, history = ContentState(content = analyses, isLoading = false)),
+                    onLinkChange = {}, onAnalyzeLink = {}, onPickScreenshot = {}, onTakePhoto = {}, onOpenAnalysis = {},
+                    onOpenHistory = {}, onRefresh = {}, onErrorAction = {}, animateGauges = false,
+                )
+            }
+        }
+    }
+
+    /** Top of the home screen with text at 130 % (accessibility settings): the toolbar wraps, nothing is cut. */
+    @Test
+    fun homeInputLargeText() {
+        listOf(false, true).forEach { dark ->
+            capture("02-saisie-texte-130${if (dark) "-sombre" else ""}", darkTheme = dark) {
+                val density = LocalDensity.current
+                CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1.3f)) {
+                    HomeContent(
+                        state = HomeUiState(
+                            firstName = "Inès",
+                            initials = "IB",
+                            clipboardMayHoldLink = true,
+                            history = ContentState(content = analyses, isLoading = false),
+                        ),
+                        onLinkChange = {}, onAnalyzeLink = {}, onPickScreenshot = {}, onTakePhoto = {}, onOpenAnalysis = {},
+                        onOpenHistory = {}, onRefresh = {}, onErrorAction = {}, animateGauges = false,
+                    )
+                }
+            }
+        }
     }
 
     /** Mockup 02 with a favorite (star filled), light and dark themes. */
