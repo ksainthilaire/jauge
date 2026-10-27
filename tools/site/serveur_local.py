@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Serveur local d'essai du site (port 8812) qui imite Cloudflare Pages : dossier web/, réécriture /a/* vers
-web/a/index.html, page 404.html, barre finale ajoutée aux dossiers, apple-app-site-association en application/json.
+web/a/_index.html, page 404.html, barre finale ajoutée aux dossiers, apple-app-site-association en application/json.
 
     python3 tools/site/serveur_local.py [port]
 """
@@ -20,7 +20,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
         if re.fullmatch(r"/a/[^/]+/?", path):
-            self.path = "/a/index.html"
+            self.path = "/a/_index.html"
         elif path != "/" and not path.endswith("/") and (WEB / path.lstrip("/")).is_dir():
             self.send_response(301)
             self.send_header("Location", path + "/")

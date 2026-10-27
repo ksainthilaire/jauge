@@ -1,11 +1,11 @@
 # Redirections et réécritures Cloudflare Pages (https://developers.cloudflare.com/pages/configuration/redirects/).
 
 # Page de partage d'une analyse : https://jauge.io/a/{analysisId}.
-# La page est statique (web/a/index.html) et lit l'analyse auprès de l'API : GET https://api.jauge.io/public/analyses/{id}
+# La page est statique (web/a/_index.html) et lit l'analyse auprès de l'API : GET https://api.jauge.io/public/analyses/{id}
 # (sans jeton, CORS ouvert à https://jauge.io, voir docs/api.md). Le chemin /a/* reste sur ce site, ce qu'exigent
 # les liens d'application (.well-known/apple-app-site-association et assetlinks.json) : un téléphone avec Jauge
 # installée ouvre le verdict dans l'app, les autres voient cette page.
-/a/* /a/index.html 200
+/a/* /a/_index.html 200
 
 # Anciennes adresses et raccourcis.
 /telecharger.html /telecharger/ 301

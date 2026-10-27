@@ -10,7 +10,7 @@ peu de JavaScript sans dépendance (`assets/site.js`). Déployable tel quel sur 
 |---|---|---|
 | `/` | `index.html` | Accueil : la jauge animée, les bénéfices, comment ça marche, les écrans, les prix, la FAQ, les badges des stores et le QR code. |
 | `/telecharger/` | `telecharger/index.html` | Détecte Android, iPhone ou ordinateur et propose le bon bouton (sans JavaScript : les deux). |
-| `/a/{id}` | `a/index.html` | Page de partage d'une analyse. Servie par la réécriture de `_redirects` ; lit `GET https://api.jauge.io/public/analyses/{id}` (sans jeton, CORS ouvert à `https://jauge.io`, voir `docs/api.md`). `noindex`. |
+| `/a/{id}` | `a/_index.html` | Page de partage d'une analyse. Servie par la réécriture de `_redirects` ; lit `GET https://api.jauge.io/public/analyses/{id}` (sans jeton, CORS ouvert à `https://jauge.io`, voir `docs/api.md`). `noindex`. |
 | `/confidentialite/` | généré | Politique de confidentialité (lien « Privacy policy » des deux stores). |
 | `/conditions/` | généré | Conditions d'utilisation (lien CGU de l'App Store et du paywall). |
 | `/supprimer-mon-compte/` | généré | Suppression du compte sans l'app (lien « Delete account » obligatoire sur Google Play). |
@@ -54,7 +54,7 @@ Chercher `REPLACE_WITH` et `[à compléter` dans `web/` (`bash web/verifier.sh` 
 |---|---|---|
 | Empreinte SHA-256 de la clé de signature Play (et de la clé d'upload) | `.well-known/assetlinks.json` | Play Console › Intégrité de l'app › Signature de l'app |
 | Team ID Apple | `.well-known/apple-app-site-association` | Apple Developer › Membership (`REPLACE_WITH_TEAM_ID` devient `ABCDE12345.io.jauge.app`) |
-| Lien et identifiant App Store | `index.html` (2 badges), `telecharger/index.html` (badge et lien) ; balise `apple-itunes-app` de `index.html`, `telecharger/index.html` et `a/index.html` | `https://apps.apple.com/fr/app/jauge/id1234567890` et `app-id=1234567890` (App Store Connect › Informations sur l'app › Apple ID) |
+| Lien et identifiant App Store | `index.html` (2 badges), `telecharger/index.html` (badge et lien) ; balise `apple-itunes-app` de `index.html`, `telecharger/index.html` et `a/_index.html` | `https://apps.apple.com/fr/app/jauge/id1234567890` et `app-id=1234567890` (App Store Connect › Informations sur l'app › Apple ID) |
 | Lien Google Play | déjà en place : `https://play.google.com/store/apps/details?id=io.jauge.app` | à vérifier une fois la fiche publiée |
 | Médiateur de la consommation | `conditions/` (texte `[à compléter avant publication]`, source `legal_identity.xml` de l'app) | nom et adresse du médiateur choisi |
 | Adresse de support | `support@jauge.io` n'existe pas : le site utilise `contact@jauge.io` (support) et `privacy@jauge.io` (données), comme l'app | créer ces deux boîtes (Cloudflare Email Routing, voir `docs/supabase.md`) |

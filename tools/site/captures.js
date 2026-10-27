@@ -24,7 +24,7 @@ const { chromium } = require(core);
 const PAGES = [
   ["accueil", "/"],
   ["telecharger", "/telecharger/"],
-  ["partage", "/a/a-41872"], // réécrit vers /a/index.html par le serveur local (tools/site/serveur_local.py) comme par Cloudflare Pages
+  ["partage", "/a/a-41872"], // réécrit vers /a/_index.html par le serveur local (tools/site/serveur_local.py) comme par Cloudflare Pages
   ["confidentialite", "/confidentialite/"],
   ["conditions", "/conditions/"],
   ["supprimer-mon-compte", "/supprimer-mon-compte/"],
