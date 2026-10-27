@@ -1,0 +1,14 @@
+// Déploiement du site jauge.io par le parcours « Workers » de Cloudflare (Workers & Pages › Create › Import a repository).
+// Le site est statique : aucun code ne tourne, Cloudflare sert les fichiers de ce dossier tels quels.
+// Réglages à donner dans l'écran Cloudflare : répertoire racine = « web », commande de construction = (vide),
+// commande de déploiement = « npx wrangler deploy ». Les fichiers _headers et _redirects de ce dossier sont appliqués.
+// L'autre parcours (Pages : dossier de sortie « web », sans commande) marche aussi ; ce fichier ne le gêne pas.
+{
+  "name": "jauge",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
