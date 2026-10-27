@@ -27,6 +27,11 @@ how many people are applying, what the job really pays, which skills matter, how
 
 See `docs/ARCHITECTURE.md` for the module layout and conventions, and `docs/api.md` for the API contract.
 
+## Website
+
+`web/` is the static site `jauge.io` (landing page, download page, share pages `/a/{id}`, the legal pages required by
+the stores, app link files): HTML, CSS and vanilla JavaScript, no build, deployed on Cloudflare Pages. See `web/README.md`.
+
 ## Branches
 
 Git flow: `main` holds releases, `develop` is the integration branch, and every feature lives on `feature/<name>`

@@ -29,7 +29,7 @@ Légende : **OK**, **Corrigé** (corrigé pendant l'audit), **À toi** (voir [a-
 
 | Règle | État | Détail |
 | --- | --- | --- |
-| 5.1.1(i) Politique de confidentialité dans l'app et dans la fiche | OK + **Corrigé** | Dans l'app (Profil, Confidentialité et données). Version web créée : `docs/web/confidentialite/`. |
+| 5.1.1(i) Politique de confidentialité dans l'app et dans la fiche | OK + **Corrigé** | Dans l'app (Profil, Confidentialité et données). Version web créée : `web/confidentialite/`. |
 | 5.1.1(ii) Accord avant la collecte | OK | Connexion facultative, case « conseils par e-mail » décochée par défaut, autorisation des notifications demandée après explication. |
 | 5.1.1(iii) Minimisation | OK | Localisation « When In Use » en précision réduite seulement (`NSLocationDefaultAccuracyReduced`), demandée après une explication de l'app avec « Plus tard » ; la position devient une ville sur le téléphone et n'est jamais envoyée ; refus : Paris, modifiable. Pas de contacts, ni accès complet aux photos (PHPicker ne demande aucune autorisation). |
 | 5.1.1(v) Pas de compte obligatoire | OK | « Continuer sans compte » ; l'app est utilisable sans connexion. |
@@ -96,7 +96,7 @@ navigation ou de recherche, données d'usage pour analyse, diagnostics côté ap
 | `ITSAppUsesNonExemptEncryption = false` | OK | Seulement HTTPS : pas de document d'export à fournir. |
 | `NSAppTransportSecurity` | OK | Aucune exception (audit de sécurité). |
 | Notifications push (`aps-environment`) | OK, À toi | `development` dans le fichier ; Xcode met `production` à l'archive pour l'App Store. Activer « Push Notifications » sur l'identifiant `io.jauge.app` et créer la clé APNs `.p8` (pour l'Edge Function). Pas de `UIBackgroundModes` : pas besoin (notifications visibles seulement). |
-| Universal Links | OK dans l'app, À toi en ligne | `applinks:jauge.io` et `applinks:www.jauge.io`, ouverture gérée (`onContinueUserActivity`). Remplacer `REPLACE_WITH_TEAM_ID` dans `docs/web/.well-known/apple-app-site-association` par ton Team ID et publier `docs/web` sur jauge.io (HTTPS, sans redirection). Activer « Associated Domains » sur l'identifiant. |
+| Universal Links | OK dans l'app, À toi en ligne | `applinks:jauge.io` et `applinks:www.jauge.io`, ouverture gérée (`onContinueUserActivity`). Remplacer `REPLACE_WITH_TEAM_ID` dans `web/.well-known/apple-app-site-association` par ton Team ID et publier `web` sur jauge.io (HTTPS, sans redirection). Activer « Associated Domains » sur l'identifiant. |
 | Retour de connexion `io.jauge.app://login-callback` | OK | Déclaré dans `CFBundleURLTypes`. |
 | Icône 1024 × 1024 sans transparence | OK | `AppIcon.png`, pas de canal alpha. |
 | Orientation | OK | Portrait seulement (iPhone) : `UISupportedInterfaceOrientations` = `UIInterfaceOrientationPortrait` dans `Info.plist` et dans les réglages de la cible. La cible est « iPhone » seulement (`TARGETED_DEVICE_FAMILY = 1`), donc pas de `UIRequiresFullScreen` ni de captures iPad. |

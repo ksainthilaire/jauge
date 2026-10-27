@@ -52,3 +52,6 @@ supabase/.temp/
 supabase/.branches/
 supabase/functions/.env
 .env
+
+# Site web : captures de vérification (tools/site/captures.js)
+web/.captures/

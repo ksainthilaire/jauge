@@ -113,6 +113,7 @@
 
   var revealed = document.querySelectorAll(".reveal");
   if (revealed.length && "IntersectionObserver" in window && !reducedMotion) {
+    document.documentElement.classList.add("reveal-ready");
     var revealObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) { entry.target.classList.add("in"); revealObserver.unobserve(entry.target); }
@@ -173,7 +174,7 @@
           var twin = card.querySelector(".twin");
           if (view.calmTwin) {
             twin.querySelector("b").textContent = view.calmTwin.jobTitle + " · " + view.calmTwin.place;
-            twin.querySelector("span").textContent = "≈ " + view.calmTwin.estimatedApplicants + " candidats · score " + view.calmTwin.score + "/100";
+            twin.querySelector(".twin-meta").textContent = "≈ " + view.calmTwin.estimatedApplicants + " candidats · score " + view.calmTwin.score + "/100";
             twin.hidden = false;
           }
           var date = new Date(view.createdAt);

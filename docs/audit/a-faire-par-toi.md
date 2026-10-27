@@ -68,7 +68,7 @@ corrigés. Voici ce qui reste, dans l'ordre.
 
 ### Le site jauge.io
 
-5. Publier le dossier `docs/web` sur `https://jauge.io` (HTTPS, sans redirection) :
+5. Publier le dossier `web` sur `https://jauge.io` (HTTPS, sans redirection) :
    - `/confidentialite/`, `/conditions/`, `/mentions-legales/` : les liens à donner aux stores ;
    - `/supprimer-mon-compte/` : le lien de suppression demandé par Google ;
    - `/.well-known/assetlinks.json` : remplace `REPLACE_WITH_THE_SHA256_FINGERPRINT...` par l'empreinte SHA-256 de la

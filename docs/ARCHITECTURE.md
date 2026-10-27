@@ -269,7 +269,7 @@ phone with the app installed opens the verdict:
 - iOS: `iosApp/iosApp/iosApp.entitlements` declares `applinks:jauge.io`; `iOSApp.swift` calls
   `MainViewControllerKt.openIncomingLink` from `onOpenURL` and `onContinueUserActivity`.
 - `JaugeApp` reads `IncomingLinks.pending`, parses it with `AnalysisLink` (`feature:share`) and opens `VerdictRoute`.
-- The website must serve the two verification files, templates in `docs/web/.well-known/`: `assetlinks.json` (package
+- The website must serve the two verification files, templates in `web/.well-known/`: `assetlinks.json` (package
   `io.jauge.app` and the SHA 256 fingerprints of the Play app signing key and of the upload key) and
   `apple-app-site-association` (team identifier and bundle `io.jauge.app`, path `/a/*`), both over HTTPS, without
   redirection, with the `application/json` content type.

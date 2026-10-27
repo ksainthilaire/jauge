@@ -131,7 +131,7 @@ strong { font-weight: 700; }
 .brand svg { width: 34px; height: 34px; border-radius: 9px; }
 
 .nav { display: none; gap: 4px; }
-.nav a { text-decoration: none; color: var(--text-2); font-weight: 600; padding: 10px 14px; border-radius: 999px; min-height: 44px; display: inline-flex; align-items: center; }
+.nav a { text-decoration: none; color: var(--text-2); font-weight: 600; padding: 10px 14px; border-radius: 999px; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--text); background: var(--bg-2); }
 @media (min-width: 900px) { .nav { display: flex; } }
 
@@ -309,10 +309,11 @@ strong { font-weight: 700; }
 @media (min-width: 800px) { .site-footer .wrap { grid-template-columns: 1.4fr 1fr 1fr 1fr; } }
 .site-footer h2 { font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text); font-family: var(--font-text); font-weight: 700; margin-bottom: 12px; }
 .site-footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
-.site-footer a { color: var(--text-2); text-decoration: none; display: inline-block; padding: 6px 0; min-height: 44px; line-height: 32px; }
+.site-footer a { color: var(--text-2); text-decoration: none; display: inline-block; min-width: 44px; padding: 6px 0; min-height: 44px; line-height: 32px; }
 .site-footer a:hover { color: var(--text); text-decoration: underline; }
 .site-footer .brand { margin-bottom: 8px; }
-.footer-note { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 20px; font-size: .85rem; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+.footer-note { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 20px; font-size: .85rem; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; align-items: center; }
+.footer-note a { display: inline-block; padding: 12px 2px; line-height: 20px; min-height: 44px; }
 
 /* ---------- Document pages (legal, support) ---------- */
 
@@ -323,7 +324,7 @@ strong { font-weight: 700; }
 @media (min-width: 960px) { .doc-toc { display: block; } }
 .doc-toc h2 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; font-family: var(--font-text); color: var(--text-2); margin-bottom: 10px; }
 .doc-toc ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
-.doc-toc a { display: block; color: var(--text-2); text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: .92rem; }
+.doc-toc a { display: flex; align-items: center; min-height: 44px; color: var(--text-2); text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: .92rem; }
 .doc-toc a:hover { background: var(--bg-2); color: var(--text); }
 .doc-body h1 { font-size: clamp(2rem, 1.6rem + 2vw, 3rem); }
 .doc-body h2 { font-size: 1.45rem; margin: 2em 0 .5em; }
@@ -338,7 +339,8 @@ strong { font-weight: 700; }
 .breadcrumb { font-size: .9rem; color: var(--text-2); margin: 24px 0 0; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .breadcrumb li + li::before { content: "›"; margin-right: 6px; }
-.breadcrumb a { color: var(--text-2); }
+.breadcrumb a { color: var(--text-2); display: inline-block; padding: 12px 0; }
+.breadcrumb li { display: flex; align-items: center; }
 .doc table { border-collapse: collapse; width: 100%; font-size: .95rem; margin: 16px 0; }
 .doc th, .doc td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .doc th { font-weight: 700; }
@@ -367,7 +369,7 @@ ol.steps-list li { margin-bottom: 10px; }
 
 /* ---------- Reveal on scroll ---------- */
 
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-.reveal.in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
-.no-js .reveal { opacity: 1; transform: none; }
+/* Les blocs .reveal ne sont masqués que si le script est chargé (classe reveal-ready sur <html>) ; sans JavaScript, tout est visible. */
+.reveal-ready .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveal-ready .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal-ready .reveal { opacity: 1; transform: none; } }

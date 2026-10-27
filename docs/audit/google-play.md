@@ -134,8 +134,8 @@ Le texte des captures part chez le fournisseur d'IA du serveur (voir 9) : c'est 
 | Règle | État | Détail |
 | --- | --- | --- |
 | Suppression du compte dans l'app | OK | Profil, Supprimer mon compte : liste de ce qui est effacé, case de confirmation, `DELETE /v1/account`, retour à l'accueil. Vérifié sur l'émulateur. |
-| Lien web de suppression (obligatoire dans la Play Console) | **Corrigé** | Nouvelle page `docs/web/supprimer-mon-compte/index.html` (à publier sur `https://jauge.io/supprimer-mon-compte/`) : étapes dans l'app, demande par e-mail sans l'app, données effacées et conservées, délai de 30 jours, rappel sur l'abonnement. Lien ajouté dans la politique de confidentialité et les conditions. |
-| Politique de confidentialité en ligne (URL obligatoire) | **Corrigé** | Pages web générées depuis les textes de l'app : `docs/web/confidentialite/`, `docs/web/conditions/`, `docs/web/mentions-legales/` (`python3 tools/legal-pages/generate.py`). |
+| Lien web de suppression (obligatoire dans la Play Console) | **Corrigé** | Nouvelle page `web/supprimer-mon-compte/index.html` (à publier sur `https://jauge.io/supprimer-mon-compte/`) : étapes dans l'app, demande par e-mail sans l'app, données effacées et conservées, délai de 30 jours, rappel sur l'abonnement. Lien ajouté dans la politique de confidentialité et les conditions. |
+| Politique de confidentialité en ligne (URL obligatoire) | **Corrigé** | Pages web générées depuis les textes de l'app : `web/confidentialite/`, `web/conditions/`, `web/mentions-legales/` (`python3 tools/legal-pages/generate.py`). |
 | Identité de l'éditeur | **Corrigé** (sauf médiateur) | `feature/account/src/commonMain/composeResources/values/legal_identity.xml` rempli le 24/10/2026 : Keny SAINT HILAIRE, EI micro-entreprise, SIREN 893 324 848, 149, avenue du Maine, 75014 Paris, directeur de la publication Keny SAINT HILAIRE, hébergeur Supabase Pte. Ltd. Reste à toi : le médiateur de la consommation (obligatoire avant de vendre à des particuliers) et la réponse sur la franchise en base de TVA. Relancer ensuite le générateur des pages web. |
 | Côté serveur | À toi (API) | `DELETE /v1/account` doit aussi supprimer l'utilisateur Supabase, les appareils, le client RevenueCat et révoquer le jeton Apple (écrit dans `docs/api.md`). |
 
@@ -155,7 +155,7 @@ Le texte des captures part chez le fournisseur d'IA du serveur (voir 9) : c'est 
 
 | Sujet | État | Détail |
 | --- | --- | --- |
-| App Links `https://jauge.io/a/{id}` | OK dans l'app, À toi en ligne | Filtre `autoVerify` sur `jauge.io` et `www.jauge.io`. Sur l'émulateur la vérification échoue (état 1024) car `https://jauge.io/.well-known/assetlinks.json` n'existe pas encore. Mettre l'empreinte SHA-256 de la clé de signature Play dans `docs/web/.well-known/assetlinks.json` et publier le dossier `docs/web` sur jauge.io. |
+| App Links `https://jauge.io/a/{id}` | OK dans l'app, À toi en ligne | Filtre `autoVerify` sur `jauge.io` et `www.jauge.io`. Sur l'émulateur la vérification échoue (état 1024) car `https://jauge.io/.well-known/assetlinks.json` n'existe pas encore. Mettre l'empreinte SHA-256 de la clé de signature Play dans `web/.well-known/assetlinks.json` et publier le dossier `web` sur jauge.io. |
 | Notifications | OK | Canal `calm_alerts` créé avant l'envoi, demande d'autorisation au bon moment (écran 12), refus géré. Pas de notification marketing sans accord. |
 | Travail en arrière-plan | OK | Aucun service au premier plan, aucune alarme exacte, aucune localisation en arrière-plan. Seul le service FCM (non exporté) reçoit les messages. |
 

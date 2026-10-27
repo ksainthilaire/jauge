@@ -30,7 +30,7 @@ supabase/functions/.env.example                          names of the secrets of
 supabase/.env.example                                    names of the settings read by config.toml (Brevo SMTP, Apple, Google)
 supabase/templates/magic_link.html                       sign in email (French and English), see "E-mails de connexion avec Brevo"
 supabase/templates/confirmation.html                     same email for a new account when "Confirm email" is on
-supabase/templates/assets/logo-jauge-96.png              logo of the emails, to put online at https://jauge.io/email/logo-jauge-96.png
+supabase/templates/assets/logo-jauge-96.png              logo of the emails, served at https://jauge.io/email/logo-jauge-96.png by the site (copy in web/email/)
 ```
 
 ## 1. Install the Supabase CLI and link the project

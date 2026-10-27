@@ -147,8 +147,8 @@ en français ou en anglais selon la langue du téléphone. Le détail de chaque 
    Message body (onglet Source) = le contenu de `supabase/templates/magic_link.html`
    (`pbcopy < supabase/templates/magic_link.html`). Même chose pour **Confirm signup** avec `confirmation.html`.
    **Email OTP Expiration** = `3600` (le lien vaut 1 heure).
-7. Mets le logo en ligne à `https://jauge.io/email/logo-jauge-96.png` (fichier
-   `supabase/templates/assets/logo-jauge-96.png`) quand le site existe ; avant, l'e-mail affiche le nom en texte.
+7. Le logo `https://jauge.io/email/logo-jauge-96.png` est servi par le site (`web/email/logo-jauge-96.png`, copie de
+   `supabase/templates/assets/logo-jauge-96.png`, déploiement dans `web/README.md`) ; avant, l'e-mail affiche le nom en texte.
 8. **Test** : connexion par e-mail depuis l'app sur un téléphone en français, puis en anglais ; l'e-mail arrive de
    « Jauge », le bouton « Me connecter » ouvre l'app ; dans Gmail > Afficher l'original, SPF, DKIM et DMARC sont à
    `PASS` et le lien commence par `https://ynvaaswsenerrummanrs.supabase.co/auth/v1/verify`.
