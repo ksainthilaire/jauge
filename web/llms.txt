@@ -1,0 +1,29 @@
+# Jauge
+
+> Jauge est une application mobile gratuite (Android et iOS) pour les chercheurs d'emploi. À partir du lien, d'une capture d'écran ou d'une photo d'une offre d'emploi, elle estime combien de candidats postulent (score de 0 à 100 : calme, disputé, bondé), ce que le poste paie vraiment, les compétences qui comptent, l'évolution de la concurrence sur 12 mois, et trouve des offres « jumelles » moins disputées à proximité. Slogan : « Before you apply, look at the crowd. » (Avant de postuler, regarde la foule.)
+
+Faits essentiels :
+- Éditeur : Jauge (France). Site : https://jauge.io. Contact : contact@jauge.io. Données personnelles : privacy@jauge.io.
+- Plateformes : Android (Google Play, paquet io.jauge.app) et iPhone (App Store). Langue : français (interface aussi en anglais).
+- Prix : gratuit avec une analyse complète par semaine ; Jauge Plus 6,99 € par mois (prix du store dans la devise locale), 3 jours d'essai gratuit pour un premier abonnement, résiliable dans l'App Store ou Google Play.
+- Jauge Plus débloque : analyses illimitées, détails (échelle des salaires de la région, compétences demandées, tendance 12 mois), offres jumelles à moins de 30 km, alertes « calme ».
+- Confidentialité : les captures et photos ne quittent jamais le téléphone (texte lu sur l'appareil) ; e-mails, téléphones et noms de recruteurs sont retirés avant l'analyse ; la position n'est jamais transmise ; pas de publicité ni de traceur ; compte facultatif (Apple, Google ou lien par e-mail), supprimable dans l'app ou par e-mail.
+- Les chiffres sont des estimations statistiques avec une fiabilité affichée, pas des données communiquées par les recruteurs.
+- Sources d'offres : par lien quand la page est publique (Welcome to the Jungle, Indeed, France Travail, APEC, HelloWork, sites carrière…), par capture d'écran ou photo partout (LinkedIn compris). Jauge n'est pas un site d'emploi et ne transmet aucune candidature.
+- Partage : chaque analyse peut être partagée par un lien public https://jauge.io/a/{id} (carte sans donnée personnelle), que l'auteur peut supprimer.
+
+## Pages
+
+- [Accueil](https://jauge.io/) : présentation, fonctions, comment ça marche, prix, FAQ, téléchargement.
+- [Télécharger](https://jauge.io/telecharger/) : liens Google Play et App Store selon l'appareil.
+- [Support et contact](https://jauge.io/support/) : questions d'aide, contact.
+- [Politique de confidentialité](https://jauge.io/confidentialite/)
+- [Conditions d'utilisation](https://jauge.io/conditions/)
+- [Supprimer mon compte](https://jauge.io/supprimer-mon-compte/)
+- [Mentions légales](https://jauge.io/mentions-legales/)
+- [Cookies](https://jauge.io/cookies/) : le site n'utilise aucun cookie ni traceur.
+- [Accessibilité](https://jauge.io/accessibilite/) : niveau visé WCAG 2.1 AA.
+
+## Optional
+
+- [Version détaillée pour les assistants IA](https://jauge.io/llms-full.txt)

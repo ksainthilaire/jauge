@@ -1,0 +1,64 @@
+# Jauge — description complète pour les assistants et moteurs IA
+
+Dernière mise à jour : 27 octobre 2026. Source de référence : https://jauge.io.
+
+## En une phrase
+
+Jauge est une application mobile française (Android et iPhone) qui mesure la concurrence d'une offre d'emploi avant que l'on postule : elle estime le nombre de candidats, le salaire réel du poste, les compétences attendues, la tendance de la concurrence, et propose des offres jumelles moins disputées. Slogan : « Before you apply, look at the crowd. »
+
+## À qui ça s'adresse
+
+Aux chercheurs d'emploi, aux personnes en reconversion ou en veille, aux jeunes diplômés, et à toute personne qui veut prioriser ses candidatures plutôt que d'envoyer des CV au hasard. Jauge n'est ni un site d'emploi, ni un recruteur, ni un intermédiaire : elle ne publie pas d'offres et ne transmet aucune candidature.
+
+## Comment on l'utilise
+
+1. Coller une offre : un lien, une capture d'écran ou une photo de l'annonce (ou saisir manuellement le poste et la ville). Le texte d'une capture est lu sur le téléphone (ML Kit sur Android, Vision sur iPhone) ; l'image n'est jamais envoyée.
+2. Jauge analyse en quelques secondes et affiche le verdict : un score de 0 à 100 (0 à 33 calme, 34 à 66 disputé, 67 à 100 bondé), une fourchette de candidats estimés, le salaire probable (brut annuel), le nombre d'offres jumelles à moins de 30 km, la tendance à 3 mois et un conseil (par exemple le meilleur moment pour postuler, un argument de négociation, les compétences manquantes).
+3. Postuler malin : lire le détail (échelle des salaires de la région avec la médiane et un objectif de négociation, compétences demandées par les offres comparables avec leur fréquence, candidats par offre sur 12 mois), consulter les offres jumelles (même poste, moins de monde, triées par concurrence, salaire ou date), activer une alerte « calme » (notification quand une offre jumelle passe sous un seuil, 30 par défaut), partager le verdict (lien public https://jauge.io/a/{id} ou carte image).
+
+## Méthode d'estimation
+
+Les estimations sont statistiques : elles s'appuient sur le texte de l'offre (poste, lieu, contrat, compétences), les offres comparables de la région, l'ancienneté de la publication, la présence d'un salaire affiché et la saison. Chaque analyse affiche sa fiabilité (élevée, moyenne, faible) et l'écart habituel ; un écran « Comment on estime » explique le calcul et ses sources. Les utilisateurs peuvent renseigner le vrai nombre de candidatures s'ils le connaissent, ce qui améliore les estimations suivantes. Les chiffres ne sont pas communiqués par les recruteurs et ne garantissent ni le nombre réel de candidats, ni le salaire, ni le résultat d'une candidature.
+
+## Sources d'offres
+
+Par lien : les pages d'offres accessibles sans connexion, par exemple Welcome to the Jungle, Indeed, France Travail, APEC, HelloWork ou le site carrière d'une entreprise. Quand une page n'est pas lisible (par exemple LinkedIn, qui demande une connexion), une capture d'écran ou une photo fonctionne partout. Jauge n'a pas de partenariat ni d'intégration officielle avec ces sites.
+
+## Prix
+
+- Gratuit : une analyse complète par semaine (score, candidats estimés, salaire probable, conseil, partage). Une capture illisible ne compte pas.
+- Jauge Plus : 6,99 € par mois, abonnement mensuel renouvelé automatiquement, 3 jours d'essai gratuit pour un premier abonnement. Le prix est affiché par le store dans la devise de l'utilisateur. Il débloque les analyses illimitées, le détail (salaires, compétences, tendance), les offres jumelles et les alertes « calme ». Résiliation dans les réglages du compte App Store ou Google Play, ou depuis Profil, Gérer mon abonnement ; elle prend effet à la fin de la période payée.
+- Paiement par l'App Store ou Google Play ; Jauge ne reçoit jamais de coordonnées bancaires.
+
+## Compte
+
+Facultatif. Jauge s'utilise sans compte. Un compte (Se connecter avec Apple, Google ou lien de connexion par e-mail, sans mot de passe) sert à retrouver ses analyses, favoris, alertes et partages sur tous ses appareils. Suppression dans l'app (Profil, Supprimer mon compte) ou par e-mail à privacy@jauge.io ; effacement immédiat dans l'app et complet sous 30 jours. Réservé aux personnes majeures.
+
+## Confidentialité
+
+- Les captures et photos ne quittent jamais le téléphone ; seul le texte lu est envoyé pour l'analyse, après retrait des adresses e-mail, numéros de téléphone et noms de recruteurs.
+- La position n'est jamais transmise : le téléphone trouve lui-même la ville la plus proche (ou l'utilisateur la saisit) ; seuls une ville, un département et un rayon servent aux comparaisons.
+- Pas de publicité, pas de revente de données, pas de traceur publicitaire ni d'outil de mesure d'audience tiers, dans l'app comme sur le site.
+- Sous-traitants : Supabase (hébergement et authentification, Union européenne), un fournisseur d'intelligence artificielle pour la lecture du texte et la rédaction des conseils (sans donnée d'identité), Apify (collecte des offres comparables), Brevo (e-mails), RevenueCat (abonnements), Apple et Google (connexion, achats, notifications).
+- Politique complète : https://jauge.io/confidentialite/. Droits RGPD : privacy@jauge.io, réponse sous un mois.
+
+## Pages du site
+
+- https://jauge.io/ — accueil (fonctions, comment ça marche, écrans, prix, FAQ, téléchargement)
+- https://jauge.io/telecharger/ — télécharger l'app (Google Play, App Store)
+- https://jauge.io/support/ — support et contact
+- https://jauge.io/confidentialite/ — politique de confidentialité
+- https://jauge.io/conditions/ — conditions d'utilisation
+- https://jauge.io/supprimer-mon-compte/ — supprimer son compte
+- https://jauge.io/mentions-legales/ — mentions légales
+- https://jauge.io/cookies/ — cookies (aucun)
+- https://jauge.io/accessibilite/ — déclaration d'accessibilité (WCAG 2.1 AA visé)
+- https://jauge.io/a/{id} — page publique d'une analyse partagée (non indexée)
+
+## Mots-clés
+
+application recherche d'emploi, nombre de candidats par offre, combien de personnes postulent, concurrence candidature, offre d'emploi bondée, salaire réel d'un poste, grille de salaire région, compétences demandées, offres jumelles, alerte emploi, candidature spontanée, postuler malin, jauge emploi, Jauge app.
+
+## Contact
+
+contact@jauge.io (support, presse), privacy@jauge.io (données personnelles).

@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jauge — Avant de postuler, regarde la foule. Candidats estimés, salaire réel, offres jumelles</title>
+<meta name="description" content="Jauge est l'application mobile (Android et iPhone) qui estime combien de candidats postulent à une offre d'emploi, ce que le poste paie vraiment, les compétences qui comptent et trouve des offres jumelles moins disputées. Colle un lien, une capture ou une photo.">
+<link rel="canonical" href="https://jauge.io/">
+<link rel="alternate" hreflang="fr" href="https://jauge.io/">
+<link rel="alternate" hreflang="x-default" href="https://jauge.io/">
+<meta name="theme-color" content="#F7F2E8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#13211D" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Jauge">
+<meta name="keywords" content="candidats par offre, nombre de candidats offre d'emploi, salaire réel, concurrence candidature, recherche d'emploi, application emploi, offres jumelles, jauge emploi">
+<!-- Fiches des stores. Le lien App Store et l'identifiant Apple sont à remplacer avant publication (voir web/README.md). -->
+<meta name="google-play-app" content="app-id=io.jauge.app">
+<meta name="apple-itunes-app" content="app-id=REPLACE_WITH_APPLE_APP_ID">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jauge">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://jauge.io/">
+<meta property="og:title" content="Jauge — Avant de postuler, regarde la foule.">
+<meta property="og:description" content="Combien de candidats, quel salaire réel, quelles compétences : Jauge analyse une offre d'emploi à partir d'un lien, d'une capture ou d'une photo. Gratuit sur Android et iPhone.">
+<meta property="og:image" content="https://jauge.io/assets/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Jauge : une jauge de 0 à 100 affichant un score de 78, bondé, et le slogan « Before you apply, look at the crowd. »">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jauge — Avant de postuler, regarde la foule.">
+<meta name="twitter:description" content="Combien de candidats, quel salaire réel, quelles compétences : Jauge analyse une offre d'emploi à partir d'un lien, d'une capture ou d'une photo.">
+<meta name="twitter:image" content="https://jauge.io/assets/img/og.png">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://jauge.io/#organization",
+      "name": "Jauge",
+      "url": "https://jauge.io/",
+      "logo": { "@type": "ImageObject", "url": "https://jauge.io/assets/icons/icon-512.png", "width": 512, "height": 512 },
+      "email": "contact@jauge.io",
+      "contactPoint": [{ "@type": "ContactPoint", "contactType": "customer support", "email": "contact@jauge.io", "availableLanguage": ["fr", "en"] }]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://jauge.io/#website",
+      "url": "https://jauge.io/",
+      "name": "Jauge",
+      "inLanguage": "fr",
+      "publisher": { "@id": "https://jauge.io/#organization" }
+    },
+    {
+      "@type": "MobileApplication",
+      "@id": "https://jauge.io/#app",
+      "name": "Jauge",
+      "alternateName": "Jauge — Before you apply, look at the crowd.",
+      "url": "https://jauge.io/",
+      "description": "Jauge estime, à partir du lien, d'une capture ou d'une photo d'une offre d'emploi, combien de candidats postulent, ce que le poste paie vraiment, les compétences qui comptent, l'évolution de la concurrence, et trouve des offres jumelles moins disputées.",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Recherche d'emploi",
+      "operatingSystem": "Android, iOS",
+      "inLanguage": "fr",
+      "installUrl": "https://play.google.com/store/apps/details?id=io.jauge.app",
+      "downloadUrl": "https://jauge.io/telecharger/",
+      "screenshot": [
+        "https://jauge.io/assets/img/ecran-accueil-clair.webp",
+        "https://jauge.io/assets/img/ecran-verdict-sombre.webp",
+        "https://jauge.io/assets/img/ecran-jumelles-clair.webp",
+        "https://jauge.io/assets/img/ecran-details-sombre.webp"
+      ],
+      "featureList": [
+        "Estimation du nombre de candidats par offre d'emploi (score de 0 à 100 : calme, disputé, bondé)",
+        "Salaire probable du poste et échelle des salaires de la région",
+        "Compétences demandées par les offres comparables",
+        "Tendance du nombre de candidats sur 12 mois",
+        "Offres jumelles moins disputées à moins de 30 km et alertes « calme »",
+        "Analyse par lien, capture d'écran ou photo, texte lu sur le téléphone"
+      ],
+      "offers": [
+        { "@type": "Offer", "name": "Gratuit", "price": "0", "priceCurrency": "EUR", "description": "Une analyse complète par semaine." },
+        { "@type": "Offer", "name": "Jauge Plus", "price": "6.99", "priceCurrency": "EUR", "description": "Abonnement mensuel, 3 jours d'essai gratuit. Analyses illimitées, détails, offres jumelles, alertes « calme »." }
+      ],
+      "author": { "@id": "https://jauge.io/#organization" },
+      "publisher": { "@id": "https://jauge.io/#organization" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://jauge.io/#faq",
+      "mainEntity": [
+        { "@type": "Question", "name": "Comment Jauge estime-t-elle le nombre de candidats ?", "acceptedAnswer": { "@type": "Answer", "text": "Jauge lit le texte de l'offre (poste, lieu, contrat, compétences) et la compare aux offres comparables de la région : nombre d'offres jumelles, ancienneté de la publication, salaire affiché ou non, saison. Elle en déduit une fourchette de candidats et un score de 0 à 100. Chaque analyse indique sa fiabilité et un bouton « Comment ? » explique le calcul." } },
+        { "@type": "Question", "name": "Les chiffres sont-ils exacts ?", "acceptedAnswer": { "@type": "Answer", "text": "Ce sont des estimations statistiques, pas des chiffres communiqués par les recruteurs. L'écart habituel est affiché avec chaque analyse. Si tu apprends le vrai nombre de candidatures, tu peux le renseigner dans l'app : cela améliore les estimations suivantes." } },
+        { "@type": "Question", "name": "Sur quels sites d'emploi Jauge fonctionne-t-elle ?", "acceptedAnswer": { "@type": "Answer", "text": "Par lien, Jauge lit les pages d'offres accessibles sans connexion (par exemple Welcome to the Jungle, Indeed, France Travail, APEC, HelloWork ou le site carrière d'une entreprise). Quand une page n'est pas lisible, une capture d'écran ou une photo de l'offre marche partout, LinkedIn compris." } },
+        { "@type": "Question", "name": "Mes captures d'écran sont-elles envoyées quelque part ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. Le texte de la capture ou de la photo est lu par ton téléphone (ML Kit sur Android, Vision sur iPhone). Seul ce texte, débarrassé des e-mails, téléphones et noms de recruteurs, est envoyé pour l'analyse. L'image ne quitte jamais ton téléphone." } },
+        { "@type": "Question", "name": "Combien coûte Jauge ?", "acceptedAnswer": { "@type": "Answer", "text": "L'application est gratuite avec une analyse complète par semaine. Jauge Plus coûte 6,99 € par mois (prix affiché par le store dans ta devise), avec 3 jours d'essai gratuit pour un premier abonnement, et débloque les analyses illimitées, les détails, les offres jumelles et les alertes « calme »." } },
+        { "@type": "Question", "name": "Comment annuler Jauge Plus ?", "acceptedAnswer": { "@type": "Answer", "text": "Dans les réglages de ton compte App Store ou Google Play, ou depuis Profil, Gérer mon abonnement dans l'app. L'annulation prend effet à la fin de la période payée ; pendant l'essai, annule au moins 24 heures avant sa fin pour ne rien payer." } },
+        { "@type": "Question", "name": "Faut-il créer un compte ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. Jauge s'utilise sans compte. Un compte (Apple, Google ou lien par e-mail, sans mot de passe) sert seulement à retrouver tes analyses sur tous tes appareils." } },
+        { "@type": "Question", "name": "Comment supprimer mon compte et mes données ?", "acceptedAnswer": { "@type": "Answer", "text": "Dans l'app : Profil, Supprimer mon compte. Sans l'app : écris à privacy@jauge.io depuis l'adresse du compte (page jauge.io/supprimer-mon-compte). L'effacement est immédiat dans l'app et complet sous 30 jours." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Jauge, accueil">
+      <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect width="120" height="120" rx="28" fill="#13211D"/><path d="M26 76A34 34 0 0 1 36.5 51" stroke="#3CCB9F" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M44 44A34 34 0 0 1 72 40" stroke="#FFB23F" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M81 45A34 34 0 0 1 94 76" stroke="#FF5B3A" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M60 76L84 56" stroke="#F7F2E8" stroke-width="7" stroke-linecap="round"/><circle cx="60" cy="76" r="9" fill="#F7F2E8"/><circle cx="60" cy="76" r="3.5" fill="#13211D"/></svg>
+      Jauge
+    </a>
+    <nav class="nav" aria-label="Sections de la page">
+      <a href="#fonctions">Fonctions</a>
+      <a href="#comment">Comment ça marche</a>
+      <a href="#prix">Prix</a>
+      <a href="#faq">FAQ</a>
+      <a href="/support/">Support</a>
+    </nav>
+    <a class="btn btn-primary btn-small" href="/telecharger/">Télécharger</a>
+  </div>
+</header>
+
+<main id="contenu">
+
+<section class="hero" aria-labelledby="titre">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Application gratuite · Android et iPhone</p>
+      <h1 id="titre">Avant de postuler, <em>regarde la foule.</em></h1>
+      <p class="lead">Colle le lien, une capture ou une photo d'une offre d'emploi. Jauge estime combien de candidats postulent, ce que le poste paie vraiment et où trouver la même offre avec moins de monde.</p>
+      <div class="stores">
+        <!-- Lien Google Play (fiche io.jauge.app). -->
+        <a class="badge" href="https://play.google.com/store/apps/details?id=io.jauge.app" rel="noopener" hreflang="fr">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.6 2.3 13 12l-9.4 9.7c-.4-.2-.6-.7-.6-1.2V3.5c0-.5.2-1 .6-1.2Z" fill="#00D7FE"/><path d="M13 12 3.6 2.3c.3-.2.8-.2 1.2 0l11.4 6.6L13 12Z" fill="#00F076"/><path d="M13 12 3.6 21.7c.3.2.8.2 1.2 0l11.4-6.6L13 12Z" fill="#F63448"/><path d="m16.2 8.9 3.6 2.1c.9.5.9 1.5 0 2l-3.6 2.1L13 12l3.2-3.1Z" fill="#FFCE00"/></svg>
+          <span><small>DISPONIBLE SUR</small><b>Google Play</b></span>
+        </a>
+        <!-- Lien App Store : REMPLACER par l'adresse de la fiche (https://apps.apple.com/fr/app/jauge/idXXXXXXXXXX) avant publication. -->
+        <a class="badge" href="https://apps.apple.com/fr/app/jauge/idREPLACE_WITH_APPLE_APP_ID" rel="noopener" hreflang="fr">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#fff" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+          <span><small>TÉLÉCHARGER DANS</small><b>l'App Store</b></span>
+        </a>
+      </div>
+      <p class="hero-note">Gratuit : une analyse complète par semaine. Jauge Plus : 6,99 €/mois, 3 jours d'essai. Tes captures ne quittent jamais ton téléphone.</p>
+    </div>
+
+    <div class="gauge-card" data-gauge data-score="78">
+      <div class="gauge-head"><span><b>Chargée de marketing digital</b> · Lyon 3e · CDI</span><span>Analyse du 23 oct.</span></div>
+      <div class="gauge">
+        <svg viewBox="0 0 200 112" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="arc" x1="20" y1="0" x2="180" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#3CCB9F"/><stop offset=".3" stop-color="#3CCB9F"/><stop offset=".5" stop-color="#FFB23F"/><stop offset=".7" stop-color="#FF5B3A"/><stop offset="1" stop-color="#FF5B3A"/>
+            </linearGradient>
+          </defs>
+          <path d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="url(#arc)" stroke-width="14" stroke-linecap="round" opacity=".22"/>
+          <path class="gauge-fill" d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="url(#arc)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.33" stroke-dashoffset="55.3"/>
+          <g fill="#A9B3AE" opacity=".55">
+            <circle cx="41.03" cy="80.84" r="1.4"/><circle cx="49.84" cy="63.56" r="1.4"/><circle cx="63.56" cy="49.84" r="1.4"/><circle cx="80.84" cy="41.03" r="1.4"/><circle cx="100" cy="38" r="1.4"/><circle cx="119.16" cy="41.03" r="1.4"/><circle cx="136.44" cy="49.84" r="1.4"/><circle cx="150.16" cy="63.56" r="1.4"/><circle cx="158.97" cy="80.84" r="1.4"/>
+          </g>
+          <circle class="gauge-cursor-halo" cx="162.2" cy="52.3" r="14" fill="#FF5B3A" opacity=".25"/>
+          <circle class="gauge-cursor" cx="162.2" cy="52.3" r="8" fill="#13211D" stroke="#FF5B3A" stroke-width="5"/>
+        </svg>
+        <div class="gauge-score" aria-hidden="true"><span class="gauge-number">78</span><small>/100</small></div>
+      </div>
+      <p class="gauge-pill" data-level="bonde"><span>Bondé · plus que 78 % des offres de la région</span></p>
+      <p class="visually-hidden gauge-live" aria-live="polite">Score 78 sur 100, Bondé · plus que 78 % des offres de la région</p>
+      <div class="gauge-legend" role="group" aria-label="Voir la jauge à trois niveaux">
+        <button type="button" data-score="19" aria-pressed="false">Calme · 19</button>
+        <button type="button" data-score="52" aria-pressed="false">Disputé · 52</button>
+        <button type="button" data-score="78" aria-pressed="true">Bondé · 78</button>
+      </div>
+      <p class="gauge-foot">≈ 210 candidats estimés · fourchette 160 à 260 · fiabilité moyenne</p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <p class="sources">Fonctionne avec les offres de <span>Welcome to the Jungle</span><span>Indeed</span><span>France Travail</span><span>APEC</span><span>HelloWork</span><span>LinkedIn</span> et de tout site carrière : par lien quand la page est publique, par capture d'écran ou photo partout.</p>
+</div>
+
+<section class="section" id="fonctions" aria-labelledby="titre-fonctions">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="titre-fonctions">Ce que Jauge te dit d'une offre</h2>
+      <p>Quatre réponses en quelques secondes, avant d'écrire la moindre lettre de motivation.</p>
+    </div>
+    <div class="grid grid-4">
+      <article class="card reveal">
+        <div class="ico ico-coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Combien de candidats</h3>
+        <p>Un score de 0 à 100 et une fourchette de candidats estimés. Calme, disputé ou bondé : tu sais tout de suite si ça vaut le coup.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico ico-mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h3>Le salaire réel</h3>
+        <p>L'échelle des salaires du poste dans ta région, la médiane et un objectif de négociation, même quand l'offre n'affiche rien.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico ico-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>Les compétences qui comptent</h3>
+        <p>Celles que demandent les offres comparables, en pourcentage, et celles qui manquent à l'annonce ou à ton profil. Plus la tendance sur 12 mois.</p>
+      </article>
+      <article class="card reveal">
+        <div class="ico ico-ink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        <h3>Les offres jumelles</h3>
+        <p>Le même poste à moins de 30 km avec moins de monde, et une alerte « calme » dès qu'une offre jumelle passe sous 30.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="comment" aria-labelledby="titre-comment">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="titre-comment">Comment ça marche</h2>
+      <p>Trois gestes. Pas de CV à téléverser, pas de formulaire.</p>
+    </div>
+    <div class="grid grid-3 steps">
+      <article class="card step reveal">
+        <h3>Colle l'offre</h3>
+        <p>Un lien, une capture d'écran ou une photo de l'annonce. Le texte d'une capture est lu sur ton téléphone : l'image ne part nulle part.</p>
+      </article>
+      <article class="card step reveal">
+        <h3>Jauge analyse</h3>
+        <p>En quelques secondes : score de concurrence, candidats estimés, salaire probable, compétences demandées, tendance et offres jumelles.</p>
+      </article>
+      <article class="card step reveal">
+        <h3>Postule malin</h3>
+        <p>Le bon moment pour envoyer ta candidature, l'argument salaire à avancer, les offres moins disputées à viser. Partage le verdict en un lien.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="ecrans" aria-labelledby="titre-ecrans">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="titre-ecrans">Clair ou sombre, toujours lisible</h2>
+      <p>Jauge suit le thème de ton téléphone et la taille de texte que tu as choisie.</p>
+    </div>
+    <div class="phones">
+      <figure class="phone reveal">
+        <div class="phone-frame"><img src="/assets/img/ecran-accueil-clair.webp" width="480" height="1041" alt="Écran d'accueil de Jauge : le champ « Quelle offre on jauge ? » avec un lien Welcome to the Jungle reconnu, les boutons Capture, Photo et Jauger, puis la liste des offres jaugées avec leur niveau Bondé, Disputé ou Calme." loading="lazy" decoding="async"></div>
+        <figcaption>Colle un lien, une capture ou une photo</figcaption>
+      </figure>
+      <figure class="phone reveal">
+        <div class="phone-frame">
+          <picture>
+            <source srcset="/assets/img/ecran-verdict-sombre.webp" media="(prefers-color-scheme: dark)" width="480" height="1041">
+            <img src="/assets/img/ecran-verdict-clair.webp" width="480" height="1041" alt="Verdict Jauge pour une offre de chargée de marketing digital à Lyon : jauge à 78 sur 100, bondé, environ 210 candidats estimés, salaire probable 36 à 41 k€, 46 offres jumelles, tendance +18 % et le conseil « Postule avant jeudi »." loading="lazy" decoding="async">
+          </picture>
+        </div>
+        <figcaption>Le verdict : score, candidats, salaire</figcaption>
+      </figure>
+      <figure class="phone reveal">
+        <div class="phone-frame">
+          <picture>
+            <source srcset="/assets/img/ecran-jumelles-sombre.webp" media="(prefers-color-scheme: dark)" width="480" height="1041">
+            <img src="/assets/img/ecran-jumelles-clair.webp" width="480" height="1041" alt="Offres jumelles autour de Lyon, triées des moins disputées aux plus disputées, avec leur score, leur salaire et leurs candidats estimés, et l'alerte « calme » activée." loading="lazy" decoding="async">
+          </picture>
+        </div>
+        <figcaption>Même poste, moins de monde</figcaption>
+      </figure>
+      <figure class="phone reveal">
+        <div class="phone-frame"><img src="/assets/img/ecran-details-sombre.webp" width="480" height="1041" alt="Détails d'une analyse en thème sombre : l'échelle des salaires du poste à Lyon avec la médiane à 37 k€, les compétences demandées par les offres jumelles en pourcentage et la courbe des candidats par offre sur 12 mois." loading="lazy" decoding="async"></div>
+        <figcaption>Salaires, compétences, tendance</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="prix" aria-labelledby="titre-prix">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="titre-prix">Gratuit pour commencer</h2>
+      <p>Une analyse complète par semaine sans rien payer. Jauge Plus pour tout débloquer, avec 3 jours d'essai.</p>
+    </div>
+    <div class="plans">
+      <article class="plan reveal" aria-labelledby="plan-gratuit">
+        <p class="plan-kicker" id="plan-gratuit">Gratuit</p>
+        <p class="price">0 €</p>
+        <ul>
+          <li>Une analyse complète par semaine</li>
+          <li>Score, candidats estimés, salaire probable</li>
+          <li>Conseil de candidature</li>
+          <li>Partage du verdict en un lien</li>
+        </ul>
+        <p class="plan-note">Une capture illisible ne compte pas comme analyse.</p>
+      </article>
+      <article class="plan plan-plus reveal" aria-labelledby="plan-plus">
+        <p class="plan-kicker" id="plan-plus">Jauge Plus</p>
+        <p class="price">6,99 € <small>/ mois</small></p>
+        <ul>
+          <li>Analyses illimitées</li>
+          <li>Le détail : salaires de la région, compétences, tendance 12 mois</li>
+          <li>Offres jumelles moins disputées, à moins de 30 km</li>
+          <li>Alertes « calme » dès qu'une offre passe sous le seuil</li>
+        </ul>
+        <a class="btn btn-primary" href="/telecharger/">Essayer 3 jours gratuitement</a>
+        <p class="plan-note">Abonnement mensuel renouvelé automatiquement, prix affiché par le store dans ta devise. Résiliable à tout moment dans l'App Store ou Google Play, au moins 24 h avant la fin de la période. <a href="/conditions/">Conditions</a>.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="confidentialite" aria-labelledby="titre-confidentialite">
+  <div class="wrap">
+    <div class="band reveal">
+      <div>
+        <h2 id="titre-confidentialite">Tes captures restent sur ton téléphone</h2>
+        <p>Jauge a été pensée pour une recherche d'emploi discrète. Pas de publicité, pas de traceur, pas de CV demandé.</p>
+        <a class="btn btn-ghost" href="/confidentialite/">Lire la politique de confidentialité</a>
+      </div>
+      <ul>
+        <li>Le texte d'une capture ou d'une photo est lu sur le téléphone ; l'image n'est jamais envoyée.</li>
+        <li>E-mails, téléphones et noms de recruteurs sont retirés avant l'analyse.</li>
+        <li>Ta position n'est jamais transmise : seule la ville de ta zone de recherche compte.</li>
+        <li>Compte sans mot de passe (Apple, Google ou lien par e-mail), supprimable en deux gestes.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq" aria-labelledby="titre-faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="titre-faq">Questions fréquentes</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Comment Jauge estime-t-elle le nombre de candidats ?</summary>
+        <p>Jauge lit le texte de l'offre (poste, lieu, contrat, compétences) et la compare aux offres comparables de la région : nombre d'offres jumelles, ancienneté de la publication, salaire affiché ou non, saison. Elle en déduit une fourchette de candidats et un score de 0 à 100. Chaque analyse indique sa fiabilité, et « Comment ? » explique le calcul.</p>
+      </details>
+      <details>
+        <summary>Les chiffres sont-ils exacts ?</summary>
+        <p>Ce sont des estimations statistiques, pas des chiffres communiqués par les recruteurs. L'écart habituel est affiché avec chaque analyse. Si tu apprends le vrai nombre de candidatures, tu peux le renseigner dans l'app : cela améliore les estimations suivantes.</p>
+      </details>
+      <details>
+        <summary>Sur quels sites d'emploi Jauge fonctionne-t-elle ?</summary>
+        <p>Par lien, Jauge lit les pages d'offres accessibles sans connexion (Welcome to the Jungle, Indeed, France Travail, APEC, HelloWork, le site carrière d'une entreprise…). Quand une page n'est pas lisible, une capture d'écran ou une photo de l'offre marche partout, LinkedIn compris.</p>
+      </details>
+      <details>
+        <summary>Mes captures d'écran sont-elles envoyées quelque part ?</summary>
+        <p>Non. Le texte de la capture ou de la photo est lu par ton téléphone (ML Kit sur Android, Vision sur iPhone). Seul ce texte, débarrassé des e-mails, téléphones et noms de recruteurs, est envoyé pour l'analyse. L'image ne quitte jamais ton téléphone.</p>
+      </details>
+      <details>
+        <summary>Combien coûte Jauge ?</summary>
+        <p>L'application est gratuite avec une analyse complète par semaine. Jauge Plus coûte 6,99 € par mois (prix affiché par le store dans ta devise), avec 3 jours d'essai gratuit pour un premier abonnement, et débloque les analyses illimitées, les détails, les offres jumelles et les alertes « calme ».</p>
+      </details>
+      <details>
+        <summary>Comment annuler Jauge Plus ?</summary>
+        <p>Dans les réglages de ton compte App Store ou Google Play, ou depuis Profil, Gérer mon abonnement dans l'app. L'annulation prend effet à la fin de la période payée ; pendant l'essai, annule au moins 24 heures avant sa fin pour ne rien payer.</p>
+      </details>
+      <details>
+        <summary>Faut-il créer un compte ?</summary>
+        <p>Non. Jauge s'utilise sans compte. Un compte (Apple, Google ou lien par e-mail, sans mot de passe) sert seulement à retrouver tes analyses sur tous tes appareils.</p>
+      </details>
+      <details>
+        <summary>Comment supprimer mon compte et mes données ?</summary>
+        <p>Dans l'app : Profil, Supprimer mon compte. Sans l'app : écris à privacy@jauge.io depuis l'adresse du compte, en suivant la page <a href="/supprimer-mon-compte/">Supprimer mon compte</a>. L'effacement est immédiat dans l'app et complet sous 30 jours.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="telecharger" aria-labelledby="titre-telecharger">
+  <div class="wrap">
+    <div class="download reveal">
+      <div>
+        <h2 id="titre-telecharger">Regarde la foule avant d'y aller.</h2>
+        <p>Jauge est gratuite sur Android et iPhone. Scanne le code avec ton téléphone ou choisis ton store.</p>
+        <div class="stores">
+          <a class="badge" href="https://play.google.com/store/apps/details?id=io.jauge.app" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.6 2.3 13 12l-9.4 9.7c-.4-.2-.6-.7-.6-1.2V3.5c0-.5.2-1 .6-1.2Z" fill="#00D7FE"/><path d="M13 12 3.6 2.3c.3-.2.8-.2 1.2 0l11.4 6.6L13 12Z" fill="#00F076"/><path d="M13 12 3.6 21.7c.3.2.8.2 1.2 0l11.4-6.6L13 12Z" fill="#F63448"/><path d="m16.2 8.9 3.6 2.1c.9.5.9 1.5 0 2l-3.6 2.1L13 12l3.2-3.1Z" fill="#FFCE00"/></svg>
+            <span><small>DISPONIBLE SUR</small><b>Google Play</b></span>
+          </a>
+          <!-- Lien App Store : REMPLACER avant publication (voir web/README.md). -->
+          <a class="badge" href="https://apps.apple.com/fr/app/jauge/idREPLACE_WITH_APPLE_APP_ID" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#fff" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+            <span><small>TÉLÉCHARGER DANS</small><b>l'App Store</b></span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" role="img" aria-labelledby="qr-title" shape-rendering="crispEdges"><title id="qr-title">QR code vers jauge.io/telecharger</title><path fill="currentColor" d="M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM15 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM26 4h1v1h-1zM27 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM4 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM20 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM15 6h1v1h-1zM17 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM23 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM18 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM22 7h1v1h-1zM26 7h1v1h-1zM28 7h1v1h-1zM29 7h1v1h-1zM30 7h1v1h-1zM32 7h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM26 9h1v1h-1zM32 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM12 11h1v1h-1zM14 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM24 11h1v1h-1zM4 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM29 12h1v1h-1zM32 12h1v1h-1zM4 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM29 13h1v1h-1zM30 13h1v1h-1zM31 13h1v1h-1zM32 13h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM10 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM26 14h1v1h-1zM28 14h1v1h-1zM32 14h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM15 15h1v1h-1zM17 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM24 15h1v1h-1zM26 15h1v1h-1zM29 15h1v1h-1zM31 15h1v1h-1zM32 15h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM7 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM31 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM11 17h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM16 17h1v1h-1zM17 17h1v1h-1zM18 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM26 17h1v1h-1zM27 17h1v1h-1zM28 17h1v1h-1zM29 17h1v1h-1zM30 17h1v1h-1zM31 17h1v1h-1zM32 17h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM12 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM32 18h1v1h-1zM5 19h1v1h-1zM8 19h1v1h-1zM9 19h1v1h-1zM11 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM31 19h1v1h-1zM32 19h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM27 20h1v1h-1zM31 20h1v1h-1zM4 21h1v1h-1zM5 21h1v1h-1zM6 21h1v1h-1zM7 21h1v1h-1zM11 21h1v1h-1zM16 21h1v1h-1zM22 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM28 21h1v1h-1zM29 21h1v1h-1zM31 21h1v1h-1zM32 21h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM25 22h1v1h-1zM30 22h1v1h-1zM32 22h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM24 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM31 23h1v1h-1zM32 23h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM7 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM29 24h1v1h-1zM32 24h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM20 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM32 25h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM7 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM12 26h1v1h-1zM20 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM32 26h1v1h-1zM4 27h1v1h-1zM10 27h1v1h-1zM13 27h1v1h-1zM15 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM21 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM31 27h1v1h-1zM32 27h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM18 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM22 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM7 29h1v1h-1zM8 29h1v1h-1zM10 29h1v1h-1zM14 29h1v1h-1zM16 29h1v1h-1zM21 29h1v1h-1zM22 29h1v1h-1zM25 29h1v1h-1zM31 29h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM13 30h1v1h-1zM14 30h1v1h-1zM16 30h1v1h-1zM17 30h1v1h-1zM19 30h1v1h-1zM22 30h1v1h-1zM23 30h1v1h-1zM24 30h1v1h-1zM25 30h1v1h-1zM29 30h1v1h-1zM30 30h1v1h-1zM31 30h1v1h-1zM32 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM14 31h1v1h-1zM16 31h1v1h-1zM18 31h1v1h-1zM19 31h1v1h-1zM20 31h1v1h-1zM24 31h1v1h-1zM27 31h1v1h-1zM28 31h1v1h-1zM29 31h1v1h-1zM31 31h1v1h-1zM32 31h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM7 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM14 32h1v1h-1zM16 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM25 32h1v1h-1zM26 32h1v1h-1zM29 32h1v1h-1zM31 32h1v1h-1z"/></svg></div>
+        <p class="qr-caption">jauge.io/telecharger</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="/" aria-label="Jauge, accueil">
+        <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect width="120" height="120" rx="28" fill="#13211D"/><path d="M26 76A34 34 0 0 1 36.5 51" stroke="#3CCB9F" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M44 44A34 34 0 0 1 72 40" stroke="#FFB23F" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M81 45A34 34 0 0 1 94 76" stroke="#FF5B3A" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M60 76L84 56" stroke="#F7F2E8" stroke-width="7" stroke-linecap="round"/><circle cx="60" cy="76" r="9" fill="#F7F2E8"/><circle cx="60" cy="76" r="3.5" fill="#13211D"/></svg>
+        Jauge
+      </a>
+      <p>Before you apply, look at the crowd.<br>L'application qui mesure la concurrence d'une offre d'emploi avant ta candidature.</p>
+    </div>
+    <nav aria-labelledby="pied-produit">
+      <h2 id="pied-produit">Produit</h2>
+      <ul>
+        <li><a href="#fonctions">Fonctions</a></li>
+        <li><a href="#comment">Comment ça marche</a></li>
+        <li><a href="#prix">Prix</a></li>
+        <li><a href="/telecharger/">Télécharger l'app</a></li>
+      </ul>
+    </nav>
+    <nav aria-labelledby="pied-aide">
+      <h2 id="pied-aide">Aide</h2>
+      <ul>
+        <li><a href="/support/">Support et contact</a></li>
+        <li><a href="#faq">Questions fréquentes</a></li>
+        <li><a href="/supprimer-mon-compte/">Supprimer mon compte</a></li>
+        <li><a href="/accessibilite/">Accessibilité</a></li>
+      </ul>
+    </nav>
+    <nav aria-labelledby="pied-legal">
+      <h2 id="pied-legal">Légal</h2>
+      <ul>
+        <li><a href="/conditions/">Conditions d'utilisation</a></li>
+        <li><a href="/confidentialite/">Politique de confidentialité</a></li>
+        <li><a href="/mentions-legales/">Mentions légales</a></li>
+        <li><a href="/cookies/">Cookies</a></li>
+      </ul>
+    </nav>
+    <p class="footer-note"><span>© 2026 Jauge. Tous droits réservés.</span><span>Google Play et le logo Google Play sont des marques de Google LLC. App Store est une marque d'Apple Inc.</span></p>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

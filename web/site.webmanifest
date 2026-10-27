@@ -1,0 +1,19 @@
+{
+  "name": "Jauge — Avant de postuler, regarde la foule.",
+  "short_name": "Jauge",
+  "description": "Estime combien de candidats postulent à une offre d'emploi, le salaire réel et trouve des offres jumelles moins disputées.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#F7F2E8",
+  "theme_color": "#13211D",
+  "icons": [
+    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/icons/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "related_applications": [
+    { "platform": "play", "url": "https://play.google.com/store/apps/details?id=io.jauge.app", "id": "io.jauge.app" }
+  ]
+}

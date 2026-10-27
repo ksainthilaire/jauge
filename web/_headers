@@ -1,0 +1,43 @@
+# En-têtes servis par Cloudflare Pages (https://developers.cloudflare.com/pages/configuration/headers/).
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.jauge.io; manifest-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cache-Control: public, max-age=600
+
+# Images et icônes : cache long (changer le nom du fichier pour changer l'image).
+/assets/img/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+/favicon.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+# Feuille de style et script : une heure.
+/assets/site.css
+  Cache-Control: public, max-age=3600
+/assets/site.js
+  Cache-Control: public, max-age=3600
+
+# Logo des e-mails de connexion (https://jauge.io/email/logo-jauge-96.png) : chargé par les messageries.
+/email/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# Fichiers de vérification des liens d'application : JSON, sans redirection, cache court.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
+  Cache-Control: public, max-age=3600
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Cache-Control: public, max-age=3600
+
+# Pages de partage : jamais indexées (elles disparaissent quand le partage est supprimé).
+/a/*
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=60
